@@ -1,7 +1,142 @@
-import React from "react";
+"use client";
 
-const Volunteer = () => {
-  return <div></div>;
-};
+import { endpoints } from "@/api/constants";
+import { GET_API } from "@/api/request";
+import Table from "@/components/Table";
+import { getVolunteerColumns } from "@/constants/column";
+import { getHeaderIcon } from "@/layouts/helper";
+import { useComponentStore } from "@/store/useComponenetStore";
+import { useQuery } from "@tanstack/react-query";
+import { usePathname } from "next/navigation";
+import { useQueryState } from "nuqs";
+import { useEffect, useState } from "react";
 
-export default Volunteer;
+interface PaginationParams {
+  page: number;
+  size: number;
+}
+
+interface TableVolunteer {
+  id: string;
+  name: string;
+  age: number;
+  location: string;
+  details: string;
+  requested_status: string;
+}
+
+export default function LearnersPage() {
+  const [volunteerData, setVolunteerData] = useState<TableVolunteer[]>([]);
+  const [pagination, setPagination] = useState<PaginationParams>({
+    page: 1,
+    size: 10,
+  });
+  const [total, setTotal] = useState<number>(0);
+  const handleSeeMoreDetails = (id: string) => {
+    console.log("See more details:", id);
+    alert(id);
+  };
+  const columns = getVolunteerColumns(handleSeeMoreDetails);
+
+  const getAllVolunteers = async ({ page, size }: PaginationParams) => {
+    // const response: any = await GET_API(
+    //   `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`
+    // );
+    // return response.data;
+  };
+
+  const { data: volunteers, isLoading } = useQuery({
+    queryKey: ["volunteers", pagination.page, pagination.size],
+    queryFn: () => getAllVolunteers(pagination),
+  });
+
+  // useEffect(() => {
+  //   if (volunteers?.items) {
+  //     const transformedData = volunteers.items.map((volunteer: any) => ({
+  //       id: volunteer.volunteer_id,
+  //       name: `${volunteer.volunteer_personal_info.volunteer_first_name} ${volunteer.volunteer_personal_info.volunteer_last_name}`,
+  //       age: volunteer.volunteer_personal_info.volunteer_age,
+  //       location: volunteer.volunteer_personal_info.volunteer_location,
+  //     }));
+  //     setVolunteerData(transformedData);
+  //     setTotal(volunteers.total);
+  //   }
+  // }, [volunteers]);
+
+  useEffect(() => {
+    setVolunteerData([
+      {
+        id: "1",
+        name: "John Doe",
+        age: 25,
+        location: "New York",
+        requested_status: "Pending",
+        details: "See more details",
+      },
+      {
+        id: "2",
+        name: "Jane Doe",
+        age: 25,
+        location: "New York",
+        requested_status: "Accepted",
+        details: "See more details",
+      },
+      {
+        id: "3",
+        name: "John Doe",
+        age: 25,
+        location: "New York",
+        requested_status: "Removed",
+        details: "See more details",
+      },
+    ]);
+  }, []);
+
+  const handleTableChange = (pagination: any) => {
+    setPagination({
+      page: pagination.current,
+      size: pagination.pageSize,
+    });
+  };
+
+  const { setHeaderOptions } = useComponentStore();
+  const pathname = usePathname();
+
+  const [_, setVolunteerId] = useQueryState("id", {
+    shallow: true,
+  });
+  const [mode, setMode] = useQueryState("mode", {
+    shallow: true,
+  });
+
+  const handleClose = () => {
+    setVolunteerId(null);
+    setMode(null);
+  };
+
+  useEffect(() => {
+    setHeaderOptions({
+      title: "Volunteers",
+      titleIcon: getHeaderIcon(pathname),
+    });
+  }, [setHeaderOptions]);
+
+  return (
+    <div className="w-full h-full p-6 animate-fadeIn">
+      <Table
+        data={volunteerData}
+        columns={columns}
+        loading={isLoading}
+        pagination={{
+          current: pagination.page,
+          pageSize: pagination.size,
+          total: total,
+          showSizeChanger: true,
+          showQuickJumper: true,
+        }}
+        onChange={handleTableChange}
+        handleSeeMoreDetails={handleSeeMoreDetails}
+      />
+    </div>
+  );
+}

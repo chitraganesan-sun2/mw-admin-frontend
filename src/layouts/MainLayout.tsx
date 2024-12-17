@@ -15,14 +15,14 @@ const MainLayout: FC<PropsWithChildren> = ({ children }) => {
         <div className="col-span-2">
           <Sidebar />
         </div>
-        <div className={cn("h-full bg-white col-span-10")}>
+        <div className={"h-full bg-white col-span-10"}>
           <div className="h-[10vh] w-full">
             <CommonHeader />
           </div>
           <div
-            className={cn(
+            className={
               "w-full bg-background rounded-tl-[50px] h-[90vh] overflow-y-auto"
-            )}
+            }
           >
             {children}
           </div>

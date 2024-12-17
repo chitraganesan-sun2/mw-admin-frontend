@@ -4,7 +4,8 @@ const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/**/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/layouts/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -18,7 +19,7 @@ const config: Config = {
         dark: "#1E1E1E",
         stroke: "#E0E0E0",
         success: {
-          default: "#22C55E",
+          DEFAULT: "#22C55E",
           light: "#DCFCE7",
         },
         gray: {
@@ -26,7 +27,7 @@ const config: Config = {
           medium: "#4F4F4F",
         },
         error: {
-          default: "#DC2626",
+          DEFAULT: "#DC2626",
           light: "#FEE2E2",
         },
         warning: "#CA8A04",
@@ -34,6 +35,9 @@ const config: Config = {
           background: "#DFF5FF",
           text: "#09baee",
         },
+      },
+      fontFamily: {
+        poppins: "poppins",
       },
     },
   },

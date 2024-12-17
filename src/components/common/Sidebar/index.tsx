@@ -22,8 +22,8 @@ const Sidebar = () => {
       icon: <VolunteerIcon />,
     },
     {
-      href: "/report",
-      text: "Report",
+      href: "/reports",
+      text: "Reports",
       icon: <ReportIcon />,
     },
     {

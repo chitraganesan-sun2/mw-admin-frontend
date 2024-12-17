@@ -21,12 +21,11 @@ const SectionCard = ({
 }: SectionCardProps) => {
   const pathname = usePathname();
   const isActive = pathname.includes(href);
-  const role = Cookies.get("role");
 
   return (
     <div className="w-full flex items-center justify-center ">
       <Link
-        href={`/${role}/${href}`}
+        href={`${href}`}
         onClick={onClick}
         className="flex items-start gap-2 max-w-[125px] w-full ml-[-1rem]"
       >
@@ -38,7 +37,8 @@ const SectionCard = ({
           {icon}
         </span>
         <p
-          className={`!text-[${textColor}] transition-all duration-300 font-medium ${
+          style={textColor ? { color: textColor } : undefined}
+          className={`transition-all duration-300 font-medium ${
             isActive && !textColor ? "" : "text-gray-light"
           }`}
         >

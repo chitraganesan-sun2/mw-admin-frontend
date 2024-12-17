@@ -1,0 +1,3 @@
+interface CommentCardProps {
+    reply?: boolean;
+}
