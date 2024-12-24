@@ -13,50 +13,60 @@ export const getVolunteerColumns = (
     className:
       "px-6 !py-3 text-sm w-1/5 !font-semibold text-gray-900 !font-poppins",
   },
-  {
-    title: "Age",
-    dataIndex: "age",
-    key: "age",
-    sorter: true,
-    className:
-      "px-6 !py-3 text-sm w-1/9 bg-gray-50 text-gray-900 !font-poppins",
-  },
-  {
-    title: "Location",
-    dataIndex: "location",
-    key: "location",
-    sorter: false,
-    className: "px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins",
-  },
+  // {
+  //   title: "Age",
+  //   dataIndex: "age",
+  //   key: "age",
+  //   sorter: true,
+  //   className:
+  //     "px-6 !py-3 text-sm w-1/9 bg-gray-50 text-gray-900 !font-poppins",
+  // },
+  // {
+  //   title: "Location",
+  //   dataIndex: "location",
+  //   key: "location",
+  //   sorter: false,
+  //   className: "px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins",
+  // },
   {
     title: "Requested Status",
-    dataIndex: "requested_status",
-    key: "requested_status",
+    dataIndex: "onboarded_status",
+    key: "onboarded_status",
     sorter: false,
     className: "px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins",
-    render: (_: unknown, record: Volunteer | Report) => {
-      if ("requested_status" in record) {
+    render: (_: unknown, record: Volunteer) => {
+      if ("onboarded_status" in record) {
         return (
           <span
             className={`px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins ${
-              record.requested_status === "Pending"
+              record.onboarded_status === "verification_pending"
                 ? "text-warning"
-                : record.requested_status === "Accepted"
+                : record.onboarded_status === "verification_completed"
                 ? "text-success"
-                : "text-error"
+                : record.onboarded_status === "verification_rejected"
+                ? "text-error"
+                : "text-gray-500"
             }`}
           >
             <span className="flex items-center gap-1">
               <div
                 className={`w-2 h-2 rounded-full ${
-                  record.requested_status === "Pending"
+                  record.onboarded_status === "verification_pending"
                     ? "bg-warning"
-                    : record.requested_status === "Accepted"
+                    : record.onboarded_status === "verification_completed"
                     ? "bg-success"
-                    : "bg-error"
+                    : record.onboarded_status === "verification_rejected"
+                    ? "bg-error"
+                    : "bg-gray-500"
                 }`}
               ></div>
-              {record.requested_status}
+              {record.onboarded_status === "verification_pending"
+                ? "Pending"
+                : record.onboarded_status === "verification_completed"
+                ? "Completed"
+                : record.onboarded_status === "verification_rejected"
+                ? "Rejected"
+                : "Details Pending"}
             </span>
           </span>
         );
@@ -70,7 +80,7 @@ export const getVolunteerColumns = (
     render: (_: unknown, record: Volunteer) => (
       <div className="flex items-center gap-2">
         <p
-          onClick={() => handleSeeMoreDetails?.(record.id)}
+          onClick={() => handleSeeMoreDetails?.(record.volunteer_id)}
           className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
         >
           See more details

@@ -2,14 +2,17 @@
 
 import { endpoints } from "@/api/constants";
 import { GET_API } from "@/api/request";
+import CenterModal from "@/components/common/Modals/CenterModal";
+import ViewModal from "@/components/common/Modals/ViewModal";
 import Table from "@/components/Table";
-import { getVolunteerColumns } from "@/constants/column";
+import { getVolunteerColumns } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { useQuery } from "@tanstack/react-query";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
+import ProfileDetailsModal from "@/components/volunteer/ProfileDetails";
 
 interface PaginationParams {
   page: number;
@@ -32,17 +35,19 @@ export default function LearnersPage() {
     size: 10,
   });
   const [total, setTotal] = useState<number>(0);
+  const router = useRouter();
+
   const handleSeeMoreDetails = (id: string) => {
     console.log("See more details:", id);
-    alert(id);
+    router.push(`/volunteer?volunteer_id=${id}`);
   };
   const columns = getVolunteerColumns(handleSeeMoreDetails);
 
   const getAllVolunteers = async ({ page, size }: PaginationParams) => {
-    // const response: any = await GET_API(
-    //   `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`
-    // );
-    // return response.data;
+    const response: any = await GET_API(
+      `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`
+    );
+    return response.data;
   };
 
   const { data: volunteers, isLoading } = useQuery({
@@ -50,47 +55,22 @@ export default function LearnersPage() {
     queryFn: () => getAllVolunteers(pagination),
   });
 
-  // useEffect(() => {
-  //   if (volunteers?.items) {
-  //     const transformedData = volunteers.items.map((volunteer: any) => ({
-  //       id: volunteer.volunteer_id,
-  //       name: `${volunteer.volunteer_personal_info.volunteer_first_name} ${volunteer.volunteer_personal_info.volunteer_last_name}`,
-  //       age: volunteer.volunteer_personal_info.volunteer_age,
-  //       location: volunteer.volunteer_personal_info.volunteer_location,
-  //     }));
-  //     setVolunteerData(transformedData);
-  //     setTotal(volunteers.total);
-  //   }
-  // }, [volunteers]);
-
   useEffect(() => {
-    setVolunteerData([
-      {
-        id: "1",
-        name: "John Doe",
-        age: 25,
-        location: "New York",
-        requested_status: "Pending",
-        details: "See more details",
-      },
-      {
-        id: "2",
-        name: "Jane Doe",
-        age: 25,
-        location: "New York",
-        requested_status: "Accepted",
-        details: "See more details",
-      },
-      {
-        id: "3",
-        name: "John Doe",
-        age: 25,
-        location: "New York",
-        requested_status: "Removed",
-        details: "See more details",
-      },
-    ]);
-  }, []);
+    console.log(volunteers, "volunteers ");
+    if (volunteers?.items) {
+      const transformedData = volunteers.items.map((volunteer: any) => ({
+        volunteer_id: volunteer.volunteer_id,
+        name: `${volunteer.volunteer_first_name} ${volunteer.volunteer_last_name}`,
+        onboarded_status: volunteer.onboarded_status,
+        // location: volunteer.volunteer_location,
+      }));
+      const volunteerDetails = transformedData.filter(
+        (volunteer: any) => volunteer.onboarded_status !== "details_pending"
+      );
+      setVolunteerData(volunteerDetails);
+      setTotal(volunteers.total);
+    }
+  }, [volunteers]);
 
   const handleTableChange = (pagination: any) => {
     setPagination({
@@ -109,11 +89,6 @@ export default function LearnersPage() {
     shallow: true,
   });
 
-  const handleClose = () => {
-    setVolunteerId(null);
-    setMode(null);
-  };
-
   useEffect(() => {
     setHeaderOptions({
       title: "Volunteers",
@@ -121,8 +96,10 @@ export default function LearnersPage() {
     });
   }, [setHeaderOptions]);
 
+  console.log(volunteerData, "volunteerData TABLE");
   return (
     <div className="w-full h-full p-6 animate-fadeIn">
+      <ProfileDetailsModal />
       <Table
         data={volunteerData}
         columns={columns}
