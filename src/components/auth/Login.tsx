@@ -1,13 +1,40 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Logo from "../common/Logo";
+import Input from "../common/Input";
+import Button from "../common/Button";
+import { LoginFormConstants } from "@/constants/loginForm";
 
 const Login = () => {
+  const [loginFormData, setloginFormData] = useState<any>({});
+
+  const handleChange = (key: string, value: any) => {
+    setloginFormData((prev: any) => ({ ...prev, [key]: value }));
+  };
+
+  const handleFormSubmit = () => {
+    console.log(loginFormData);
+  }
+
   return (
-    <div className="flex flex-col gap-4 bg-background">
-      <Logo className="flex-col" />
-      <h1 className="text-2xl font-bold">Login</h1>
+    <div className="flex items-center justify-center h-screen bg-background">
+      <div className="flex flex-col w-[482px] h-[462px] bg-white p-10 rounded-[40px] gap-7">
+        <Logo className="flex-col" />
+        <div className="flex flex-col gap-6">
+          <h4 className="text-center text-xl font-medium text-black">Admin Portal</h4>
+          {LoginFormConstants.map((input: FormField) => (
+            <Input key={input.name} {...input} onChange={(value: string) => handleChange(input.name, value)} />
+          ))}
+          <Button
+            customClassName='h-[40px] !border-none !text-white'
+            btnVariant='secondary'
+            title={"Login"}
+            onClick={handleFormSubmit}
+          />
+        </div>
+      </div>
     </div>
-  );
+  )
 };
 
 export default Login;
