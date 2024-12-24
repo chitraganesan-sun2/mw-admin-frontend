@@ -45,9 +45,20 @@ export default function LearnersPage() {
 
   const getAllVolunteers = async ({ page, size }: PaginationParams) => {
     const response: any = await GET_API(
-      `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`
+      `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size * 2}`
     );
-    return response.data;
+
+    const filteredItems = response.data.items.filter(
+      (volunteer: any) => volunteer.onboarded_status !== "details_pending"
+    );
+
+    return {
+      ...response.data,
+      items: filteredItems.slice(0, size),
+      total: response.data.items.filter(
+        (volunteer: any) => volunteer.onboarded_status !== "details_pending"
+      ).length,
+    };
   };
 
   const { data: volunteers, isLoading } = useQuery({
@@ -62,12 +73,8 @@ export default function LearnersPage() {
         volunteer_id: volunteer.volunteer_id,
         name: `${volunteer.volunteer_first_name} ${volunteer.volunteer_last_name}`,
         onboarded_status: volunteer.onboarded_status,
-        // location: volunteer.volunteer_location,
       }));
-      const volunteerDetails = transformedData.filter(
-        (volunteer: any) => volunteer.onboarded_status !== "details_pending"
-      );
-      setVolunteerData(volunteerDetails);
+      setVolunteerData(transformedData);
       setTotal(volunteers.total);
     }
   }, [volunteers]);

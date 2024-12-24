@@ -35,7 +35,10 @@ const Table: React.FC<TableProps> = ({
         dataSource={data}
         columns={columns}
         loading={loading}
-        pagination={pagination}
+        pagination={{
+          ...pagination,
+          showQuickJumper: false,
+        }}
         onChange={onChange}
         rowKey="id"
         showSorterTooltip={false}
