@@ -3,7 +3,7 @@
 import { endpoints } from "@/api/constants";
 import { GET_API } from "@/api/request";
 import Table from "@/components/Table";
-import { getReportsColumns } from "@/constants/column";
+import { getReportsColumns } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { useQuery } from "@tanstack/react-query";
