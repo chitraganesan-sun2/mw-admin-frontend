@@ -38,7 +38,7 @@ export const getVolunteerColumns = (
       if ("onboarded_status" in record) {
         return (
           <span
-            className={`px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins ${
+            className={`px-6 !py-3 w-1/5 !font-poppins ${
               record.onboarded_status === "verification_pending"
                 ? "text-warning"
                 : record.onboarded_status === "verification_completed"
@@ -124,21 +124,25 @@ export const getReportsColumns = (handleSeePost?: (id: string) => void) => [
     render: (_: unknown, record: Report) => (
       <span
         className={`px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins ${
-          record.review_status === "Pending"
+          record.review_status === "verification_pending"
             ? "text-warning"
-            : record.review_status === "Accepted"
+            : record.review_status === "verification_completed"
             ? "text-success"
-            : "text-error"
+            : record.review_status === "verification_rejected"
+            ? "text-error"
+            : "text-gray-500"
         }`}
       >
         <span className="flex items-center gap-1">
           <div
             className={`w-2 h-2 rounded-full ${
-              record.review_status === "Pending"
+              record.review_status === "verification_pending"
                 ? "bg-warning"
-                : record.review_status === "Accepted"
+                : record.review_status === "verification_completed"
                 ? "bg-success"
-                : "bg-error"
+                : record.review_status === "verification_rejected"
+                ? "bg-error"
+                : "bg-gray-500"
             }`}
           ></div>
           {record.review_status}

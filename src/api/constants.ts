@@ -5,8 +5,8 @@ export const endpoints: EndpointProps = {
     login: "admin/auth/sign_in",
   },
   onboarding: {
-    updateOnboardingStatus: (id: string, type: UserType) =>
-      `admin/onboarding/update_verification_status/${type}/${id}`,
+    updateOnboardingStatus: (id: string, type: UserType, status: string) =>
+      `admin/onboarding/update_verification_status/${type}/${id}/${status}`,
   },
   volunteer: {
     getAllVolunteers: "admin/volunteer",

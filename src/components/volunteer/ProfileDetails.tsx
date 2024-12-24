@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
 import { GET_API, PUT_API } from "@/api/request";
 import moment from "moment";
@@ -24,6 +24,7 @@ const ProfileDetails = () => {
   const searchParams = useSearchParams();
   const volunteerId = searchParams.get("volunteer_id");
   const [hideFooter, setHideFooter] = useState(true);
+  const queryClient = useQueryClient();
 
   const [volunteerDetails, setVolunteerDetails] = useState<VolunteerDetails>();
 
@@ -104,18 +105,19 @@ const ProfileDetails = () => {
   };
 
   const handleAccept = () => {
-    let payload = {
-      verification_status: "verification_completed",
-    };
     PUT_API(
       endpoints.onboarding.updateOnboardingStatus(
         volunteerId as string,
-        "volunteer"
+        "volunteer",
+        "verification_completed"
       ),
-      payload
+      {}
     )
       .then(() => {
         handleModalClose();
+        queryClient.invalidateQueries({
+          queryKey: ["volunteers"],
+        });
       })
       .catch((error) => {
         console.log(error);
@@ -123,18 +125,19 @@ const ProfileDetails = () => {
   };
 
   const handleReject = () => {
-    let payload = {
-      verification_status: "verification_rejected",
-    };
     PUT_API(
       endpoints.onboarding.updateOnboardingStatus(
         volunteerId as string,
-        "volunteer"
+        "volunteer",
+        "verification_rejected"
       ),
-      payload
+      {}
     )
       .then(() => {
         handleModalClose();
+        queryClient.invalidateQueries({
+          queryKey: ["volunteers"],
+        });
       })
       .catch((error) => {
         console.log(error);

@@ -3,7 +3,11 @@ type EndpointProps = {
     login: string;
   };
   onboarding: {
-    updateOnboardingStatus: (id: string, type: UserType) => string;
+    updateOnboardingStatus: (
+      id: string,
+      type: UserType,
+      status: string
+    ) => string;
   };
   volunteer: {
     getAllVolunteers: string;
