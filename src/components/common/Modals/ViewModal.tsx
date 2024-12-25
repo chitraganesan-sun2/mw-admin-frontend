@@ -1,6 +1,8 @@
 import React from "react";
 import { Button, Modal } from "antd";
 import Divider from "../Divider";
+import { IoMdCheckmark } from "react-icons/io";
+import { MdClose } from "react-icons/md";
 
 const ViewModal: React.FC<ViewModalProps> = ({
   modalOpen,
@@ -11,6 +13,9 @@ const ViewModal: React.FC<ViewModalProps> = ({
   style,
   className,
   isFooterButtonsNeeded,
+  onAccept,
+  onReject,
+  loading,
 }) => {
   return (
     <Modal
@@ -43,19 +48,6 @@ const ViewModal: React.FC<ViewModalProps> = ({
     >
       <div className="flex flex-col h-full">
         <div className="flex-1 overflow-auto">{children}</div>
-        {isFooterButtonsNeeded && (
-          <div className="mt-auto">
-            <Divider />
-            <div className="flex justify-center items-center gap-4 py-4 bg-white">
-              <Button>
-                <span>Edit</span>
-              </Button>
-              <Button>
-                <span>Delete</span>
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </Modal>
   );
