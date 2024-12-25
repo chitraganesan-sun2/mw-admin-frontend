@@ -27,19 +27,14 @@ interface ViewModalProps {
   style?: React.CSSProperties;
   className?: string;
   isFooterButtonsNeeded?: boolean;
+  onAccept?: () => void;
+  onReject?: () => void;
+  loading?: boolean;
 }
 
-interface SideModalProps {
-  children: React.ReactNode;
-  title?: string;
+interface AlertModalProps {
+  isOpen: boolean;
   onClose: () => void;
-  saveButtonText?: string;
-  cancelButtonText?: string;
-  onSave?: () => void;
-  onCancel?: () => void;
-  isOpen?: boolean;
-  isDisabled?: boolean;
-  isNeedButton?: boolean;
 }
 
 type ShowModalType = "view" | "edit" | "create" | null;

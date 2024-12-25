@@ -10,7 +10,9 @@ import ViewModal from "@/components/common/Modals/ViewModal";
 import { useQueryState } from "nuqs";
 // import Button from "@/components/common/Button";
 import { IoTrashOutline } from "react-icons/io5";
-import { MdEdit } from "react-icons/md";
+import { MdClose, MdEdit } from "react-icons/md";
+import { IoMdCheckmark } from "react-icons/io";
+import Button from "@/components/common/Button";
 
 type DetailModalProps = {
   isOpen: boolean;
@@ -63,8 +65,12 @@ const DetailModal = ({ isOpen, onClose }: DetailModalProps) => {
     },
   ];
 
-  const handleEdit = () => {
-    setMode("edit");
+  const handleDelete = () => {
+    console.log("delete");
+  };
+
+  const handleAccept = () => {
+    console.log("accept");
   };
 
   return (
@@ -72,8 +78,10 @@ const DetailModal = ({ isOpen, onClose }: DetailModalProps) => {
       modalOpen={isOpen}
       onClose={onClose}
       width={800}
-      height="720px"
+      height="740px"
       isFooterButtonsNeeded
+      onAccept={handleAccept}
+      onReject={handleDelete}
     >
       <div className="relative w-full h-[260px] rounded-t-xl">
         <Image
@@ -142,6 +150,26 @@ const DetailModal = ({ isOpen, onClose }: DetailModalProps) => {
                 </Link>
               </p>
             ))}
+          </div>
+        </div>
+        <div className="">
+          <Divider />
+          <div className="flex items-center gap-2 justify-end py-4">
+            <Button
+              onClick={handleDelete}
+              icon={<MdClose className="text-[1.1rem]" />}
+              className="w-fit text-sm h-9 !bg-error-light !border-none rounded-xl  py-2 !text-error"
+            >
+              Remove Resource
+            </Button>
+            <Button
+              key="submit"
+              onClick={handleAccept}
+              icon={<IoMdCheckmark className="text-[1.1rem]" />}
+              className="w-fit text-sm h-9 !bg-[#DCFCE7] !border-none rounded-xl  py-2 !text-success "
+            >
+              Keep Resource
+            </Button>
           </div>
         </div>
       </div>
