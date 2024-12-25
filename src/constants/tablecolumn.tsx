@@ -33,7 +33,7 @@ export const getVolunteerColumns = (
     dataIndex: "onboarded_status",
     key: "onboarded_status",
     sorter: false,
-    className: "px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins",
+    className: "!p-0 w-1/5 text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: Volunteer) => {
       if ("onboarded_status" in record) {
         return (
@@ -87,7 +87,7 @@ export const getVolunteerColumns = (
         </p>
       </div>
     ),
-    className: "px-6 py-4",
+    className: "!p-0",
   },
 ];
 
@@ -135,14 +135,14 @@ export const getReportColumns = (handleSeePost?: (id: string) => void) => [
       >
         <span className="flex items-center gap-1">
           <div
-            className={`w-2 h-2 rounded-full ${
+            className={`!w-2 !h-2 !rounded-full ${
               record.review_status === "verification_pending"
-                ? "bg-warning"
+                ? "!bg-warning"
                 : record.review_status === "verification_completed"
-                ? "bg-success"
+                ? "!bg-success"
                 : record.review_status === "verification_rejected"
-                ? "bg-error"
-                : "bg-gray-500"
+                ? "!bg-error"
+                : "!bg-gray-500"
             }`}
           ></div>
           {record.review_status}
@@ -163,6 +163,6 @@ export const getReportColumns = (handleSeePost?: (id: string) => void) => [
         </p>
       </div>
     ),
-    className: "px-6 py-4",
+    className: "",
   },
 ];

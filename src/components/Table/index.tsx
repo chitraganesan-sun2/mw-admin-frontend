@@ -26,7 +26,7 @@ const Table: React.FC<TableProps> = ({
 
   return (
     <div
-      className={`w-full overflow-hidden h-full !font-poppins transition-opacity duration-500 ease-in-out overflow-hidden ${
+      className={`w-full  h-full !font-poppins transition-opacity duration-500 ease-in-out overflow-hidden ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
