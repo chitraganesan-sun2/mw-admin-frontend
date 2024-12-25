@@ -91,7 +91,7 @@ export const getVolunteerColumns = (
   },
 ];
 
-export const getReportsColumns = (handleSeePost?: (id: string) => void) => [
+export const getReportColumns = (handleSeePost?: (id: string) => void) => [
   {
     title: "Profile Name",
     dataIndex: "profile_name",

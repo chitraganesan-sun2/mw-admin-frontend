@@ -3,7 +3,7 @@
 import { endpoints } from "@/api/constants";
 import { GET_API } from "@/api/request";
 import Table from "@/components/Table";
-import { getReportsColumns } from "@/constants/tablecolumn";
+import { getReportColumns } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { useQuery } from "@tanstack/react-query";
@@ -37,7 +37,7 @@ export default function LearnersPage() {
     alert(id);
   };
 
-  const columns = getReportsColumns(handleSeePost);
+  const columns = getReportColumns(handleSeePost);
 
   const getAllReports = async ({ page, size }: PaginationParams) => {
     // const response: any = await GET_API(
