@@ -108,6 +108,7 @@ export default function LearnersPage() {
     <div className="w-full h-full p-6 animate-fadeIn">
       <ProfileDetailsModal />
       <Table
+        key="volunteers"
         data={volunteerData}
         columns={columns}
         loading={isLoading}
