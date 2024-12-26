@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 const Login = () => {
   const [loginFormData, setloginFormData] = useState<any>({});
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (key: string, value: any) => {
     setloginFormData((prev: any) => ({ ...prev, [key]: value }));
@@ -21,15 +22,18 @@ const Login = () => {
       username: loginFormData.username,
       password: loginFormData.password,
     };
+    setLoading(true);
     POST_API(endpoints.auth.login, payload)
       .then((res) => {
         console.log(res);
         Cookies.set("token", res.data.jwt);
         router.push("/volunteer");
         setloginFormData({});
+        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
+        setLoading(false);
       });
   };
 
@@ -49,6 +53,7 @@ const Login = () => {
             />
           ))}
           <Button
+            loading={loading}
             customClassName="h-[40px] !border-none !text-white"
             btnVariant="secondary"
             title={"Login"}
