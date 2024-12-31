@@ -2,8 +2,6 @@
 
 import { endpoints } from "@/api/constants";
 import { GET_API } from "@/api/request";
-import CenterModal from "@/components/common/Modals/CenterModal";
-import ViewModal from "@/components/common/Modals/ViewModal";
 import Table from "@/components/Table";
 import { getVolunteerColumns } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
@@ -13,6 +11,7 @@ import { usePathname, useRouter, useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import ProfileDetailsModal from "@/components/volunteer/ProfileDetails";
+import { calculateAge } from "@/utils/moment";
 
 interface PaginationParams {
   page: number;
@@ -72,6 +71,8 @@ export default function LearnersPage() {
       const transformedData = volunteers.items.map((volunteer: any) => ({
         volunteer_id: volunteer.volunteer_id,
         name: `${volunteer.volunteer_first_name} ${volunteer.volunteer_last_name}`,
+        age: calculateAge(volunteer?.volunteer_birth_date) || '-',
+        location: volunteer?.country || '-',
         onboarded_status: volunteer.onboarded_status,
       }));
       setVolunteerData(transformedData);

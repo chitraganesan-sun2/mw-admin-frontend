@@ -47,11 +47,12 @@ const Sidebar = () => {
     <div className="bg-white w-full h-screen flex flex-col items-center justify-between p-6">
       <div>
         <Logo />
-        <div className="flex flex-col items-center gap-3 w-full mt-[4rem]">
+        {/* Hide Admin Profile */}
+        {/* <div className="flex flex-col items-center gap-3 w-full mt-[4rem]">
           <Avatar />
           <Divider />
-        </div>
-        <div className="flex flex-col items-center gap-[2.2rem] w-full mt-[2rem]">
+        </div> */}
+        <div className="flex flex-col items-center gap-[2.2rem] w-full mt-20">
           {linksData.map((link) => (
             <SectionCard key={link.href} {...link} />
           ))}

@@ -9,25 +9,25 @@ export const getVolunteerColumns = (
     title: "Name",
     dataIndex: "name",
     key: "name",
-    sorter: true,
+    sorter: (a: any, b: any) => a?.name?.localeCompare(b?.name),
     className:
       "px-6 !py-3 text-sm w-1/5 !font-semibold text-gray-900 !font-poppins",
   },
-  // {
-  //   title: "Age",
-  //   dataIndex: "age",
-  //   key: "age",
-  //   sorter: true,
-  //   className:
-  //     "px-6 !py-3 text-sm w-1/9 bg-gray-50 text-gray-900 !font-poppins",
-  // },
-  // {
-  //   title: "Location",
-  //   dataIndex: "location",
-  //   key: "location",
-  //   sorter: false,
-  //   className: "px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins",
-  // },
+  {
+    title: "Age",
+    dataIndex: "age",
+    key: "age",
+    sorter: (a: any, b: any) => a?.age - b?.age,
+    className:
+      "px-6 !py-3 text-sm w-1/9 bg-gray-50 text-gray-900 !font-poppins",
+  },
+  {
+    title: "Location",
+    dataIndex: "location",
+    key: "location",
+    sorter: false,
+    className: "px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins",
+  },
   {
     title: "Requested Status",
     dataIndex: "onboarded_status",
