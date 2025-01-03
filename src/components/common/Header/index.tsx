@@ -1,5 +1,5 @@
 import { useQueryState } from "nuqs";
-// import Button from "@/components/common/Button";
+import Button from "@/components/common/Button";
 import { cn, formatString } from "@/utils/merge-class";
 import { useComponentStore } from "@/store/useComponenetStore";
 
@@ -21,14 +21,14 @@ const CommonHeader: React.FC = () => {
   return (
     <div className="w-full h-full p-2 px-3 flex items-center justify-between">
       <div className="flex capitalize items-center">
-        {/* <Button
+        <Button
           icon={titleIcon}
           rootClassName={cn(
             "flex items-center justify-center  !w-10 h-10 rounded-full hover:bg-gray-100",
             titleIconClick ? "cursor-pointer border-stroke mr-2" : "border-none"
           )}
           onClick={titleIconClick}
-        /> */}
+        />
         <h1 className="text-lg font-medium">{formatString(title ?? "")}</h1>
       </div>
       <div
