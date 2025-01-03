@@ -5,6 +5,7 @@ type HeaderOptions = {
   actionButtonPlacement?: "left" | "right";
   searchPlaceholder?: string;
   showButton?: boolean;
+  showSearch?: boolean;
   titleIcon?: React.ReactNode;
   title?: string;
   titleIconClick?: () => void;
