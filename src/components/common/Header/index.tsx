@@ -2,12 +2,12 @@ import { useQueryState } from "nuqs";
 import Button from "@/components/common/Button";
 import { cn, formatString } from "@/utils/merge-class";
 import { useComponentStore } from "@/store/useComponenetStore";
+import Input from "../Input";
 
 const CommonHeader: React.FC = () => {
   const { headerOptions } = useComponentStore();
   const [searchQuery, setSearchQuery] = useQueryState("query");
   const {
-    searchPlaceholder,
     actionButtonOnClick,
     actionButtonClassName,
     actionButtonPlacement,
@@ -15,6 +15,7 @@ const CommonHeader: React.FC = () => {
     showButton,
     titleIcon,
     title,
+    showSearch,
     titleIconClick,
   } = headerOptions || {};
 
@@ -37,15 +38,14 @@ const CommonHeader: React.FC = () => {
           "flex items-center justify-center gap-2"
         )}
       >
-        {/* <Input
+        { showSearch && <Input
           value={searchQuery ?? ""}
           inputType="search"
           name="search"
-          inputClassName="!bg-transparent mt-4 !rounded-xl gap-1 items-center"
-          className="!bg-transparent !w-fit"
-          onChange={(value: string) => setSearchQuery(value)}
-          placeholder={searchPlaceholder ?? "Search"}
-        />
+          inputClassName="!bg-white !rounded-3xl gap-1 items-center"
+          onChange={(value: string) => setSearchQuery(value || null)}
+          placeholder="Search"
+        /> }
         {showButton && (
           <Button
             title={actionButtonTitle}
@@ -53,7 +53,7 @@ const CommonHeader: React.FC = () => {
             rootClassName={actionButtonClassName}
             size="small"
           />
-        )} */}
+        )}
       </div>
     </div>
   );

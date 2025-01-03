@@ -34,3 +34,38 @@ export const VolunteerFilterModalConstants = [
         variant: "multi",
     },
 ];
+
+export const ResourceFilterModalConstants = [
+    {
+        id: "country",
+        name: "country",
+        label: "Select Nationality",
+        inputType: "select",
+        placeholder: "Select Nationality",
+        options: nationalities,
+        showSearch: true,
+        required: true,
+    },
+    {
+        name: "languages_known",
+        label: "Languages Known",
+        inputType: "async-select",
+        variant: "multi",
+        placeholder: "Select Language",
+        endpoint: "languages",
+        responseAsLabel: "language_name",
+        responseAsValue: "language_id",
+        required: true,
+    },
+    {
+        name: "subjects",
+        label: "Subjects",
+        inputType: "async-select",
+        placeholder: "Select Subjects",
+        required: true,
+        endpoint: "subjects",
+        responseAsLabel: "subject_name",
+        responseAsValue: "subject_id",
+        variant: "multi",
+    },
+];

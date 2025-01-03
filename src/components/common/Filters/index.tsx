@@ -41,7 +41,7 @@ function GroupFilters({ tabButtons, currentTab, handleTabClick, showFilters, han
             name="search"
             inputClassName="!bg-white !rounded-3xl gap-1 items-center !focus:border-none !target:border-none"
             onChange={(value: string) => setSearchQuery(value || null)}
-            placeholder={"Search"}
+            placeholder="Search"
           />}
         </div>
       </div>

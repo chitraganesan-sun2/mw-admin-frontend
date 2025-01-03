@@ -29,6 +29,17 @@ interface TableVolunteer {
   requested_status: string;
 }
 
+const tabs = [{
+  key: "all-volunteers",
+  title: "All Volunteers",
+}, {
+  key: "pending-volunteer-request",
+  title: "Pending Volunteer Request",
+}, {
+  key: "approved-volunteers",
+  title: "Approved Volunteers",
+}]
+
 export default function LearnersPage() {
   const router = useRouter();
   const [volunteerData, setVolunteerData] = useState<TableVolunteer[]>([]);
@@ -108,30 +119,17 @@ export default function LearnersPage() {
     });
   }, [setHeaderOptions]);
 
-  console.log(volunteerData, "volunteerData TABLE");
-
-  const tabs = [{
-    key: "all-volunteers",
-    title: "All Volunteers",
-  }, {
-    key: "pending-volunteer-request",
-    title: "Pending Volunteer Request",
-  }, {
-    key: "approved-volunteers",
-    title: "Approved Volunteers",
-  }
-  ]
   return (
     <div className="w-full h-full p-6 animate-fadeIn">
       <ProfileDetailsModal />
-      <VolunteerFilterModal 
-                isFilterApplying={false}
-                isOpen={isFilterOn}
-                onClose={() => setIsFilterOn(false)} />
-      <GroupFilters 
-        tabButtons={tabs} 
-        currentTab={currentTab} 
-        handleTabClick={(tab) => setCurrentTab(tab)} 
+      <VolunteerFilterModal
+        isFilterApplying={false}
+        isOpen={isFilterOn}
+        onClose={() => setIsFilterOn(false)} />
+      <GroupFilters
+        tabButtons={tabs}
+        currentTab={currentTab}
+        handleTabClick={(tab) => setCurrentTab(tab)}
         showFilters={true}
         handleFilterClick={() => setIsFilterOn(true)}
         showSearch={true}

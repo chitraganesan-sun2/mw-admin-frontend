@@ -2,6 +2,8 @@
 
 import { endpoints } from "@/api/constants";
 import { GET_API } from "@/api/request";
+import GroupFilters from "@/components/common/Filters";
+import ResourceFilterModal from "@/components/resources/FilterModal";
 import Table from "@/components/Table";
 import { getReportColumns } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
@@ -10,6 +12,8 @@ import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
+import CommunityModal from "@/components/community/FeedViewModal";
+import ResourceModal from "@/components/resources/DetailModal";
 
 interface PaginationParams {
   page: number;
@@ -25,6 +29,14 @@ interface TableReports {
   see_post: string;
 }
 
+const tabs = [{
+  key: "resources",
+  title: "Resources",
+}, {
+  key: "community-post",
+  title: "Community Post",
+}]
+
 export default function LearnersPage() {
   const [reportsData, setReportsData] = useState<TableReports[]>([]);
   const [pagination, setPagination] = useState<PaginationParams>({
@@ -32,12 +44,14 @@ export default function LearnersPage() {
     size: 10,
   });
   const [total, setTotal] = useState<number>(0);
-  const handleSeePost = (id: string) => {
-    console.log("See more details:", id);
-    alert(id);
-  };
+  const [isFilterOn, setIsFilterOn] = useState(false);
+  const [currentTab, setCurrentTab] = useState("resources");
 
-  const columns = getReportColumns(handleSeePost);
+  const handleViewAction = (id: string) => {
+    setMode("view");
+    setId(id);
+  }
+  const columns = getReportColumns(handleViewAction);
 
   const getAllReports = async ({ page, size }: PaginationParams) => {
     // const response: any = await GET_API(
@@ -103,17 +117,12 @@ export default function LearnersPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
 
-  const [_, setVolunteerId] = useQueryState("id", {
+  const [_, setId] = useQueryState("id", {
     shallow: true,
   });
   const [mode, setMode] = useQueryState("mode", {
     shallow: true,
   });
-
-  const handleClose = () => {
-    setVolunteerId(null);
-    setMode(null);
-  };
 
   useEffect(() => {
     setHeaderOptions({
@@ -122,8 +131,28 @@ export default function LearnersPage() {
     });
   }, [setHeaderOptions]);
 
+  const ViewModal = currentTab === 'resources' ? ResourceModal : CommunityModal;
+
+  const handleCloseModal = () => {
+    setMode(null);
+    setId(null);
+  };
+
   return (
     <div className="w-full h-full p-6 animate-fadeIn">
+      <ViewModal isOpen={mode === "view"} onClose={handleCloseModal}/>
+      <ResourceFilterModal
+        isFilterApplying={false}
+        isOpen={isFilterOn}
+        onClose={() => setIsFilterOn(false)} />
+      <GroupFilters
+        tabButtons={tabs}
+        currentTab={currentTab}
+        handleTabClick={(tab) => setCurrentTab(tab)}
+        showFilters={true}
+        handleFilterClick={() => setIsFilterOn(true)}
+        showSearch={true}
+      />
       <Table
         data={reportsData}
         columns={columns}
@@ -136,7 +165,7 @@ export default function LearnersPage() {
           showQuickJumper: true,
         }}
         onChange={handleTableChange}
-        handleSeePost={handleSeePost}
+        handleSeePost={handleViewAction}
       />
     </div>
   );
