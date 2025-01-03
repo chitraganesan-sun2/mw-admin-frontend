@@ -12,6 +12,8 @@ import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import ProfileDetailsModal from "@/components/volunteer/ProfileDetails";
 import { calculateAge } from "@/utils/moment";
+import GroupFilters from "@/components/common/Filters";
+import VolunteerFilterModal from "@/components/volunteer/VolunteerFilterModal";
 
 interface PaginationParams {
   page: number;
@@ -28,13 +30,15 @@ interface TableVolunteer {
 }
 
 export default function LearnersPage() {
+  const router = useRouter();
   const [volunteerData, setVolunteerData] = useState<TableVolunteer[]>([]);
   const [pagination, setPagination] = useState<PaginationParams>({
     page: 1,
     size: 10,
   });
   const [total, setTotal] = useState<number>(0);
-  const router = useRouter();
+  const [isFilterOn, setIsFilterOn] = useState(false);
+  const [currentTab, setCurrentTab] = useState("all-volunteers");
 
   const handleSeeMoreDetails = (id: string) => {
     console.log("See more details:", id);
@@ -105,9 +109,33 @@ export default function LearnersPage() {
   }, [setHeaderOptions]);
 
   console.log(volunteerData, "volunteerData TABLE");
+
+  const tabs = [{
+    key: "all-volunteers",
+    title: "All Volunteers",
+  }, {
+    key: "pending-volunteer-request",
+    title: "Pending Volunteer Request",
+  }, {
+    key: "approved-volunteers",
+    title: "Approved Volunteers",
+  }
+  ]
   return (
     <div className="w-full h-full p-6 animate-fadeIn">
       <ProfileDetailsModal />
+      <VolunteerFilterModal 
+                isFilterApplying={false}
+                isOpen={isFilterOn}
+                onClose={() => setIsFilterOn(false)} />
+      <GroupFilters 
+        tabButtons={tabs} 
+        currentTab={currentTab} 
+        handleTabClick={(tab) => setCurrentTab(tab)} 
+        showFilters={true}
+        handleFilterClick={() => setIsFilterOn(true)}
+        showSearch={true}
+      />
       <Table
         key="volunteers"
         data={volunteerData}

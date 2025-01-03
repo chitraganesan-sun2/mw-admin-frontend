@@ -1,19 +1,39 @@
 import React from "react";
 import { Input as AntInput } from "antd";
 import { cn } from "@/utils/merge-class";
+import { IoIosSearch } from "react-icons/io";
+import AsyncSelect from "./Others/AsyncSelect";
+import SingleSelect from "./Others/SingleSelect";
 
-const Input = ({
-    inputType,
-    name,
-    placeholder,
-    value,
-    onChange,
-    disabled = false,
-    inputClassName = "",
-    label
-}: any) => {
-    const baseClasses = "h-[40px] rounded-xl font-normal !text-[#121212] placeholder-gray-light text-base !bg-background !shadow-none" ;
+const Input = (props: any) => {
+    const { inputType,
+        name,
+        placeholder,
+        value,
+        onChange,
+        disabled = false,
+        inputClassName = "",
+        label } = props;
+    const baseClasses = "h-[40px] rounded-xl font-normal !text-[#121212] placeholder-gray-light text-base !bg-background !shadow-none";
     const rootBaseClasses = "border !border-stroke focus:!border-stroke focus:!bg-background";
+
+    if (inputType === "search") {
+        return <AntInput
+            inputMode="search"
+            placeholder={placeholder}
+            onChange={(e) => onChange(e.target.value)}
+            value={value}
+            rootClassName={cn(
+                "hover:!border-stroke border focus:!bg-background-input !border-stroke w-full h-fit focus:!border-stroke focus:!bg-background-input border-stroke",
+                inputClassName
+            )}
+            className={cn(
+                inputClassName,
+                `w-full text-sm p-2 rounded-md hover:bg-background-input !bg-background-input`
+            )}
+            prefix={<IoIosSearch className="text-gray text-xl" />}
+        />
+    }
 
     const renderPasswordInput = () => (
         <AntInput.Password
@@ -45,14 +65,18 @@ const Input = ({
         switch (inputType) {
             case "password":
                 return renderPasswordInput();
+            case "async-select":
+                return <AsyncSelect {...props} />
+            case "select":
+                return <SingleSelect {...props} />
             default:
                 return renderDefaultInput();
         }
     };
 
     return (
-        <div className="flex flex-col gap-3">
-            {label && <label className="font-normal text-base">{label}</label>}
+        <div className="mb-4 w-full h-auto flex flex-col gap-2">
+            {label && <label className="font-medium text-base">{label}</label>}
             {renderInput()}
         </div>
     );

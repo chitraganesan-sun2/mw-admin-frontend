@@ -8,6 +8,7 @@ export const endpoints: EndpointProps = {
     updateOnboardingStatus: (id: string, type: UserType, status: string) =>
       `admin/onboarding/update_verification_status/${type}/${id}/${status}`,
   },
+  common: (path: CommonPath) => `common/${path}/`,
   volunteer: {
     getAllVolunteers: "admin/volunteer",
     getVolunteerDetails: (volunteerId: string) =>

@@ -9,8 +9,11 @@ type EndpointProps = {
       status: string
     ) => string;
   };
+  common: (path: CommonPath) => string;
   volunteer: {
     getAllVolunteers: string;
     getVolunteerDetails: (volunteerId: string) => string;
   };
 };
+
+type CommonPath = "skills" | "languages" | "subjects" | "media" | "categories";

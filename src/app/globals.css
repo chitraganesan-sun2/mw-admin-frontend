@@ -7,7 +7,26 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  
+  --gray-color: #505050;
+  --gray-light-color: #4f4f4f;
+  --white-color: #ffffff;
+  --black-color: #121212;
+  --error-color: #ef4444;
+  --error-light-color: #fee2e2;
+  --success-color: #16a34a;
+  --success-light-color: #dcfce7;
+  --border-stroke: #e0e0e0;
+  --input-background: #f4f7fb;
+
+  /* Font weights */
+  --font-light: 300;
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
 }
+
 
 body {
   margin: 0;
@@ -18,8 +37,7 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -28,7 +46,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background-color: rgba(155, 155, 155, 0.5);
-  border-radius: 20px;
+  border-radius: 5px;
   border: transparent;
 }
 
