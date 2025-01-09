@@ -69,30 +69,12 @@ const ProfileDetails = () => {
         volunteer_id: data?.volunteer_id,
         video_url: data?.profile_video?.video_url,
         document_url: data?.profile_document?.document_url,
-        criminal_background_check_details: {
-          isAny: criminal_background_check_details?.convicted_of_a_felony || criminal_background_check_details?.involved_in_criminal_activity || criminal_background_check_details?.convicted_of_a_crime,
-          description: criminal_background_check_details?.description
-        },
-        sex_offender_check_details: {
-          isAny: sex_offender_check_details?.checked_for_sex_offender,
-          description: sex_offender_check_details?.description
-        },
-        disciplinary_check_details: {
-          isAny: disciplinary_check_details?.terminated_from_volunteer_position || disciplinary_check_details?.involved_in_disputes || disciplinary_check_details?.dismissed_from_institution,
-          description: disciplinary_check_details?.description
-        },
-        health_and_safety_check_details: {
-          isAny: health_and_safety_check_details?.having_health_issues,
-          description: health_and_safety_check_details?.description
-        },
-        other_consents_details: {
-          isAny: other_consents_details?.consent_to_background_checks || other_consents_details?.agree_to_follow_organization_policies || other_consents_details?.agree_to_understand_termination_of_volunteer_agreement,
-          description: other_consents_details?.description,
-        },
-        volunteer_experience_details: {
-          isAny: volunteer_experience_details?.previously_volunteered || volunteer_experience_details?.invloved_in_complaints,
-          description: volunteer_experience_details?.description
-        },
+        criminal_background_check_details: criminal_background_check_details,
+        sex_offender_check_details: sex_offender_check_details,
+        disciplinary_check_details: disciplinary_check_details,
+        health_and_safety_check_details: health_and_safety_check_details,
+        other_consents_details: other_consents_details,
+        volunteer_experience_details: volunteer_experience_details,
         photo_or_video_consent: data?.consent_and_permissions?.photo_or_video_consent,
         acknowledgement_of_program_policies: data?.consent_and_permissions?.acknowledgement_of_program_policies,
       }
@@ -141,28 +123,110 @@ const ProfileDetails = () => {
 
   const legalInformations = [
     {
-      title: "Have you ever been convicted of a felony or misdemeanor, been involved in any criminal activity or legal proceedings (including pending charges or arrests), or been convicted of any crimes involving minors, abuse, or neglect?",
-      value: volunteerDetails?.criminal_background_check_details,
+      title: "Criminal Background Check",
+      data: [
+        {
+          title: "Have you ever been convicted of a felony or misdemeanor?",
+          value: volunteerDetails?.criminal_background_check_details?.convicted_of_a_felony
+        },
+        {
+          title: "Have you ever been involved in any criminal activity or legal proceedings, including pending charges or arrests?",
+          value: volunteerDetails?.criminal_background_check_details?.involved_in_criminal_activity
+        },
+        {
+          title: "Have you been convicted of any crimes involving minors, abuse, or neglect?",
+          value: volunteerDetails?.criminal_background_check_details?.convicted_of_a_crime
+        },
+        {
+          title: "Description",
+          value: volunteerDetails?.criminal_background_check_details?.description
+        }
+      ]
     },
     {
-      title: "Are you listed on any state or national sex offender registries?",
-      value: volunteerDetails?.sex_offender_check_details,
+      title: "Sex Offender Registry Check",
+      data: [
+        {
+          title: "Are you listed on any state or national sex offender registries?",
+          value: volunteerDetails?.sex_offender_check_details?.checked_for_sex_offender
+        },
+        {
+          title: "Description",
+          value: volunteerDetails?.sex_offender_check_details?.description
+        }
+      ]
     },
     {
-      title: "Have you ever been terminated, involved in disputes over safety or ethics, or faced disciplinary action from any job, organization, or educational institution?",
-      value: volunteerDetails?.disciplinary_check_details,
+      title: "Disciplinary History",
+      data: [
+        {
+          title: "Have you ever been terminated or asked to resign from a volunteer or employment position for reasons related to misconduct or inappropriate behavior?",
+          value: volunteerDetails?.disciplinary_check_details?.terminated_from_volunteer_position
+        },
+        {
+          title: "Have you ever been involved in any disputes with employers or organizations related to safety or ethical issues?",
+          value: volunteerDetails?.disciplinary_check_details?.involved_in_disputes
+        },
+        {
+          title: "Have you ever faced dismissal, suspension, probation, or any other disciplinary or academic action from a college, university, or professional school?",
+          value: volunteerDetails?.disciplinary_check_details?.dismissed_from_institution
+        },
+        {
+          title: "Description",
+          value: volunteerDetails?.disciplinary_check_details?.description
+        }
+      ]
     },
     {
-      title: "Do you have any physical or mental health conditions that may affect your ability to perform volunteer duties?",
-      value: volunteerDetails?.health_and_safety_check_details,
+      title: "Health and Safety Information",
+      data: [
+        {
+          title: "Do you have any physical or mental health conditions that may affect your ability to perform volunteer duties?",
+          value: volunteerDetails?.health_and_safety_check_details?.having_health_issues
+        },
+        {
+          title: "Description",
+          value: volunteerDetails?.health_and_safety_check_details?.description
+        }
+      ]
     },
     {
-      title: "Do you consent to a criminal background check, agree to follow the organization’s policies on confidentiality, behavior, and safeguarding, and understand that your volunteer role may be terminated for criminal activity or failure to adhere to these policies?",
-      value: volunteerDetails?.other_consents_details,
+      title: "Consents",
+      data: [
+        {
+          title: "Do you consent to a criminal background check, including child abuse registry and sex offender checks?",
+          value: volunteerDetails?.other_consents_details?.consent_to_background_checks
+        },
+        {
+          title: "Do you agree to follow the organization’s policies on confidentiality, behavior, and safeguarding procedures?",
+          value: volunteerDetails?.other_consents_details?.agree_to_follow_organization_policies
+        },
+        {
+          title: "Do you understand that your volunteer role may be terminated based on any criminal activity or failure to adhere to the organization's policies?",
+          value: volunteerDetails?.other_consents_details?.agree_to_understand_termination_of_volunteer_agreement
+        },
+        {
+          title: "Description",
+          value: volunteerDetails?.other_consents_details?.description
+        }
+      ]
     },
     {
-      title: "Have you previously volunteered with children or vulnerable populations, and been involved in any incidents or complaints during those roles?",
-      value: volunteerDetails?.volunteer_experience_details,
+      title: "Previous Volunteer Experience",
+      data: [
+        {
+          title: "Have you previously volunteered with children or vulnerable populations?",
+          value: volunteerDetails?.volunteer_experience_details?.previously_volunteered
+        },
+        {
+          title: "Have you ever been involved in any incidents or complaints during previous volunteer roles?",
+          value: volunteerDetails?.volunteer_experience_details?.invloved_in_complaints
+        },
+        {
+          title: "Description",
+          value: volunteerDetails?.volunteer_experience_details?.description
+        }
+      ]
     },
   ]
 
@@ -253,16 +317,24 @@ const ProfileDetails = () => {
         </div>
       </div>
       <div>
-        <p className="text-xl font-medium border-t my-5 pt-5">Some Legal Information</p>
-        <div className="flex flex-col gap-5">
+        <p className="text-xl font-medium border-t mt-5 pt-5">Some Legal Information</p>
+        <div className="flex flex-col gap-5 divide-y">
           {legalInformations.map((item, index) => (
-            <div key={index} className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-gray-medium">
-                {item.title}
-              </p>
-              <p className="text-[1rem] text-gray-dark font-medium">
-                {item.value?.isAny ? 'Yes' : 'No'} {item.value?.description && `- ${item.value?.description}`}
-              </p>
+            <div key={index} className="flex flex-col gap-2 pt-4">
+              <p className="text-base font-medium text-black mb-1">{`${index + 1}) ${item.title}:`}</p>
+              {
+                item?.data?.map(field =>
+                (
+                  <div className={(field?.title === "Description" && !field?.value) ? 'hidden' : ''}>
+                    <p className="text-sm font-medium text-gray-medium">
+                      {field.title}
+                    </p>
+                    <p className="text-sm text-black font-medium">
+                      {field.value ? (field?.title === "Description" ? field?.value : 'Yes') : 'No'}
+                    </p>
+                  </div>
+                ))
+              }
             </div>
           ))}
         </div>
@@ -284,10 +356,10 @@ const ProfileDetails = () => {
       <div>
         <p className="text-xl font-medium border-t mt-5 pt-5 mb-3">About Me</p>
         <div className="flex gap-2 underline">
-          <Link href={volunteerDetails?.video_url || ""} target="_blank">See Video</Link>
-          <Link href={volunteerDetails?.document_url || ""} target="_blank" rel="noopener noreferrer" >
+          {volunteerDetails?.video_url && <a href={volunteerDetails?.video_url} target="_blank">See Video</a>}
+          {volunteerDetails?.document_url && <a href={volunteerDetails?.document_url} target="_blank" rel="noopener noreferrer" >
             See Document
-          </Link>
+          </a> }
         </div>
       </div>
     </CenterModal>
