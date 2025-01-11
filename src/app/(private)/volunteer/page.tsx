@@ -29,16 +29,20 @@ interface TableVolunteer {
   requested_status: string;
 }
 
-const tabs = [{
-  key: "all-volunteers",
-  title: "All Volunteers",
-}, {
-  key: "pending-volunteer-request",
-  title: "Pending Volunteer Request",
-}, {
-  key: "approved-volunteers",
-  title: "Approved Volunteers",
-}]
+const tabs = [
+  {
+    key: "all-volunteers",
+    title: "All Volunteers",
+  },
+  {
+    key: "pending-volunteer-request",
+    title: "Pending Volunteer Request",
+  },
+  {
+    key: "approved-volunteers",
+    title: "Approved Volunteers",
+  },
+];
 
 export default function LearnersPage() {
   const router = useRouter();
@@ -86,8 +90,8 @@ export default function LearnersPage() {
       const transformedData = volunteers.items.map((volunteer: any) => ({
         volunteer_id: volunteer.volunteer_id,
         name: `${volunteer.volunteer_first_name} ${volunteer.volunteer_last_name}`,
-        age: calculateAge(volunteer?.volunteer_birth_date) || '-',
-        location: volunteer?.country || '-',
+        age: calculateAge(volunteer?.volunteer_birth_date) || "-",
+        location: volunteer?.country || "-",
         onboarded_status: volunteer.onboarded_status,
       }));
       setVolunteerData(transformedData);
@@ -125,15 +129,16 @@ export default function LearnersPage() {
       <VolunteerFilterModal
         isFilterApplying={false}
         isOpen={isFilterOn}
-        onClose={() => setIsFilterOn(false)} />
-      <GroupFilters
+        onClose={() => setIsFilterOn(false)}
+      />
+      {/* <GroupFilters
         tabButtons={tabs}
         currentTab={currentTab}
         handleTabClick={(tab) => setCurrentTab(tab)}
         showFilters={true}
         handleFilterClick={() => setIsFilterOn(true)}
         showSearch={true}
-      />
+      /> */}
       <Table
         key="volunteers"
         data={volunteerData}
