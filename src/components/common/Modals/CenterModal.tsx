@@ -55,7 +55,6 @@ const CenterModal: React.FC<CenterModalProps> = ({
               >
                 Reject
               </Button>
-              ,
               <Button
                 key="submit"
                 loading={loading}
