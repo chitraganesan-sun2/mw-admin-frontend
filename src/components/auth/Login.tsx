@@ -25,8 +25,7 @@ const Login = () => {
     setLoading(true);
     POST_API(endpoints.auth.login, payload)
       .then((res) => {
-        console.log(res);
-        Cookies.set("token", res.data.jwt);
+        Cookies.set("token", res.data.jwt, { expires: 7 });
         router.push("/volunteer");
         setloginFormData({});
         setLoading(false);
