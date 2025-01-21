@@ -79,7 +79,7 @@ export default function LearnersPage() {
     };
   };
 
-  const { data: volunteers, isLoading } = useQuery({
+  const { data: volunteers, isFetching } = useQuery({
     queryKey: ["volunteers", pagination.page, pagination.size],
     queryFn: () => getAllVolunteers(pagination),
   });
@@ -143,7 +143,7 @@ export default function LearnersPage() {
         key="volunteers"
         data={volunteerData}
         columns={columns}
-        loading={isLoading}
+        loading={isFetching}
         pagination={{
           current: pagination.page,
           pageSize: pagination.size,
