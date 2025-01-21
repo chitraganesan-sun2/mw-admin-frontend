@@ -52,12 +52,19 @@ const ProfileDetails = () => {
     enabled: !!volunteerId,
   });
 
+  const formatDate = (date: string) => {
+    if (moment(date, "DD-MM-YYYY", true).isValid()) {
+      return date;
+    }
+    return moment(date).format("DD-MM-YYYY");
+  };
+
   useEffect(() => {
     if (data) {
       const { criminal_background_check_details, sex_offender_check_details, disciplinary_check_details, health_and_safety_check_details, other_consents_details, volunteer_experience_details } = data?.legal_and_safety_info;
       const formattedData: VolunteerDetails = {
         name: data?.volunteer_first_name + " " + data?.volunteer_last_name,
-        date_of_birth: moment(data?.volunteer_birth_date).format("DD-MM-YYYY"),
+        date_of_birth: formatDate(data?.volunteer_birth_date) || "-",
         email_address: data?.volunteer_contact_details?.email,
         phone_number:
           data?.volunteer_contact_details?.contact_number?.country_code +
