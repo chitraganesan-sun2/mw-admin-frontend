@@ -7,13 +7,20 @@ import { endpoints } from "@/api/constants";
 import { GET_API, PUT_API } from "@/api/request";
 import moment from "moment";
 import Link from "next/link";
+import { Spin } from "antd";
 
 interface VolunteerDetails {
   name: string;
+  gender: string;
   date_of_birth: string;
   email_address: string;
   phone_number: string;
   zip_code: string;
+  country: string;
+  education: string;
+  higher_education: string;
+  work_experience: string,
+  volunteer_experience: string,
   high_school_status: string;
   onboarded_status: string;
   volunteer_id: string;
@@ -64,6 +71,7 @@ const ProfileDetails = () => {
       const { criminal_background_check_details, sex_offender_check_details, disciplinary_check_details, health_and_safety_check_details, other_consents_details, volunteer_experience_details } = data?.legal_and_safety_info;
       const formattedData: VolunteerDetails = {
         name: data?.volunteer_first_name + " " + data?.volunteer_last_name,
+        gender: data?.volunteer_gender,
         date_of_birth: formatDate(data?.volunteer_birth_date) || "-",
         email_address: data?.volunteer_contact_details?.email,
         phone_number:
@@ -71,6 +79,11 @@ const ProfileDetails = () => {
           " " +
           data?.volunteer_contact_details?.contact_number?.number,
         zip_code: data?.volunteer_contact_details?.zip_code,
+        country: data?.volunteer_contact_details?.country,
+        education: data?.volunteer_education || "-",
+        higher_education: data?.volunteer_higher_education || "-",
+        work_experience: data?.work_experience || "-",
+        volunteer_experience: data?.volunteer_experience || "-",
         high_school_status: data?.volunteer_high_school_status || "-",
         onboarded_status: data?.onboarded_status,
         volunteer_id: data?.volunteer_id,
@@ -105,6 +118,12 @@ const ProfileDetails = () => {
     {
       title: "Name",
       value: volunteerDetails?.name || "-",
+      rootClassName: "col-span-2",
+    },
+    {
+      title: "Gender",
+      value: volunteerDetails?.gender || "-",
+      rootClassName: "capitalize",
     },
     {
       title: "Date of Birth",
@@ -123,8 +142,46 @@ const ProfileDetails = () => {
       value: volunteerDetails?.zip_code || "-",
     },
     {
-      title: "Are you currently in high school or higher?",
-      value: volunteerDetails?.high_school_status || "-",
+      title: "Country",
+      value: volunteerDetails?.country || "-",
+      rootClassName: "capitalize",
+    },
+    {
+      title: "Higher Education",
+      value: volunteerDetails?.higher_education || "-",
+      rootClassName: "capitalize",
+    },
+    {
+      title: "Education",
+      value: volunteerDetails?.education || "-",
+    },
+    {
+      title: "Work Experience",
+      value: volunteerDetails?.work_experience || "-",
+    },
+    {
+      title: "Volunteer Experience",
+      value: volunteerDetails?.volunteer_experience || "-",
+    },
+    {
+      title: "Description",
+      value: data?.volunteer_description || "-",
+      rootClassName: "col-span-2",
+    },
+    {
+      title: "Languages I speak",
+      value: data?.volunteer_languages?.map((lang: any) => lang?.language_name)?.join(" | ") || "-",
+      rootClassName: "col-span-2",
+    },
+    {
+      title: "Subjects I teach",
+      value: data?.volunteer_subjects?.map((subject: any) => subject?.subject_name)?.join(" | ") || "-",
+      rootClassName: "col-span-2",
+    },
+    {
+      title: "Skills I have",
+      value: data?.volunteer_skills?.map((skill: any) => skill?.skill_name)?.join(" | ") || "-",
+      rootClassName: "col-span-2",
     },
   ];
 
@@ -293,14 +350,10 @@ const ProfileDetails = () => {
       });
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <CenterModal
       title="Profile Details"
-      width={720}
+      width={800}
       customClassName="max-h-[90vh] !rounded-2xl overflow-y-auto"
       isOpen={isOpen}
       onClose={handleModalClose}
@@ -308,67 +361,77 @@ const ProfileDetails = () => {
       onReject={handleReject}
       hideFooter={hideFooter}
     >
-      <div>
-        <p className="text-xl font-medium mb-5">Personal Details</p>
-        <div className="grid grid-cols-2 gap-5">
-          {profileDetails.map((item, index) => (
-            <div key={index} className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-gray-medium">
-                {item.title}
-              </p>
-              <p className="text-[1rem] text-gray-dark font-medium">
-                {item.value}
-              </p>
+      {
+        isLoading ?
+          <div className="h-[65vh] w-full flex items-center justify-center">
+            <Spin size="large" />
+          </div>
+          : (
+            <div>
+              <div>
+                <p className="text-xl font-medium mb-4">Personal Details</p>
+                <div className="grid grid-cols-2 gap-4">
+                  {profileDetails.map((item, index) => (
+                    <div key={index} className={`flex flex-col gap-1 ${item?.rootClassName || ''}`}>
+                      <p className="text-sm font-medium text-gray-medium">
+                        {item.title}
+                      </p>
+                      <p className="text-[1rem] text-gray-dark font-medium">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xl font-medium border-t mt-5 pt-5">Some Legal Information</p>
+                <div className="flex flex-col gap-5 divide-y">
+                  {legalInformations.map((item, index) => (
+                    <div key={index} className="flex flex-col gap-2 pt-4">
+                      <p className="text-base font-medium text-black mb-1">{`${index + 1}) ${item.title}:`}</p>
+                      {
+                        item?.data?.map(field =>
+                        (
+                          <div className={(field?.title === "Description" && !field?.value) ? 'hidden' : ''}>
+                            <p className="text-sm font-medium text-gray-medium">
+                              {field.title}
+                            </p>
+                            <p className="text-sm text-black font-medium">
+                              {field.value ? (field?.title === "Description" ? field?.value : 'Yes') : 'No'}
+                            </p>
+                          </div>
+                        ))
+                      }
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="flex flex-col gap-5 border-t my-5 pt-5">
+                  {consentPermissions.map((item, index) => (
+                    <div key={index} className="flex flex-col gap-2">
+                      <p className="text-sm font-medium text-gray-medium">
+                        {item.title}
+                      </p>
+                      <p className="text-[1rem] text-gray-dark font-medium">
+                        {item.value ? 'Yes' : 'No'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xl font-medium border-t mt-5 pt-5 mb-3">About Me</p>
+                <div className="flex gap-2 underline">
+                  {volunteerDetails?.video_url && <a href={volunteerDetails?.video_url} target="_blank">See Video</a>}
+                  {volunteerDetails?.document_url && <a href={volunteerDetails?.document_url} target="_blank" rel="noopener noreferrer" >
+                    See Document
+                  </a>}
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
-      <div>
-        <p className="text-xl font-medium border-t mt-5 pt-5">Some Legal Information</p>
-        <div className="flex flex-col gap-5 divide-y">
-          {legalInformations.map((item, index) => (
-            <div key={index} className="flex flex-col gap-2 pt-4">
-              <p className="text-base font-medium text-black mb-1">{`${index + 1}) ${item.title}:`}</p>
-              {
-                item?.data?.map(field =>
-                (
-                  <div className={(field?.title === "Description" && !field?.value) ? 'hidden' : ''}>
-                    <p className="text-sm font-medium text-gray-medium">
-                      {field.title}
-                    </p>
-                    <p className="text-sm text-black font-medium">
-                      {field.value ? (field?.title === "Description" ? field?.value : 'Yes') : 'No'}
-                    </p>
-                  </div>
-                ))
-              }
-            </div>
-          ))}
-        </div>
-      </div>
-      <div>
-        <div className="flex flex-col gap-5 border-t my-5 pt-5">
-          {consentPermissions.map((item, index) => (
-            <div key={index} className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-gray-medium">
-                {item.title}
-              </p>
-              <p className="text-[1rem] text-gray-dark font-medium">
-                {item.value ? 'Yes' : 'No'}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div>
-        <p className="text-xl font-medium border-t mt-5 pt-5 mb-3">About Me</p>
-        <div className="flex gap-2 underline">
-          {volunteerDetails?.video_url && <a href={volunteerDetails?.video_url} target="_blank">See Video</a>}
-          {volunteerDetails?.document_url && <a href={volunteerDetails?.document_url} target="_blank" rel="noopener noreferrer" >
-            See Document
-          </a> }
-        </div>
-      </div>
+          )
+      }
     </CenterModal>
   );
 };

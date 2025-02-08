@@ -18,6 +18,7 @@ const Login = () => {
   };
 
   const handleFormSubmit = () => {
+    if (!loginFormData.username || !loginFormData.password) return alert("Enter all fields");
     let payload = {
       username: loginFormData.username,
       password: loginFormData.password,
@@ -28,7 +29,6 @@ const Login = () => {
         Cookies.set("token", res.data.jwt, { expires: 7 });
         router.push("/volunteer");
         setloginFormData({});
-        setLoading(false);
       })
       .catch((err) => {
         console.log(err);
