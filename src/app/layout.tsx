@@ -11,8 +11,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Melody Wings",
-  description: "Melody Wings",
+  title: "Melody Wings Admin",
+  description: "Melody Wings Admin",
 };
 
 export default function RootLayout({

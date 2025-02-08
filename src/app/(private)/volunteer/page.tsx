@@ -16,8 +16,8 @@ import GroupFilters from "@/components/common/Filters";
 import VolunteerFilterModal from "@/components/volunteer/VolunteerFilterModal";
 
 interface PaginationParams {
-  page: number;
-  size: number;
+  page: number | string;
+  size: number | string;
 }
 
 interface TableVolunteer {
@@ -47,13 +47,12 @@ const tabs = [
 export default function LearnersPage() {
   const router = useRouter();
   const [volunteerData, setVolunteerData] = useState<TableVolunteer[]>([]);
-  const [pagination, setPagination] = useState<PaginationParams>({
-    page: 1,
-    size: 10,
-  });
+
   const [total, setTotal] = useState<number>(0);
+  const [size, setSize] = useQueryState("size", { defaultValue: "10" });
+  const [page, setPage] = useQueryState("page", { defaultValue: "1" });
+
   const [isFilterOn, setIsFilterOn] = useState(false);
-  const [currentTab, setCurrentTab] = useState("all-volunteers");
 
   const handleSeeMoreDetails = (id: string) => {
     console.log("See more details:", id);
@@ -63,7 +62,7 @@ export default function LearnersPage() {
 
   const getAllVolunteers = async ({ page, size }: PaginationParams) => {
     const response: any = await GET_API(
-      `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size * 2}`
+      `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`
     );
 
     const filteredItems = response.data.items.filter(
@@ -80,8 +79,8 @@ export default function LearnersPage() {
   };
 
   const { data: volunteers, isFetching } = useQuery({
-    queryKey: ["volunteers", pagination.page, pagination.size],
-    queryFn: () => getAllVolunteers(pagination),
+    queryKey: ["volunteers", page, size],
+    queryFn: () => getAllVolunteers({ page, size }),
   });
 
   useEffect(() => {
@@ -100,10 +99,8 @@ export default function LearnersPage() {
   }, [volunteers]);
 
   const handleTableChange = (pagination: any) => {
-    setPagination({
-      page: pagination.current,
-      size: pagination.pageSize,
-    });
+    setSize(pagination.pageSize);
+    setPage(pagination.current);
   };
 
   const { setHeaderOptions } = useComponentStore();
@@ -124,7 +121,7 @@ export default function LearnersPage() {
   }, [setHeaderOptions]);
 
   return (
-    <div className="w-full h-full p-6 animate-fadeIn">
+    <div className="w-full h-auto p-6 animate-fadeIn">
       <ProfileDetailsModal />
       <VolunteerFilterModal
         isFilterApplying={false}
@@ -145,8 +142,8 @@ export default function LearnersPage() {
         columns={columns}
         loading={isFetching}
         pagination={{
-          current: pagination.page,
-          pageSize: pagination.size,
+          current: page,
+          pageSize: size,
           total: total,
           showSizeChanger: true,
           showQuickJumper: true,

@@ -7,9 +7,9 @@ type LogoProps = {
 
 const Logo = ({ className }: LogoProps) => {
   return (
-    <div className={cn("flex items-center gap-2  rounded-lg", className)}>
+    <div className={cn("flex flex-wrap items-center justify-center gap-2 rounded-lg", className)}>
       <LogoIcon />
-      <h3 className="text-xl font-medium">Melody Wings</h3>
+      <h3 className="text-xl font-medium">MelodyWings</h3>
     </div>
   );
 };
