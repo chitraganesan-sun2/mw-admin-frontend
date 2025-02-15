@@ -21,6 +21,9 @@ const CenterModal: React.FC<CenterModalProps> = ({
   onAccept,
   onReject,
   hideFooter = false,
+  actionLoading,
+  acceptLoading,
+  rejectLoading,
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -50,6 +53,8 @@ const CenterModal: React.FC<CenterModalProps> = ({
             <div className="flex items-center gap-2 justify-end px-5 py-4">
               <Button
                 onClick={onReject}
+                loading={rejectLoading}
+                disabled={actionLoading}
                 icon={<MdClose className="text-[1.1rem]" />}
                 className="w-[150px] text-sm  h-9 !bg-error-light !border-none rounded-xl  py-2 !text-error"
               >
@@ -57,8 +62,9 @@ const CenterModal: React.FC<CenterModalProps> = ({
               </Button>
               <Button
                 key="submit"
-                loading={loading}
                 onClick={onAccept}
+                loading={acceptLoading}
+                disabled={actionLoading}
                 icon={<IoMdCheckmark className="text-[1.1rem]" />}
                 className="w-[150px] text-sm h-9 !bg-[#DCFCE7] !border-none rounded-xl  py-2 !text-success "
               >

@@ -16,6 +16,9 @@ interface CenterModalProps {
   hideFooter?: boolean;
   onAccept?: () => void;
   onReject?: () => void;
+  actionLoading?: boolean;
+  acceptLoading?: boolean;
+  rejectLoading?: boolean;
 }
 
 interface ViewModalProps {
