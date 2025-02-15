@@ -22,6 +22,8 @@ interface VolunteerDetails {
   work_experience: string,
   volunteer_experience: string,
   high_school_status: string;
+  parent_name: string;
+  parent_email: string;
   onboarded_status: string;
   volunteer_id: string;
   criminal_background_check_details: any;
@@ -37,13 +39,15 @@ interface VolunteerDetails {
 }
 
 const ProfileDetails = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const volunteerId = searchParams.get("volunteer_id");
   const [hideFooter, setHideFooter] = useState(true);
   const queryClient = useQueryClient();
-
+  
+  const [isOpen, setIsOpen] = useState(false);
+  const [isAcceptLoading, setIsAcceptLoading] = useState(false);
+  const [isRejectLoading, setIsRejectLoading] = useState(false);
   const [volunteerDetails, setVolunteerDetails] = useState<VolunteerDetails>();
 
   const getIndividualVolunteer = async () => {
@@ -70,6 +74,7 @@ const ProfileDetails = () => {
     if (data) {
       const { criminal_background_check_details, sex_offender_check_details, disciplinary_check_details, health_and_safety_check_details, other_consents_details, volunteer_experience_details } = data?.legal_and_safety_info;
       const formattedData: VolunteerDetails = {
+        // Personal Details
         name: data?.volunteer_first_name + " " + data?.volunteer_last_name,
         gender: data?.volunteer_gender,
         date_of_birth: formatDate(data?.volunteer_birth_date) || "-",
@@ -85,10 +90,14 @@ const ProfileDetails = () => {
         work_experience: data?.work_experience || "-",
         volunteer_experience: data?.volunteer_experience || "-",
         high_school_status: data?.volunteer_high_school_status || "-",
-        onboarded_status: data?.onboarded_status,
+        // Parent/Guardian Details
+        parent_name: data?.volunteer_parent_name || "-",
+        parent_email: data?.volunteer_parent_email || "-",
         volunteer_id: data?.volunteer_id,
+        onboarded_status: data?.onboarded_status,
         video_url: data?.profile_video?.video_url,
         document_url: data?.profile_document?.document_url,
+        // Legal Information
         criminal_background_check_details: criminal_background_check_details,
         sex_offender_check_details: sex_offender_check_details,
         disciplinary_check_details: disciplinary_check_details,
@@ -185,6 +194,19 @@ const ProfileDetails = () => {
     },
   ];
 
+  const parentDetails = [
+    {
+      title: "Parent/Guardian Name",
+      value: volunteerDetails?.parent_name || "-",
+      rootClassName: "col-span-1",
+    },
+    {
+      title: "Parent/Guardian Email",
+      value: volunteerDetails?.parent_email || "-",
+      rootClassName: "col-span-1",
+    },
+  ]
+  
   const legalInformations = [
     {
       title: "Criminal Background Check",
@@ -311,6 +333,7 @@ const ProfileDetails = () => {
   };
 
   const handleAccept = () => {
+    setIsAcceptLoading(true);
     PUT_API(
       endpoints.onboarding.updateOnboardingStatus(
         volunteerId as string,
@@ -327,10 +350,13 @@ const ProfileDetails = () => {
       })
       .catch((error) => {
         console.log(error);
+      }).finally(() => {
+        setIsAcceptLoading(false);
       });
   };
 
   const handleReject = () => {
+    setIsRejectLoading(true);
     PUT_API(
       endpoints.onboarding.updateOnboardingStatus(
         volunteerId as string,
@@ -347,6 +373,8 @@ const ProfileDetails = () => {
       })
       .catch((error) => {
         console.log(error);
+      }).finally(() => {
+        setIsRejectLoading(false);
       });
   };
 
@@ -360,6 +388,9 @@ const ProfileDetails = () => {
       onAccept={handleAccept}
       onReject={handleReject}
       hideFooter={hideFooter}
+      actionLoading={isAcceptLoading || isRejectLoading}
+      acceptLoading={isAcceptLoading}
+      rejectLoading={isRejectLoading}
     >
       {
         isLoading ?
@@ -372,6 +403,21 @@ const ProfileDetails = () => {
                 <p className="text-xl font-medium mb-4">Personal Details</p>
                 <div className="grid grid-cols-2 gap-4">
                   {profileDetails.map((item, index) => (
+                    <div key={index} className={`flex flex-col gap-1 ${item?.rootClassName || ''}`}>
+                      <p className="text-sm font-medium text-gray-medium">
+                        {item.title}
+                      </p>
+                      <p className="text-[1rem] text-gray-dark font-medium">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xl font-medium border-t mt-5 pt-5 mb-4">Parent/Guardian Details</p>
+                <div className="grid grid-cols-2 gap-4">
+                  {parentDetails.map((item, index) => (
                     <div key={index} className={`flex flex-col gap-1 ${item?.rootClassName || ''}`}>
                       <p className="text-sm font-medium text-gray-medium">
                         {item.title}
