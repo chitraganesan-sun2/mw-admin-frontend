@@ -50,6 +50,23 @@ body {
   border: transparent;
 }
 
+/* Custom classes */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Add these styles if they don't exist already */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* For Firefox */
 * {
   scrollbar-width: thin;

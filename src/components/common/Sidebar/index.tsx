@@ -21,21 +21,21 @@ const Sidebar = () => {
       text: "Volunteer",
       icon: <VolunteerIcon />,
     },
-    // {
-    //   href: "/reports",
-    //   text: "Reports",
-    //   icon: <ReportIcon />,
-    // },
-    // {
-    //   href: "/resources",
-    //   text: "Resources",
-    //   icon: <ResourceIcon />,
-    // },
-    // {
-    //   href: "/community",
-    //   text: "Community",
-    //   icon: <CommunityIcon />,
-    // },
+    {
+      href: "/reports",
+      text: "Reports",
+      icon: <ReportIcon />,
+    },
+    {
+      href: "/resources",
+      text: "Resources",
+      icon: <ResourceIcon />,
+    },
+    {
+      href: "/community",
+      text: "Community",
+      icon: <CommunityIcon />,
+    },
   ];
 
   const handleSignOut = () => {
