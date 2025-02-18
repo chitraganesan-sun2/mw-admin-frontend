@@ -15,3 +15,5 @@ export { default as HeartLikeIcon } from "./HeartLikeIcon";
 export { default as MenuDot } from "./MenuDot";
 export { default as SaveIcon } from "./SaveIcon";
 export { default as CommentIcon } from "./CommentIcon";
+export { default as DeleteIcon } from "./DeleteIcon";
+export { default as DeleteCloseIcon } from "./DeleteCloseIcon";
