@@ -12,7 +12,7 @@ export const timesAgo = (date: string) => {
     if (!date) return "";
     const createdAt = moment.utc(date).local();
     const diffInMinutes = moment().diff(createdAt, "minutes");    
-    const timeAgo = diffInMinutes < 1 ? "Just now" : createdAt.fromNow();
+    const timeAgo = diffInMinutes < 5 ? "Just now" : createdAt.fromNow();
     return timeAgo;
 };
 

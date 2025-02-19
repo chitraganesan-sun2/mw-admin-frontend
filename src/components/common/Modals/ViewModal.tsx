@@ -12,6 +12,7 @@ interface ViewModalProps {
     className?: string;
     borderRadius?: string;
     showCloseIcon?: boolean;
+    zIndex?: number;
 }
 
 const ViewModal: React.FC<ViewModalProps> = ({
@@ -19,11 +20,12 @@ const ViewModal: React.FC<ViewModalProps> = ({
     onClose,
     children,
     width = 800,
-    height = 720,
+    height = "auto",
     style,
     className = "",
     borderRadius,
     showCloseIcon = false,
+    zIndex = 1000,
 }) => {
     const { width: innerWidth } = useWindowSize();
     const isMobile = innerWidth < 768;
@@ -33,7 +35,7 @@ const ViewModal: React.FC<ViewModalProps> = ({
             className={className}
             styles={{
                 wrapper: {
-                    zIndex: 1000,
+                    zIndex: zIndex || 1000,
                 },
                 content: {
                     padding: 0,

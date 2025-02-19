@@ -38,6 +38,13 @@ interface ViewModalProps {
 interface AlertModalProps {
   isOpen: boolean;
   onClose: () => void;
+  title?: string;
+  description?: string;
+  primaryActionText?: string;
+  secondaryActionText?: string;
+  onPrimaryAction?: () => void;
+  onSecondaryAction?: () => void;
+  isLoading?: boolean;
 }
 
 type ShowModalType = "view" | "edit" | "create" | null;

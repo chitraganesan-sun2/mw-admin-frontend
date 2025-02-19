@@ -2,13 +2,9 @@
 
 import Sidebar from "@/components/common/Sidebar";
 import { FC, PropsWithChildren } from "react";
-import { usePathname } from "next/navigation";
-import { cn } from "@/utils/merge-class";
 import CommonHeader from "@/components/common/Header";
 
 const MainLayout: FC<PropsWithChildren> = ({ children }) => {
-  const pathname = usePathname();
-
   return (
     <div className="h-screen w-screen overflow-hidden">
       <div className="grid grid-cols-12">

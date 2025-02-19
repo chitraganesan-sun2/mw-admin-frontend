@@ -2,7 +2,6 @@
 
 import FeedCard from "@/components/community/FeedCard";
 import FeedViewModal from "@/components/community/FeedViewModal";
-import NotificationCard from "@/components/community/NotificationCard";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
@@ -14,11 +13,6 @@ export default function CommunityPage() {
   const pathname = usePathname();
   const [mode, setMode] = useQueryState("mode");
   const [_, setId] = useQueryState("id");
-  const [activeTab] = useQueryState("tab");
-
-  const handleAddNewPost = () => {
-    setMode("add");
-  };
 
   useEffect(() => {
     setHeaderOptions({
@@ -27,27 +21,6 @@ export default function CommunityPage() {
       showSearch: true,
     });
   }, [pathname, setHeaderOptions]);
-
-  const posts: any = [
-    {
-      id: "1",
-      title: "Post 1",
-      description: "Description 1",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      id: "1",
-      title: "Post 1",
-      description: "Description 1",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      id: "1",
-      title: "Post 1",
-      description: "Description 1",
-      image: "https://via.placeholder.com/150",
-    },
-  ];
 
   const handleCloseModal = () => {
     setMode(null);
@@ -60,17 +33,11 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="p-6 w-[75%] mx-auto h-full overflow-hidden animate-fadeIn">
+    <div className="p-6 lg:w-[75%] mx-auto h-full overflow-hidden animate-fadeIn">
       <FeedViewModal isOpen={mode === "view"} onClose={handleCloseModal} />
       <div className="w-full bg-white rounded-3xl mb-6 h-full overflow-auto no-scrollbar hide-scrollbar p-6 flex flex-col gap-4">
-        <h2>All Posts</h2>
-        <div className="flex flex-col gap-10">
-          {posts.map((post: any, index: number) => (
-            <FeedCard
-              key={index}
-              onClick={() => handleFeedCardClick(post.id)}
-            />
-          ))}
+        <div className="flex flex-col min-h-0 flex-grow h-full">
+          <FeedCard onClick={handleFeedCardClick} />
         </div>
       </div>
     </div>
