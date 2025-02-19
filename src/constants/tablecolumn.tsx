@@ -1,6 +1,5 @@
-import { ColumnsType } from "antd/es/table";
 import React from "react";
-import { Volunteer, Report } from "@/constants/column";
+import { Volunteer, Report, Learner } from "@/constants/column";
 
 export const getVolunteerColumns = (
   handleSeeMoreDetails?: (id: string) => void
@@ -81,6 +80,49 @@ export const getVolunteerColumns = (
       <div className="flex items-center gap-2">
         <p
           onClick={() => handleSeeMoreDetails?.(record.volunteer_id)}
+          className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
+        >
+          See more details
+        </p>
+      </div>
+    ),
+    className: "!p-0",
+  },
+];
+
+export const getLearnerColumns = (
+  handleSeeMoreDetails?: (id: string) => void
+) => [
+  {
+    title: "Name",
+    dataIndex: "name",
+    key: "name",
+    sorter: (a: any, b: any) => a?.name?.localeCompare(b?.name),
+    className:
+      "p-6 text-sm w-1/3 !font-semibold text-gray-900 !font-poppins",
+  },
+  {
+    title: "Age",
+    dataIndex: "age",
+    key: "age",
+    sorter: (a: any, b: any) => a?.age - b?.age,
+    className:
+      "p-6 text-sm w-1/5 bg-gray-50 text-gray-900 !font-poppins",
+  },
+  {
+    title: "Location",
+    dataIndex: "location",
+    key: "location",
+    sorter: false,
+    className: "p-6 w-1/4 text-sm text-gray-900 !font-poppins",
+  },
+  {
+    title: "",
+    key: "actions",
+    render: (_: unknown, record: Learner) => (
+      <div className="flex items-center gap-2">
+        <p
+          onClick={() => handleSeeMoreDetails?.(record?.learner_id)}
           className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
         >
           See more details

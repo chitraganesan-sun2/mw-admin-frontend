@@ -94,9 +94,9 @@ export const request = async (
     return response;
   } catch (error) {
     // Log error for debugging in development
-    if (typeof window !== "undefined") {
-      window.location.href = "/";
-    }
+    // if (typeof window !== "undefined") {
+    //   window.location.href = "/";
+    // }
     console.error("API Request Error:", error);
     return Promise.reject(error);
   }

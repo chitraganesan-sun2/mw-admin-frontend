@@ -12,6 +12,8 @@ export const getHeaderIcon = (pathname: string) => {
       return <DashBoardIcon />;
     case "volunteer":
       return <VolunteerIcon />;
+    case "learner":
+      return <VolunteerIcon />;
     case "reports":
       return <ReportIcon />;
     case "resources":

@@ -21,6 +21,11 @@ const Sidebar = () => {
       text: "Volunteer",
       icon: <VolunteerIcon />,
     },
+    {
+      href: "/learner",
+      text: "Learner",
+      icon: <VolunteerIcon />,
+    },
     // {
     //   href: "/reports",
     //   text: "Reports",

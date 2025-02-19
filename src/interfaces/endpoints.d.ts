@@ -14,6 +14,30 @@ type EndpointProps = {
     getAllVolunteers: string;
     getVolunteerDetails: (volunteerId: string) => string;
   };
+  learner: {
+    getAllLearners: string;
+    getLearnerDetails: (learnerId: string) => string;
+  };
+  resources: {
+      get: string;
+      getResource: (resource_id: string) => string,
+      delete: (resource_id: string) => string,
+      getCategories: string,
+      getResourcesByCategory: (category: string) => string,
+  };
+  post: {
+    getPosts: string,
+    getSinglePost: (post_id: string) => string,
+    deletePost: (id: string) => string,
+  };
+  comment: {
+    getPostComments: (post_id: string) => string,
+    deleteComment: (comment_id: string) => string,
+  };
+  report: {
+    getAllReports: string,
+    getReport: (report_id: string) => string,
+  };
 };
 
 type CommonPath = "skills" | "languages" | "subjects" | "media" | "categories";

@@ -1,56 +1,80 @@
 import React from "react";
-import { Button, Modal } from "antd";
-import Divider from "../Divider";
-import { IoMdCheckmark } from "react-icons/io";
-import { MdClose } from "react-icons/md";
+import { Modal } from "antd";
+import { useWindowSize } from "@/hooks/useWindowSize";
+
+interface ViewModalProps {
+    modalOpen: boolean;
+    onClose: () => void;
+    children: React.ReactNode;
+    width?: number | string;
+    height?: number | string;
+    style?: React.CSSProperties;
+    className?: string;
+    borderRadius?: string;
+    showCloseIcon?: boolean;
+    zIndex?: number;
+}
 
 const ViewModal: React.FC<ViewModalProps> = ({
-  modalOpen,
-  onClose,
-  children,
-  width,
-  height,
-  style,
-  className,
-  isFooterButtonsNeeded,
-  onAccept,
-  onReject,
-  loading,
+    modalOpen,
+    onClose,
+    children,
+    width = 800,
+    height = "auto",
+    style,
+    className = "",
+    borderRadius,
+    showCloseIcon = false,
+    zIndex = 1000,
 }) => {
-  return (
-    <Modal
-      className={className}
-      styles={{
-        wrapper: {
-          zIndex: 1000,
-        },
-        content: {
-          padding: 0,
-          borderRadius: "1rem",
-        },
-        body: {
-          padding: 0,
-          height: height,
-          fontFamily: "Poppins",
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
-      style={style}
-      modalRender={(node) => (
-        <div style={{ borderRadius: "12px", overflow: "hidden" }}>{node}</div>
-      )}
-      centered
-      open={modalOpen}
-      closeIcon={false}
-      footer={null}
-      width={width}
-    >
-      <div className="flex flex-col h-full">
-        <div className="flex-1 overflow-auto">{children}</div>
-      </div>
-    </Modal>
-  );
+    const { width: innerWidth } = useWindowSize();
+    const isMobile = innerWidth < 768;
+
+    return (
+        <Modal
+            className={className}
+            styles={{
+                wrapper: {
+                    zIndex: zIndex || 1000,
+                },
+                content: {
+                    padding: 0,
+                    borderRadius: isMobile ? 0 : borderRadius || "1rem",
+                },
+                body: {
+                    padding: 0,
+                    height: height,
+                },
+                mask: {
+                    backdropFilter: "blur(4px)",
+                },
+            }}
+            style={{
+                ...style,
+                margin: 0,
+                padding: 0,
+            }}
+            modalRender={(node) => (
+                <div
+                    style={{
+                        borderRadius: isMobile ? 0 : borderRadius || "12px",
+                        overflow: "hidden",
+                        width: "100%",
+                    }}
+                >
+                    {node}
+                </div>
+            )}
+            centered
+            open={modalOpen}
+            closeIcon={showCloseIcon}
+            onCancel={onClose}
+            footer={null}
+            width={width}
+        >
+            {children}
+        </Modal>
+    );
 };
 
 export default ViewModal;

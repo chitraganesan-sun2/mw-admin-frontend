@@ -3,16 +3,50 @@ import ViewModal from "./ViewModal";
 import { FeedModalCloseIcon } from "@/assets/icons";
 import Divider from "../Divider";
 import Button from "../Button";
-import { IoMdCheckmark } from "react-icons/io";
-import { MdClose } from "react-icons/md";
 
-const AlertModal = ({ isOpen, onClose }: AlertModalProps) => {
-  const handleAccept = () => {
-    console.log("accept");
+interface AlertModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  description?: string;
+  primaryActionText?: string;
+  secondaryActionText?: string;
+  onPrimaryAction: () => void;
+  onSecondaryAction?: () => void;
+  isLoading?: boolean;
+  type?: 'warning' | 'danger' | 'info';
+}
+
+const AlertModal = ({
+  isOpen,
+  onClose,
+  title = "Are You Sure?",
+  description,
+  primaryActionText = "Yes, Delete",
+  secondaryActionText = "Cancel",
+  onPrimaryAction,
+  onSecondaryAction,
+  isLoading = false,
+  type = 'danger'
+}: AlertModalProps) => {
+
+  const handleSecondaryAction = () => {
+    if (onSecondaryAction) {
+      onSecondaryAction();
+    } else {
+      onClose();
+    }
   };
 
-  const handleReject = () => {
-    console.log("reject");
+  const getTitleColor = () => {
+    switch (type) {
+      case 'danger':
+        return 'text-[#DC2626]';
+      case 'warning':
+        return 'text-[#F59E0B]';
+      default:
+        return 'text-black';
+    }
   };
 
   return (
@@ -20,35 +54,33 @@ const AlertModal = ({ isOpen, onClose }: AlertModalProps) => {
       modalOpen={isOpen}
       onClose={onClose}
       width={484}
-      isFooterButtonsNeeded={false}
+      zIndex={100000}
     >
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between px-5 pt-3">
-          <h2 className="text-2xl text-[#DC2626] font-medium">Are You Sure?</h2>
+          <h2 className={`text-2xl font-medium ${getTitleColor()}`}>{title}</h2>
           <span className="cursor-pointer" onClick={onClose}>
             <FeedModalCloseIcon />
           </span>
         </div>
         <p className="text-sm text-gray-light font-medium px-5">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem
-          ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua.
+          {description}
         </p>
         <Divider />
         <div className="flex items-center gap-2 justify-end px-5 pb-3">
           <Button
-            onClick={handleReject}
-            className="w-fit text-sm h-9 !bg-white rounded-lg  py-2 !text-black !border !border-stroke"
+            disabled={isLoading}
+            onClick={handleSecondaryAction}
+            className="w-fit text-sm h-9 !bg-white rounded-lg py-2 !text-black !border !border-stroke"
           >
-            No, Cancel
+            {secondaryActionText}
           </Button>
           <Button
-            key="submit"
-            onClick={handleAccept}
-            className="w-fit text-sm h-9 !bg-black !border-none rounded-lg  py-2 !text-white "
+            loading={isLoading}
+            onClick={onPrimaryAction}
+            className="w-fit text-sm h-9 !bg-black !border-none rounded-lg py-2 !text-white hover:!text-white"
           >
-            Yes, Proceed
+            {primaryActionText}
           </Button>
         </div>
       </div>

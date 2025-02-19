@@ -1,12 +1,10 @@
 import * as React from "react";
 
-const ModalCloseIcon: React.FC<React.HTMLAttributes<HTMLOrSVGElement>> = (
-  props
-) => (
+const ModalCloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="40"
-    height="40"
+    width={props?.width || "40"}
+    height={props?.height || "40"}
     fill="none"
     viewBox="0 0 40 40"
   >
