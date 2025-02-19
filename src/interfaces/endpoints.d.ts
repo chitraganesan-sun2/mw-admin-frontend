@@ -14,13 +14,16 @@ type EndpointProps = {
     getAllVolunteers: string;
     getVolunteerDetails: (volunteerId: string) => string;
   };
+  learner: {
+    getAllLearners: string;
+    getLearnerDetails: (learnerId: string) => string;
+  };
   resources: {
       get: string;
-      getMyResources: string,
-      getResourcesByCategory: (category: string) => string,
-      getCategories: string,
       getResource: (resource_id: string) => string,
       delete: (resource_id: string) => string,
+      getCategories: string,
+      getResourcesByCategory: (category: string) => string,
   };
   post: {
     getPosts: string,
@@ -30,6 +33,10 @@ type EndpointProps = {
   comment: {
     getPostComments: (post_id: string) => string,
     deleteComment: (comment_id: string) => string,
+  };
+  report: {
+    getAllReports: string,
+    getReport: (report_id: string) => string,
   };
 };
 

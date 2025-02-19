@@ -106,13 +106,6 @@ export default function LearnersPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
 
-  const [_, setVolunteerId] = useQueryState("id", {
-    shallow: true,
-  });
-  const [mode, setMode] = useQueryState("mode", {
-    shallow: true,
-  });
-
   useEffect(() => {
     setHeaderOptions({
       title: "Volunteers Request",

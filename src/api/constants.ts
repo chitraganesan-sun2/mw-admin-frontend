@@ -14,21 +14,29 @@ export const endpoints: EndpointProps = {
     getVolunteerDetails: (volunteerId: string) =>
       `admin/volunteer/${volunteerId}`,
   },
+  learner: {
+    getAllLearners: "admin/learner",
+    getLearnerDetails: (learnerId: string) =>
+      `admin/learner/${learnerId}`,
+  },
   resources: {
-      get: "resource",
-      getMyResources: "resource/myresources",
+      get: "admin/resource",
+      getResource: (resource_id: string) => `admin/resource/${resource_id}`,
+      delete: (resource_id: string) => `admin/resource/${resource_id}`,
       getResourcesByCategory: (category: string) => `resource/categories/${category}`,
       getCategories: "resource/categories/all",
-      getResource: (resource_id: string) => `resource/${resource_id}`,
-      delete: (resource_id: string) => `resource/${resource_id}`,
   },
   post: {
-      getPosts: "post",
-      getSinglePost: (post_id: string) => `post/${post_id}`,
-      deletePost: (id: string) => `/post/${id}`,
+      getPosts: "admin/post",
+      getSinglePost: (post_id: string) => `admin/post/${post_id}`,
+      deletePost: (id: string) => `admin/post/${id}`,
   },  
   comment: {
-    getPostComments: (post_id: string) => `comment/${post_id}`,
-    deleteComment: (comment_id: string) => `comment/${comment_id}`, 
+    getPostComments: (post_id: string) => `admin/comment/${post_id}`,
+    deleteComment: (comment_id: string) => `admin/comment/${comment_id}`, 
   },
+  report: {
+    getAllReports: "admin/report",
+    getReport: (report_id: string) => `admin/report/${report_id}`,
+  }
 };

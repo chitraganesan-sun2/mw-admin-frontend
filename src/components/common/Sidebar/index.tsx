@@ -22,20 +22,25 @@ const Sidebar = () => {
       icon: <VolunteerIcon />,
     },
     {
-      href: "/reports",
-      text: "Reports",
-      icon: <ReportIcon />,
+      href: "/learner",
+      text: "Learner",
+      icon: <VolunteerIcon />,
     },
-    {
-      href: "/resources",
-      text: "Resources",
-      icon: <ResourceIcon />,
-    },
-    {
-      href: "/community",
-      text: "Community",
-      icon: <CommunityIcon />,
-    },
+    // {
+    //   href: "/reports",
+    //   text: "Reports",
+    //   icon: <ReportIcon />,
+    // },
+    // {
+    //   href: "/resources",
+    //   text: "Resources",
+    //   icon: <ResourceIcon />,
+    // },
+    // {
+    //   href: "/community",
+    //   text: "Community",
+    //   icon: <CommunityIcon />,
+    // },
   ];
 
   const handleSignOut = () => {
