@@ -17,8 +17,10 @@ export interface Learner {
 
 export interface Report {
   id: string;
+  reportId: string;
+  docId: string;
   profile_name: string;
   reason: string;
   report_time: string;
-  review_status: string;
+  report_status: string;
 }

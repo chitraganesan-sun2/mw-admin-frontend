@@ -35,8 +35,10 @@ type EndpointProps = {
     deleteComment: (comment_id: string) => string,
   };
   report: {
-    getAllReports: string,
+    getAllReports: (report_type: string) => string,
     getReport: (report_id: string) => string,
+    resolveReport: (report_id: string) => string,
+    rejectReport: (report_id: string) => string,
   };
 };
 

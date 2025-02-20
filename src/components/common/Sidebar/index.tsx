@@ -1,6 +1,5 @@
-import Divider from "@/components/common/Divider";
+
 import Logo from "@/components/common/Logo";
-import Avatar from "./Avatar";
 import SectionCard from "./SectionCard";
 import { CommunityIcon, ResourceIcon, SignOutIcon } from "@/assets/icons";
 import { useRouter } from "next/navigation";
@@ -26,21 +25,21 @@ const Sidebar = () => {
       text: "Learner",
       icon: <VolunteerIcon />,
     },
-    // {
-    //   href: "/reports",
-    //   text: "Reports",
-    //   icon: <ReportIcon />,
-    // },
-    // {
-    //   href: "/resources",
-    //   text: "Resources",
-    //   icon: <ResourceIcon />,
-    // },
-    // {
-    //   href: "/community",
-    //   text: "Community",
-    //   icon: <CommunityIcon />,
-    // },
+    {
+      href: "/reports",
+      text: "Reports",
+      icon: <ReportIcon />,
+    },
+    {
+      href: "/resources",
+      text: "Resources",
+      icon: <ResourceIcon />,
+    },
+    {
+      href: "/community",
+      text: "Community",
+      icon: <CommunityIcon />,
+    },
   ];
 
   const handleSignOut = () => {

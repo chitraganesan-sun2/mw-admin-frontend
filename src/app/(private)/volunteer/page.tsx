@@ -45,18 +45,17 @@ const tabs = [
 ];
 
 export default function LearnersPage() {
-  const router = useRouter();
   const [volunteerData, setVolunteerData] = useState<TableVolunteer[]>([]);
 
   const [total, setTotal] = useState<number>(0);
   const [size, setSize] = useQueryState("size", { defaultValue: "10" });
   const [page, setPage] = useQueryState("page", { defaultValue: "1" });
+  const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
 
   const [isFilterOn, setIsFilterOn] = useState(false);
 
   const handleSeeMoreDetails = (id: string) => {
-    console.log("See more details:", id);
-    router.push(`/volunteer?volunteer_id=${id}`);
+    setVolunteerId(id);
   };
   const columns = getVolunteerColumns(handleSeeMoreDetails);
 

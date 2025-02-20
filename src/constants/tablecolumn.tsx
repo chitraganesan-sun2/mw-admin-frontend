@@ -133,14 +133,14 @@ export const getLearnerColumns = (
   },
 ];
 
-export const getReportColumns = (handleSeePost?: (id: string) => void) => [
+export const getReportColumns = (handleSeePost?: (id: string, reportId?: string) => void) => [
   {
     title: "Profile Name",
     dataIndex: "profile_name",
     key: "profile_name",
     sorter: true,
     className:
-      "px-6 !py-3 text-sm w-1/5 !font-semibold text-gray-900 !font-poppins",
+      "p-6 text-sm !w-1/5 !font-semibold text-gray-900 !font-poppins",
   },
   {
     title: "Reason",
@@ -148,29 +148,29 @@ export const getReportColumns = (handleSeePost?: (id: string) => void) => [
     key: "reason",
     sorter: false,
     className:
-      "px-6 !py-3 text-sm w-1/9 bg-gray-50 text-gray-900 !font-poppins",
+      "p-6 text-sm !w-1/9 bg-gray-50 text-gray-900 !font-poppins",
   },
   {
     title: "Report Time",
     dataIndex: "report_time",
     key: "report_time",
     sorter: true,
-    className: "px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins",
+    className: "p-6 !w-1/5 text-sm text-gray-900 !font-poppins",
   },
   {
     title: "Review Status",
     dataIndex: "review_status",
     key: "review_status",
     sorter: false,
-    className: "px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins",
+    className: "p-6 !w-1/5 text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: Report) => (
       <span
-        className={`px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins ${
-          record.review_status === "verification_pending"
+        className={`text-sm text-gray-900 !font-poppins ${
+          record.report_status === "pending"
             ? "text-warning"
-            : record.review_status === "verification_completed"
+            : record.report_status === "resolved"
             ? "text-success"
-            : record.review_status === "verification_rejected"
+            : record.report_status === "rejected"
             ? "text-error"
             : "text-gray-500"
         }`}
@@ -178,16 +178,16 @@ export const getReportColumns = (handleSeePost?: (id: string) => void) => [
         <span className="flex items-center gap-1">
           <div
             className={`!w-2 !h-2 !rounded-full ${
-              record.review_status === "verification_pending"
+              record.report_status === "pending"
                 ? "!bg-warning"
-                : record.review_status === "verification_completed"
+                : record.report_status === "resolved"
                 ? "!bg-success"
-                : record.review_status === "verification_rejected"
+                : record.report_status === "rejected"
                 ? "!bg-error"
                 : "!bg-gray-500"
             }`}
           ></div>
-          {record.review_status}
+          {record.report_status}
         </span>
       </span>
     ),
@@ -198,7 +198,7 @@ export const getReportColumns = (handleSeePost?: (id: string) => void) => [
     render: (_: unknown, record: Report) => (
       <div className="flex items-center gap-2">
         <p
-          onClick={() => handleSeePost?.(record.id)}
+          onClick={() => handleSeePost?.(record.docId, record.reportId)}
           className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
         >
           See post

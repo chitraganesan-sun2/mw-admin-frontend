@@ -1,11 +1,6 @@
 "use client";
 
-// import Button from "@/components/common/Button";
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { useRef } from "react";
 import { cn } from "@/utils/merge-class";
-
-const SCROLL_AMOUNT = 300;
 
 type SectionWrapperProps = {
   data: any[];
@@ -26,21 +21,6 @@ const SectionWrapper = ({
   onPlaceHolderClick,
   contentClassName,
 }: SectionWrapperProps) => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (direction: "left" | "right") => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = SCROLL_AMOUNT; // Adjust scroll amount as needed
-      const newScrollPosition =
-        scrollContainerRef.current.scrollLeft +
-        (direction === "left" ? -scrollAmount : scrollAmount);
-
-      scrollContainerRef.current.scrollTo({
-        left: newScrollPosition,
-        behavior: "smooth",
-      });
-    }
-  };
 
   return (
     <div hidden={hideSectionHeader} className="w-full">
@@ -56,9 +36,7 @@ const SectionWrapper = ({
         </div>
       </div>
 
-      {/* Scrollable Content Section */}
       <div
-        ref={scrollContainerRef}
         className="overflow-x-auto scrollbar-hide flex relative"
         style={{
           scrollbarWidth: "none",

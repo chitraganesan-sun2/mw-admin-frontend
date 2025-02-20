@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
 import { GET_API, PUT_API } from "@/api/request";
 import moment from "moment";
-import Link from "next/link";
 import { Spin } from "antd";
+import { useQueryState } from "nuqs";
 
 interface VolunteerDetails {
   name: string;
@@ -39,9 +37,7 @@ interface VolunteerDetails {
 }
 
 const ProfileDetails = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const volunteerId = searchParams.get("volunteer_id");
+  const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
   const [hideFooter, setHideFooter] = useState(true);
   const queryClient = useQueryClient();
   
@@ -328,7 +324,7 @@ const ProfileDetails = () => {
   ]
 
   const handleModalClose = () => {
-    router.push("/volunteer");
+    setVolunteerId(null);
     setIsOpen(false);
   };
 
@@ -382,7 +378,7 @@ const ProfileDetails = () => {
     <CenterModal
       title="Profile Details"
       width={800}
-      customClassName="max-h-[90vh] !rounded-2xl overflow-y-auto"
+      customClassName="max-h-[90vh] !rounded-3xl overflow-y-auto no-scrollbar"
       isOpen={isOpen}
       onClose={handleModalClose}
       onAccept={handleAccept}
