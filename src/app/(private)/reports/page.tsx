@@ -1,6 +1,5 @@
 "use client";
 
-import { endpoints } from "@/api/constants";
 import { GET_API } from "@/api/request";
 import GroupFilters from "@/components/common/Filters";
 import ResourceFilterModal from "@/components/resources/FilterModal";
@@ -11,156 +10,145 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import CommunityModal from "@/components/community/FeedViewModal";
 import ResourceModal from "@/components/resources/DetailModal";
+import { toUserTimeZone } from "@/utils/timeFunctions";
+import { formatString } from "@/utils/stringFunctions";
+import { getReportsByType } from "@/api/reports";
 
 interface PaginationParams {
   page: number;
   size: number;
 }
 
-interface TableReports {
-  id: string;
-  profile_name: string;
-  reason: string;
-  report_time: string;
-  review_status: string;
-  see_post: string;
-}
+const tabs = [
+  { key: "resource", title: "Resources" },
+  { key: "post", title: "Community Post" },
+];
 
-const tabs = [{
-  key: "resources",
-  title: "Resources",
-}, {
-  key: "community-post",
-  title: "Community Post",
-}]
+export default function ReportsPage() {
+  const { setHeaderOptions } = useComponentStore();
+  const pathname = usePathname();
 
-export default function LearnersPage() {
-  const [reportsData, setReportsData] = useState<TableReports[]>([]);
+  // Query State
+  const [id, setId] = useQueryState("id", { shallow: true });
+  const [reportId, setReportId] = useQueryState("reportId", { shallow: true });
+  const [mode, setMode] = useQueryState("mode", { shallow: true });
+  const [currentTab, setCurrentTab] = useQueryState("tab", {
+    shallow: true,
+    defaultValue: "resource",
+  });
+
+  // State Management
   const [pagination, setPagination] = useState<PaginationParams>({
     page: 1,
     size: 10,
   });
-  const [total, setTotal] = useState<number>(0);
   const [isFilterOn, setIsFilterOn] = useState(false);
-  const [currentTab, setCurrentTab] = useState("resources");
+  const [debouncedTab, setDebouncedTab] = useState(currentTab); // Debounced tab state
 
-  const handleViewAction = (id: string) => {
-    setMode("view");
-    setId(id);
-  }
-  const columns = getReportColumns(handleViewAction);
-
-  const getAllReports = async ({ page, size }: PaginationParams) => {
-    // const response: any = await GET_API(
-    //   `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`
-    // );
-    // return response.data;
-  };
-
-  const { data: reports, isLoading } = useQuery({
-    queryKey: ["reports", pagination.page, pagination.size],
-    queryFn: () => getAllReports(pagination),
-  });
-
-  // useEffect(() => {
-  //   if (volunteers?.items) {
-  //     const transformedData = volunteers.items.map((volunteer: any) => ({
-  //       id: volunteer.volunteer_id,
-  //       name: `${volunteer.volunteer_personal_info.volunteer_first_name} ${volunteer.volunteer_personal_info.volunteer_last_name}`,
-  //       age: volunteer.volunteer_personal_info.volunteer_age,
-  //       location: volunteer.volunteer_personal_info.volunteer_location,
-  //     }));
-  //     setVolunteerData(transformedData);
-  //     setTotal(volunteers.total);
-  //   }
-  // }, [volunteers]);
-
+  // Debounce effect for tab switching
   useEffect(() => {
-    setReportsData([
-      {
-        id: "11",
-        profile_name: "John Doe",
-        reason: "Spamming",
-        report_time: "12-12-2024",
-        review_status: "Pending",
-        see_post: "See post",
-      },
-      {
-        id: "22",
-        profile_name: "Jane Doe",
-        reason: "Spamming",
-        report_time: "12-12-2024",
-        review_status: "Accepted",
-        see_post: "See post",
-      },
-      {
-        id: "33",
-        profile_name: "John Doe",
-        reason: "Spamming",
-        report_time: "12-12-2024",
-        review_status: "Removed",
-        see_post: "See post",
-      },
-    ]);
+    const timeout = setTimeout(() => {
+      setDebouncedTab(currentTab);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [currentTab]);
+
+  const handleViewAction = useCallback((id: string, reportId?: string) => {
+    setMode("view");
+    setReportId(reportId || null);
+    setId(id);
   }, []);
+  const columns = useMemo(() => getReportColumns(handleViewAction), []);
 
-  const handleTableChange = (pagination: any) => {
-    setPagination({
-      page: pagination.current,
-      size: pagination.pageSize,
-    });
-  };
+  const getAllReports = useCallback(async () => {
+    const response: any = await getReportsByType(debouncedTab, pagination);
+    if (response.status === 200) {
+      return {
+        data: response.data?.items.map((item: any) => ({
+          id: item.report_id,
+          docId: item.report_type_id,
+          reportId: item.report_id,
+          profile_name: item?.author?.name,
+          reason: formatString(item?.report_description),
+          report_time: toUserTimeZone({
+            date: item?.created_at,
+            format: "DD MMM, YYYY",
+          }),
+          report_status: item?.report_status || "pending",
+        })),
+        total: response.data?.total || 0,
+      };
+    }
+    return { data: [], total: 0 };
+  }, [debouncedTab, pagination]);
 
-  const { setHeaderOptions } = useComponentStore();
-  const pathname = usePathname();
-
-  const [_, setId] = useQueryState("id", {
-    shallow: true,
+  const { data, isFetching } = useQuery({
+    queryKey: ["reports", debouncedTab, pagination.page, pagination.size],
+    queryFn: getAllReports,
+    placeholderData: (previousData) => previousData, 
   });
-  const [mode, setMode] = useQueryState("mode", {
-    shallow: true,
-  });
+
+  const handleTableChange = useCallback((pagination: any) => {
+    setPagination({ page: pagination.current, size: pagination.pageSize });
+  }, []);
 
   useEffect(() => {
     setHeaderOptions({
       title: "Reports",
       titleIcon: getHeaderIcon(pathname),
     });
-  }, [setHeaderOptions]);
-
-  const ViewModal = currentTab === 'resources' ? ResourceModal : CommunityModal;
+  }, [pathname]);
 
   const handleCloseModal = () => {
     setMode(null);
     setId(null);
+    setReportId(null);
   };
 
   return (
-    <div className="w-full h-full p-6 animate-fadeIn">
-      <ViewModal isOpen={mode === "view"} onClose={handleCloseModal}/>
+    <div className="w-full h-full p-6">
+      {currentTab === "resource" ? (
+        <ResourceModal
+          key={`${currentTab}-${reportId}`}
+          isOpen={mode === "view"}
+          onClose={handleCloseModal}
+        />
+      ) : (
+        <CommunityModal
+          key={`${currentTab}-${reportId}`}
+          isOpen={mode === "view"}
+          onClose={handleCloseModal}
+        />
+      )}
+
       <ResourceFilterModal
         isFilterApplying={false}
         isOpen={isFilterOn}
-        onClose={() => setIsFilterOn(false)} />
+        onClose={() => setIsFilterOn(false)}
+      />
+
       <GroupFilters
         tabButtons={tabs}
         currentTab={currentTab}
-        handleTabClick={(tab) => setCurrentTab(tab)}
+        handleTabClick={setCurrentTab}
         showFilters={true}
         handleFilterClick={() => setIsFilterOn(true)}
         showSearch={true}
       />
+
       <Table
-        data={reportsData}
+        key={`table-${reportId}`}
+        rootClassName="!opcacity-100"
+        data={data?.data || []}
         columns={columns}
-        loading={isLoading}
+        loading={isFetching}
         pagination={{
           current: pagination.page,
           pageSize: pagination.size,
-          total: total,
+          total: data?.total || 0,
           showSizeChanger: true,
           showQuickJumper: true,
         }}

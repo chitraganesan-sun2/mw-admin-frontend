@@ -28,7 +28,7 @@ function GroupFilters({ tabButtons, currentTab, handleTabClick, showFilters, han
             />
           ))}
         </div>
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3">
           {showFilters && <Button
             onClick={handleFilterClick}
             title="Filters"
@@ -43,7 +43,7 @@ function GroupFilters({ tabButtons, currentTab, handleTabClick, showFilters, han
             onChange={(value: string) => setSearchQuery(value || null)}
             placeholder="Search"
           />}
-        </div>
+        </div> */}
       </div>
     </div>
   )

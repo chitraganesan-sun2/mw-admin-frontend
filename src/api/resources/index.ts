@@ -16,8 +16,8 @@ export const getResourcesByCategory = async (category_id: string, params?: any) 
 export const getSingleResource = async (resource_id: string) => {
     if (!resource_id) return null;
     const endpoint = endpoints.resources.getResource(resource_id);
-    const { data } = await GET_API(endpoint);
-    return data || {};
+    const { data, status } = await GET_API(endpoint);
+    return status === 200 ? data : null;
 }
 
 export const deleteResource = async (resource_id: string) => {

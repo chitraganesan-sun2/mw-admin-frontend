@@ -97,7 +97,7 @@ export const request = async (
     // if (typeof window !== "undefined") {
     //   window.location.href = "/";
     // }
-    console.error("API Request Error:", error);
+    // console.error("API Request Error:", error);
     return Promise.reject(error);
   }
 };

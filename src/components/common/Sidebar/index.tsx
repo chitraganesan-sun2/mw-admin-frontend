@@ -1,6 +1,5 @@
-import Divider from "@/components/common/Divider";
+
 import Logo from "@/components/common/Logo";
-import Avatar from "./Avatar";
 import SectionCard from "./SectionCard";
 import { CommunityIcon, ResourceIcon, SignOutIcon } from "@/assets/icons";
 import { useRouter } from "next/navigation";

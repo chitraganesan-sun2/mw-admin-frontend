@@ -35,9 +35,10 @@ export default function LearnersPage() {
   const [total, setTotal] = useState<number>(0);
   const [size, setSize] = useQueryState("size", { defaultValue: "10" });
   const [page, setPage] = useQueryState("page", { defaultValue: "1" });
+  const [learnerId, setLearnerId] = useQueryState("learner_id");
 
   const handleSeeMoreDetails = (id: string) => {
-    router.push(`/learner?learner_id=${id}`);
+    setLearnerId(id);
   };
   const columns = getLearnerColumns(handleSeeMoreDetails);
 

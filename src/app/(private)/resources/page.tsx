@@ -27,7 +27,7 @@ export default function ResourcesPage() {
   const [resourceId, setResourceId] = useQueryState("id");
   const [mode, setMode] = useQueryState("mode");
 
-  const { data: ResourceCategories, isFetching: isFetchingCategories } =
+  const { data: ResourceCategories} =
     useQuery({
       queryKey: ["resource-categories"],
       queryFn: async () =>
@@ -43,8 +43,7 @@ export default function ResourcesPage() {
 
   const pageTitle = useMemo(
     () =>
-      ResourceCategories?.find((c: any) => c?.category_id === category)
-        ?.category_name || "Resources",
+      ResourceCategories?.find((c: any) => c?.category_id === category)?.category_name || "Resources",
     [ResourceCategories, category]
   );
 

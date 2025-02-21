@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
 import { GET_API } from "@/api/request";
 import moment from "moment";
 import { Spin } from "antd";
 import { formatString } from "@/utils/stringFunctions";
+import { useQueryState } from "nuqs";
 
 interface LearnerDetails {
   name: string;
@@ -65,9 +64,7 @@ interface LearnerDetails {
 }
 
 const LearnerProfileDetails = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const learnerId = searchParams.get("learner_id");
+  const [learnerId, setLearnerId] = useQueryState("learner_id");
 
   const [hideFooter, setHideFooter] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -211,39 +208,15 @@ const LearnerProfileDetails = () => {
 
   const educationDetails = [
     { title: "Current School", value: formatString(learnerDetails?.current_school || '') || "-" },
-    {
-      title: "Academic Strengths",
-      value:
-        learnerDetails?.academic_strengths?.length && learnerDetails?.academic_strengths?.length > 0
-          ? learnerDetails.academic_strengths?.map((strength) => formatString(strength)).join(" | ")
-          : "-",
-    },
-    {
-      rootClassName: "col-span-2",
-      title: "Academic Challenges",
-      value:
-        learnerDetails?.academic_challenges?.length && learnerDetails?.academic_challenges?.length > 0
-          ? learnerDetails.academic_challenges?.map((challenge) => formatString(challenge)).join(" | ")
-          : "-",
-    },
+    { title: "Academic Strengths", rootClassName: "col-span-2", value: learnerDetails?.academic_strengths?.map((strength) => formatString(strength)).join(" | ") || "-" },
+    { title: "Academic Challenges", rootClassName: "col-span-2", value: learnerDetails?.academic_challenges?.map((challenge) => formatString(challenge)).join(" | ") || "-" },
   ];
 
   const learnerGoalsDetails = [
+    { title: "Skill Level", value: learnerDetails?.learner_goals?.skill_level || "-" },
     { title: "Expected Goals", value: learnerDetails?.learner_goals?.expected_goals?.map((goal) => formatString(goal)).join(" | ") || "-" },
-    {
-      title: "Subjects to Focus On",
-      value:
-        learnerDetails?.learner_goals?.subjects_to_focus_on?.length && learnerDetails?.learner_goals?.subjects_to_focus_on?.length > 0
-          ? learnerDetails.learner_goals?.subjects_to_focus_on?.map((strength) => formatString(strength)).join(" | ")
-          : "-",
-    },
-    {
-      title: "Preferred Volunteer Qualities",
-      value:
-        learnerDetails?.learner_goals?.preferred_volunteer_qualities?.length && learnerDetails?.learner_goals?.preferred_volunteer_qualities?.length > 0
-          ? learnerDetails.learner_goals?.preferred_volunteer_qualities?.map((quality) => formatString(quality)).join(" | ")
-          : "-",
-    },
+    { title: "Subjects to Focus On", value: learnerDetails?.learner_goals?.subjects_to_focus_on?.map((strength) => formatString(strength)).join(" | ") || "-" },
+    { title: "Preferred Volunteer Qualities", value: learnerDetails?.learner_goals?.preferred_volunteer_qualities?.map((quality) => formatString(quality)).join(" | ") || "-" },
   ];
 
   const learnerSpecialNeedsDetails = [
@@ -258,8 +231,8 @@ const LearnerProfileDetails = () => {
 
   const currentInterestsDetails = [
     { title: "Interests", value: learnerDetails?.current_interests?.interests?.map((interest) => formatString(interest)).join(" | ") || "-" },
-    { title: "Extra-Curricular Activities", value: learnerDetails?.current_interests?.extra_curricular_activities?.map((activity) => formatString(activity)).join(" | ") || "-" },
-    { title: "Favorite Activities", value: learnerDetails?.current_interests?.favorite_activities?.map((activity) => formatString(activity)).join(" | ") || "-" },
+    { title: "Extra-Curricular Activities", value: learnerDetails?.current_interests?.extra_curricular_activities || "-" },
+    { title: "Favorite Activities", value: learnerDetails?.current_interests?.favorite_activities || "-" },
   ];
 
   const socialSkillsDetails = [
@@ -296,7 +269,7 @@ const LearnerProfileDetails = () => {
   ];
 
   const handleModalClose = () => {
-    router.push("/learner");
+    setLearnerId(null);
     setIsOpen(false);
   };
 
@@ -304,7 +277,7 @@ const LearnerProfileDetails = () => {
     <CenterModal
       title="Learner Profile Details"
       width={900}
-      customClassName="max-h-[90vh] !rounded-2xl overflow-y-auto"
+      customClassName="max-h-[90vh] !rounded-3xl overflow-y-auto no-scrollbar"
       isOpen={isOpen}
       onClose={handleModalClose}
       hideFooter={hideFooter}
@@ -384,7 +357,7 @@ const LearnerProfileDetails = () => {
           <div>
             <p className="text-xl font-medium border-t pt-5 mb-4">Current Interests</p>
             <div className="grid grid-cols-1 gap-4">
-              {currentInterestsDetails.map((item, index) => (
+              {currentInterestsDetails?.map((item, index) => (
                 <div key={index} className="flex flex-col gap-1">
                   <p className="text-sm font-medium text-gray-medium">{item.title}</p>
                   <p className={`text-[1rem] text-gray-dark font-medium `}>{item.value}</p>
