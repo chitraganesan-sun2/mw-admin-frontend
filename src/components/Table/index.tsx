@@ -9,6 +9,7 @@ interface TableProps {
   columns?: any;
   handleSeeMoreDetails?: (id: string) => void;
   handleSeePost?: (id: string) => void;
+  rootClassName?: string;
 }
 
 const Table: React.FC<TableProps> = ({
@@ -17,6 +18,7 @@ const Table: React.FC<TableProps> = ({
   pagination,
   onChange,
   columns,
+  rootClassName
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -28,7 +30,7 @@ const Table: React.FC<TableProps> = ({
     <div
       className={`w-full  h-full !font-poppins transition-opacity duration-500 ease-in-out overflow-hidden ${
         isVisible ? "opacity-100" : "opacity-0"
-      }`}
+      } ${rootClassName}`}
     >
       <AntTable
         className="!capitalize font-medium !font-poppins"

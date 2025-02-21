@@ -16,6 +16,11 @@ import CommentSkeleton from "../CommentCard/skeleton";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { useQueryState } from "nuqs";
 import AlertModal from "@/components/common/Modals/AlertModal";
+import { rejectReport, resolveReport } from "@/api/reports";
+import { usePathname } from "next/navigation";
+import { showToast } from "@/components/common/Toast";
+import Button from "@/components/common/Button";
+import { IoCheckmark } from "react-icons/io5";
 
 type FeedViewModalProps = {
   isOpen: boolean;
@@ -45,16 +50,21 @@ interface PostData {
 }
 
 const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
+  const pathname = usePathname();
   const queryClient = useQueryClient();
   const [id] = useQueryState("id");
   const [mode] = useQueryState("mode");
+  const isReportsPage = pathname.includes("reports");
+  const [reportId] = useQueryState("reportId");
 
+  const [isKeeping, setIsKeeping] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState<boolean>(false);
   const [isDeleteAlertLoading, setIsDeleteAlertLoading] =
     useState<boolean>(false);
   const [currentDeletePostId, setCurrentDeletePostId] = useState<string | null>(
     null
   );
+
   const [isCommentDeleteAlertOpen, setIsCommentDeleteAlertOpen] =
     useState<boolean>(false);
   const [isCommentDeleteLoading, setIsCommentDeleteLoading] =
@@ -95,6 +105,9 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
 
   const hanldeDeleteEvent = async () => {
     setIsDeleteAlertLoading(true);
+    if (isReportsPage && reportId) {
+      const res = await resolveReport(reportId);
+    }
     await DELETE_API(endpoints.post.deletePost(currentDeletePostId as string))
       .then(() => {
         queryClient.invalidateQueries({
@@ -106,6 +119,22 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
         setIsDeleteAlertLoading(false);
         onClose();
       });
+  };
+
+  const handleKeepResource = async () => {
+    if (!reportId) return;
+    setIsKeeping(true);
+    const res = await rejectReport(reportId || "");
+    if (res === 200) {
+      showToast({ message: "Resource Kept" });
+      queryClient.invalidateQueries({
+        queryKey: [isReportsPage ? "resource-reports" : "resources"],
+      });
+      onClose();
+    } else {
+      showToast({ message: "Resource not kept", type: "error" });
+    }
+    setIsKeeping(false);
   };
 
   const handleTriggerDeleteEvent = (postId: string) => {
@@ -178,6 +207,16 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
             </div>
             <div className="flex flex-col lg:h-[720px] relative">
               <div className="flex justify-end items-center px-5 pb-2 pt-5 gap-3">
+                {isReportsPage && (
+                  <Button
+                    onClick={handleKeepResource}
+                    loading={isKeeping}
+                    disabled={isDeleteAlertLoading}
+                    icon={<IoCheckmark size={18} />}
+                    btnVariant="success"
+                    title="Keep Resource"
+                  />
+                )}
                 <FeedModalCloseIcon
                   className="cursor-pointer"
                   onClick={handleCloseModal}
