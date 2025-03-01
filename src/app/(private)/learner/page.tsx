@@ -7,7 +7,7 @@ import { getLearnerColumns } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { useQuery } from "@tanstack/react-query";
-import { usePathname, useRouter, useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import { calculateAge } from "@/utils/moment";
@@ -29,7 +29,6 @@ interface TableVolunteer {
 }
 
 export default function LearnersPage() {
-  const router = useRouter();
   const [learnerData, setLearnerData] = useState<TableVolunteer[]>([]);
 
   const [total, setTotal] = useState<number>(0);
@@ -73,7 +72,7 @@ export default function LearnersPage() {
       const transformedData = learners?.items?.map((learner: any) => ({
         learner_id: learner?.learner_id,
         name: learner?.learner_full_name,
-        age: calculateAge(learner?.learner_dob) || "-",
+        age: calculateAge(learner?.learner_dob) === 0 ? "Less than 1 year" : calculateAge(learner?.learner_dob) || "-",
         location: formatString(learner?.country) || "-",
       }));
       setLearnerData(transformedData);

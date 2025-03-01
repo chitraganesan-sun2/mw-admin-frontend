@@ -7,8 +7,10 @@ import moment from "moment";
 import { Spin } from "antd";
 import { formatString } from "@/utils/stringFunctions";
 import { useQueryState } from "nuqs";
+import Image from "next/image";
 
 interface LearnerDetails {
+  profile_image: string;
   name: string;
   gender: string;
   date_of_birth: string;
@@ -110,6 +112,7 @@ const LearnerProfileDetails = () => {
 
       const contact = learner_personal_info?.learner_contact_details;
       const formatted: LearnerDetails = {
+        profile_image: profile_picture?.image_url || "",
         name: `${learner_personal_info?.learner_first_name || ""} ${learner_personal_info?.learner_last_name || ""}`.trim(),
         gender: learner_personal_info?.learner_gender || "-",
         date_of_birth: formatDate(learner_personal_info?.learner_date_of_birth || "") || "-",
@@ -291,6 +294,15 @@ const LearnerProfileDetails = () => {
           {/* Personal Details */}
           <div>
             <p className="text-xl font-medium mb-4">Personal Details</p>
+            <div className="flex mb-3">
+              <Image
+                src={learnerDetails?.profile_picture_url || ""}
+                alt="profile"
+                className="rounded-xl min-h-[250px] max-h-[300px] !w-auto"
+                width={100}
+                height={100}
+              />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               {personalDetails.map((item, index) => (
                 <div key={index} className="flex flex-col gap-1">
