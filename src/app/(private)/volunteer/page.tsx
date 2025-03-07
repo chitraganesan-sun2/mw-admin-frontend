@@ -14,6 +14,7 @@ import ProfileDetailsModal from "@/components/volunteer/ProfileDetails";
 import { calculateAge } from "@/utils/moment";
 import GroupFilters from "@/components/common/Filters";
 import VolunteerFilterModal from "@/components/volunteer/VolunteerFilterModal";
+import { formatString } from "@/utils/stringFunctions";
 
 interface PaginationParams {
   page: number | string;
@@ -89,7 +90,7 @@ export default function LearnersPage() {
         volunteer_id: volunteer.volunteer_id,
         name: `${volunteer.volunteer_first_name} ${volunteer.volunteer_last_name}`,
         age: calculateAge(volunteer?.volunteer_birth_date) || "-",
-        location: volunteer?.country || "-",
+        location: formatString(volunteer?.country) || "-",
         onboarded_status: volunteer.onboarded_status,
       }));
       setVolunteerData(transformedData);

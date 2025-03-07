@@ -6,8 +6,11 @@ import { GET_API, PUT_API } from "@/api/request";
 import moment from "moment";
 import { Spin } from "antd";
 import { useQueryState } from "nuqs";
+import Image from "next/image";
+import { formatString } from "@/utils/stringFunctions";
 
 interface VolunteerDetails {
+  profile_image: string;
   name: string;
   gender: string;
   date_of_birth: string;
@@ -71,6 +74,7 @@ const ProfileDetails = () => {
       const { criminal_background_check_details, sex_offender_check_details, disciplinary_check_details, health_and_safety_check_details, other_consents_details, volunteer_experience_details } = data?.legal_and_safety_info;
       const formattedData: VolunteerDetails = {
         // Personal Details
+        profile_image: data?.profile_picture?.image_url || "",
         name: data?.volunteer_first_name + " " + data?.volunteer_last_name,
         gender: data?.volunteer_gender,
         date_of_birth: formatDate(data?.volunteer_birth_date) || "-",
@@ -148,7 +152,7 @@ const ProfileDetails = () => {
     },
     {
       title: "Country",
-      value: volunteerDetails?.country || "-",
+      value: formatString(volunteerDetails?.country || "") || "-",
       rootClassName: "capitalize",
     },
     {
@@ -376,7 +380,7 @@ const ProfileDetails = () => {
 
   return (
     <CenterModal
-      title="Profile Details"
+      title="Volunteer Profile Details"
       width={800}
       customClassName="max-h-[90vh] !rounded-3xl overflow-y-auto no-scrollbar"
       isOpen={isOpen}
@@ -397,6 +401,15 @@ const ProfileDetails = () => {
             <div>
               <div>
                 <p className="text-xl font-medium mb-4">Personal Details</p>
+                <div className="flex mb-3">
+                  <Image
+                    src={volunteerDetails?.profile_image || ""}
+                    alt="profile"
+                    className="rounded-xl min-h-[250px] max-h-[300px] !w-auto"
+                    width={100}
+                    height={100}
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   {profileDetails.map((item, index) => (
                     <div key={index} className={`flex flex-col gap-1 ${item?.rootClassName || ''}`}>

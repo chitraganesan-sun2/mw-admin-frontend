@@ -20,11 +20,54 @@ import { rejectReport, resolveReport } from "@/api/reports";
 import { usePathname } from "next/navigation";
 import { showToast } from "@/components/common/Toast";
 import Button from "@/components/common/Button";
-import { IoCheckmark } from "react-icons/io5";
+import { IoCheckmark, IoClose } from "react-icons/io5";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+const CustomNextArrow = (props: any) => {
+  const { onClick } = props;
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white !z-50 absolute right-3 top-1/2 transform -translate-y-1/2 text-primary border border-primary p-2 rounded-full shadow-md cursor-pointer"
+    >
+      <FaChevronRight className="text-xs md:text-lg" />
+    </div>
+  );
+};
+
+const CustomPrevArrow = (props: any) => {
+  const { onClick } = props;
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white !z-50 absolute left-3 top-1/2 transform -translate-y-1/2 text-primary border border-primary p-2 rounded-full shadow-md cursor-pointer"
+    >
+      <FaChevronLeft className="text-xs md:text-lg" />
+    </div>
+  );
+};
+
+const sliderSettings = {
+  infinite: true,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  autoplay: true,
+  autoplaySpeed: 3000,
+  speed: 1000,
+  arrows: true,
+  adaptiveHeight: false,
+  nextArrow: <CustomNextArrow />,
+  prevArrow: <CustomPrevArrow />,
+};
 
 type FeedViewModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  refetch?: () => void;
 };
 
 interface PostData {
@@ -49,7 +92,7 @@ interface PostData {
   total_comments: number;
 }
 
-const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
+const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [id] = useQueryState("id");
@@ -57,7 +100,6 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
   const isReportsPage = pathname.includes("reports");
   const [reportId] = useQueryState("reportId");
 
-  const [isKeeping, setIsKeeping] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState<boolean>(false);
   const [isDeleteAlertLoading, setIsDeleteAlertLoading] =
     useState<boolean>(false);
@@ -103,6 +145,36 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
     onClose();
   };
 
+  const invalidateQueries = () => {
+    if (isReportsPage) {
+      refetch?.();
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["get-posts"] });
+    }
+  };
+
+  const [isKeeping, setIsKeeping] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+
+  const handleKeepPost = async () => {
+    if (!reportId) return;
+    try {
+        setIsKeeping(true);
+        await resolveReport(reportId).then((res) => {
+        if (res === 200) {
+          showToast({ message: "Resource Kept" });
+          invalidateQueries();
+          onClose();
+        } else {
+          showToast({ message: "Resource not kept", type: "error" });
+        }
+      }).finally(() => setIsKeeping(false));
+    } catch (error) {
+      showToast({ message: "An error occurred", type: "error" });
+      setIsKeeping(false);
+    }
+  };
+
   const hanldeDeleteEvent = async () => {
     setIsDeleteAlertLoading(true);
     if (isReportsPage && reportId) {
@@ -110,9 +182,7 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
     }
     await DELETE_API(endpoints.post.deletePost(currentDeletePostId as string))
       .then(() => {
-        queryClient.invalidateQueries({
-          queryKey: ["get-posts"],
-        });
+        invalidateQueries();
       })
       .finally(() => {
         setIsDeleteAlertOpen(false);
@@ -121,20 +191,23 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
       });
   };
 
-  const handleKeepResource = async () => {
+  const handleRejectReport = async () => {
     if (!reportId) return;
-    setIsKeeping(true);
-    const res = await rejectReport(reportId || "");
-    if (res === 200) {
-      showToast({ message: "Resource Kept" });
-      queryClient.invalidateQueries({
-        queryKey: [isReportsPage ? "resource-reports" : "resources"],
-      });
-      onClose();
-    } else {
-      showToast({ message: "Resource not kept", type: "error" });
+    try {
+      setIsRejecting(true);
+      await rejectReport(reportId).then((res) => {
+        if (res === 200) {
+          showToast({ message: "Resource Rejected" });
+          invalidateQueries();
+          onClose();
+        } else {
+          showToast({ message: "Resource not rejected", type: "error" });
+        }
+      }).finally(() => setIsRejecting(false));
+    } catch (error) {
+      showToast({ message: "An error occurred", type: "error" });
+      setIsRejecting(false);
     }
-    setIsKeeping(false);
   };
 
   const handleTriggerDeleteEvent = (postId: string) => {
@@ -162,6 +235,8 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
     setIsCommentDeleteAlertOpen(true);
     setCurrentDeleteCommentId(commentId);
   };
+
+  const isBtnDisabled = isDeleteAlertLoading || isKeeping || isRejecting;
 
   return (
     <>
@@ -197,25 +272,28 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
           <ErrorMsg />
         ) : (
           <div className="grid lg:grid-cols-[1fr,0.7fr] h-[720px]">
-            <div className="relative w-full md:h-[250px] lg:h-[720px]">
-              <Image
-                src={post?.images[0]?.image_url}
-                alt="feed image"
-                fill
-                className="object-cover"
-              />
+            <div className="relative bg-gray-300 w-full md:h-[250px] lg:h-[720px] overflow-hidden">
+              <Slider className="flex gap-20" {...sliderSettings}>
+                {post?.images?.map((image) => (
+                  <div key={image?.image_id} className="relative w-full h-[300px] md:h-[400px] lg:h-[720px]">
+                    <Image
+                      src={image?.image_url}
+                      alt="feed image"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                ))}
+              </Slider>
             </div>
             <div className="flex flex-col lg:h-[720px] relative">
               <div className="flex justify-end items-center px-5 pb-2 pt-5 gap-3">
+
                 {isReportsPage && (
-                  <Button
-                    onClick={handleKeepResource}
-                    loading={isKeeping}
-                    disabled={isDeleteAlertLoading}
-                    icon={<IoCheckmark size={18} />}
-                    btnVariant="success"
-                    title="Keep Resource"
-                  />
+                  <>
+                    <Button isLoading={isKeeping} onClick={isBtnDisabled ? undefined : handleKeepPost} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Post" />
+                    <Button isLoading={isRejecting} onClick={isBtnDisabled ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />
+                  </>
                 )}
                 <FeedModalCloseIcon
                   className="cursor-pointer"
