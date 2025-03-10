@@ -36,6 +36,7 @@ export const endpoints: EndpointProps = {
     deleteComment: (comment_id: string) => `admin/comment/${comment_id}`, 
   },
   report: {
+    getReportStatus: (report_id: string) => `admin/report/${report_id}`,
     getAllReports: (report_type: string) => `admin/report/${report_type}`,
     getReport: (report_id: string) => `admin/report/${report_id}`,
     resolveReport: (report_id: string) => `admin/report/${report_id}`,

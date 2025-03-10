@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { deleteResource, getSingleResource } from "@/api/resources";
 import { showToast } from "@/components/common/Toast";
 import { usePathname } from "next/navigation";
-import { rejectReport, resolveReport } from "@/api/reports";
+import { getReportStatus, rejectReport, resolveReport } from "@/api/reports";
 import LottieLoader from "@/components/common/Loader/Lottie";
 import { queryClient } from "@/api/query-client";
 import { useMemo, useState } from "react";
@@ -47,6 +47,15 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
     enabled: !!resourceId,
   });
 
+  const { data: ReportStatus } = useQuery({
+    queryKey: ["report-status", reportId],
+    queryFn: () => (reportId ? getReportStatus(reportId) : null),
+    enabled: !!reportId,
+  });
+
+  console.log(ReportStatus);
+  
+
   const invalidateQueries = () => {
     if (isReportsPage) {
       refetch?.();
@@ -54,63 +63,29 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
       queryClient.invalidateQueries({ queryKey: ["resources"] });
     }
   };
-
-  const handleDelete = async () => {
-    if (!resourceId) return;
+  const handleAction = async (action: any, id: any, successMessage: any, errorMessage: any, setLoading: any) => {
+    if (!id) return;
+    setLoading(true);
     try {
-      setIsDeleting(true);
-      await deleteResource(resourceId).then((res) => {
-        if (res === 200) {
-          showToast({ message: "Resource Deleted" });
-          invalidateQueries();
-          onClose();
-        } else {
-          showToast({ message: "Resource not deleted", type: "error" });
-        } 
-      }).finally(() => setIsDeleting(false));
+      const res = await action(id);
+      if (res === 200) {
+        showToast({ message: successMessage });
+        invalidateQueries();
+        onClose();
+      } else {
+        showToast({ message: errorMessage, type: "error" });
+      }
     } catch (error) {
       showToast({ message: "An error occurred", type: "error" });
-      setIsDeleting(false);
+    } finally {
+      setLoading(false);
     }
   };
-
-  const handleKeepResource = async () => {
-    if (!reportId) return;
-    try {
-        setIsKeeping(true);
-        await resolveReport(reportId).then((res) => {
-        if (res === 200) {
-          showToast({ message: "Resource Kept" });
-          invalidateQueries();
-          onClose();
-        } else {
-          showToast({ message: "Resource not kept", type: "error" });
-        }
-      }).finally(() => setIsKeeping(false));
-    } catch (error) {
-      showToast({ message: "An error occurred", type: "error" });
-      setIsKeeping(false);
-    }
-  };
-
-  const handleRejectReport = async () => {
-    if (!reportId) return;
-    try {
-      setIsRejecting(true);
-      await rejectReport(reportId).then((res) => {
-        if (res === 200) {
-          showToast({ message: "Resource Rejected" });
-          invalidateQueries();
-          onClose();
-        } else {
-          showToast({ message: "Resource not rejected", type: "error" });
-        }
-      }).finally(() => setIsRejecting(false));
-    } catch (error) {
-      showToast({ message: "An error occurred", type: "error" });
-      setIsRejecting(false);
-    }
-  };
+  
+  const handleDelete = () => handleAction(deleteResource, resourceId, "Resource Deleted", "Resource not deleted", setIsDeleting);
+  const handleKeepResource = () => handleAction(resolveReport, reportId, "Resource Kept", "Resource not kept", setIsKeeping);
+  const handleRejectReport = () => handleAction(rejectReport, reportId, "Resource Rejected", "Resource not rejected", setIsRejecting);
+  
 
   const renderSkills = () =>
     resource?.resource_skills?.map((item: any, index: number) => (
@@ -186,11 +161,11 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
           <div className="flex justify-end gap-2 border-t px-5 py-3">
             {isReportsPage && (
               <>
-                <Button isLoading={isKeeping} onClick={isLoading ? undefined : handleKeepResource} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Resource" />
-                <Button isLoading={isRejecting} onClick={isLoading ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />
+                <Button loading={isKeeping} onClick={isLoading ? undefined : handleKeepResource} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Resource" />
+                <Button loading={isRejecting} onClick={isLoading ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />
               </>
             )}
-            <Button isLoading={isDeleting} onClick={isLoading ? undefined : handleDelete} btnVariant="error" icon={<IoClose size={18} />} title="Remove Resource" />
+            <Button loading={isDeleting} onClick={isLoading ? undefined : handleDelete} btnVariant="error" icon={<IoClose size={18} />} title="Remove Resource" />
           </div>
         </div>
       )}
