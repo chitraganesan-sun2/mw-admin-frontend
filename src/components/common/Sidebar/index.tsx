@@ -44,7 +44,7 @@ const Sidebar = () => {
 
   const handleSignOut = () => {
     Cookies.remove("token");
-    router.push("/");
+    router.replace("/login");
   };
 
   return (
@@ -57,13 +57,12 @@ const Sidebar = () => {
           ))}
         </div>
       </div>
-      <SectionCard
-        href="/"
-        text="Sign Out"
-        icon={<SignOutIcon />}
-        textColor="#B91C1C"
-        onClick={handleSignOut}
-      />
+      <div>
+        <button onClick={handleSignOut} className="flex items-center gap-2 text-[#B91C1C] px-4 py-2 rounded-md">
+          <SignOutIcon />
+          <span>Sign Out</span>
+        </button>
+      </div>
     </div>
   );
 };

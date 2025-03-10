@@ -156,57 +156,42 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
   const [isKeeping, setIsKeeping] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
 
-  const handleKeepPost = async () => {
+  const handleAction = async (action: any, successMessage: any, errorMessage: any, setLoadingState: any) => {
     if (!reportId) return;
     try {
-        setIsKeeping(true);
-        await resolveReport(reportId).then((res) => {
-        if (res === 200) {
-          showToast({ message: "Resource Kept" });
-          invalidateQueries();
-          onClose();
-        } else {
-          showToast({ message: "Resource not kept", type: "error" });
-        }
-      }).finally(() => setIsKeeping(false));
-    } catch (error) {
-      showToast({ message: "An error occurred", type: "error" });
-      setIsKeeping(false);
-    }
-  };
-
-  const hanldeDeleteEvent = async () => {
-    setIsDeleteAlertLoading(true);
-    if (isReportsPage && reportId) {
-      const res = await resolveReport(reportId);
-    }
-    await DELETE_API(endpoints.post.deletePost(currentDeletePostId as string))
-      .then(() => {
+      setLoadingState(true);
+      const res = await action(reportId);
+      if (res === 200) {
+        showToast({ message: successMessage });
         invalidateQueries();
-      })
-      .finally(() => {
-        setIsDeleteAlertOpen(false);
-        setIsDeleteAlertLoading(false);
         onClose();
-      });
-  };
-
-  const handleRejectReport = async () => {
-    if (!reportId) return;
-    try {
-      setIsRejecting(true);
-      await rejectReport(reportId).then((res) => {
-        if (res === 200) {
-          showToast({ message: "Resource Rejected" });
-          invalidateQueries();
-          onClose();
-        } else {
-          showToast({ message: "Resource not rejected", type: "error" });
-        }
-      }).finally(() => setIsRejecting(false));
+      } else {
+        showToast({ message: errorMessage, type: "error" });
+      }
     } catch (error) {
       showToast({ message: "An error occurred", type: "error" });
-      setIsRejecting(false);
+    } finally {
+      setLoadingState(false);
+    }
+  };
+  
+  const handleKeepPost = () => handleAction(resolveReport, "Resource Kept", "Resource not kept", setIsKeeping);
+  const handleRejectReport = () => handleAction(rejectReport, "Resource Rejected", "Resource not rejected", setIsRejecting);
+  
+  const handleDeleteEvent = async () => {
+    setIsDeleteAlertLoading(true);
+    try {
+      if (isReportsPage && reportId) {
+        await resolveReport(reportId);
+      }
+      await DELETE_API(endpoints.post.deletePost(currentDeletePostId || ""));
+      invalidateQueries();
+    } catch (error) {
+      showToast({ message: "An error occurred", type: "error" });
+    } finally {
+      setIsDeleteAlertOpen(false);
+      setIsDeleteAlertLoading(false);
+      onClose();
     }
   };
 
@@ -243,7 +228,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
       <AlertModal
         isOpen={isOpen && isDeleteAlertOpen}
         onClose={() => setIsDeleteAlertOpen(false)}
-        onPrimaryAction={hanldeDeleteEvent}
+        onPrimaryAction={handleDeleteEvent}
         title="Delete Post"
         description="Are you sure you want to delete this post? Once deleted, it cannot be undone, and this action is irreversible."
         isLoading={isDeleteAlertLoading}
@@ -291,8 +276,8 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
 
                 {isReportsPage && (
                   <>
-                    <Button isLoading={isKeeping} onClick={isBtnDisabled ? undefined : handleKeepPost} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Post" />
-                    <Button isLoading={isRejecting} onClick={isBtnDisabled ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />
+                    <Button loading={isKeeping} onClick={isBtnDisabled ? undefined : handleKeepPost} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Post" />
+                    <Button loading={isRejecting} onClick={isBtnDisabled ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />
                   </>
                 )}
                 <FeedModalCloseIcon

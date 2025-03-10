@@ -4,10 +4,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
 import { GET_API, PUT_API } from "@/api/request";
 import moment from "moment";
-import { Spin } from "antd";
+import { Spin, Button } from "antd";
 import { useQueryState } from "nuqs";
 import Image from "next/image";
 import { formatString } from "@/utils/stringFunctions";
+import { CaretRightOutlined } from "@ant-design/icons";
+import { Collapse } from "antd";
+const { Panel } = Collapse;
 
 interface VolunteerDetails {
   profile_image: string;
@@ -43,7 +46,7 @@ const ProfileDetails = () => {
   const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
   const [hideFooter, setHideFooter] = useState(true);
   const queryClient = useQueryClient();
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [isAcceptLoading, setIsAcceptLoading] = useState(false);
   const [isRejectLoading, setIsRejectLoading] = useState(false);
@@ -173,11 +176,6 @@ const ProfileDetails = () => {
       value: volunteerDetails?.volunteer_experience || "-",
     },
     {
-      title: "Description",
-      value: data?.volunteer_description || "-",
-      rootClassName: "col-span-2",
-    },
-    {
       title: "Languages I speak",
       value: data?.volunteer_languages?.map((lang: any) => lang?.language_name)?.join(" | ") || "-",
       rootClassName: "col-span-2",
@@ -190,6 +188,11 @@ const ProfileDetails = () => {
     {
       title: "Skills I have",
       value: data?.volunteer_skills?.map((skill: any) => skill?.skill_name)?.join(" | ") || "-",
+      rootClassName: "col-span-2",
+    },
+    {
+      title: "Why do you want to tutor with us, and what do you hope to gain from this experience? What subjects would you like to teach, and why?",
+      value: data?.volunteer_description || "-",
       rootClassName: "col-span-2",
     },
   ];
@@ -206,7 +209,7 @@ const ProfileDetails = () => {
       rootClassName: "col-span-1",
     },
   ]
-  
+
   const legalInformations = [
     {
       title: "Criminal Background Check",
@@ -397,7 +400,12 @@ const ProfileDetails = () => {
           <div className="h-[65vh] w-full flex items-center justify-center">
             <Spin size="large" />
           </div>
-          : (
+          : !data ? (
+            <div className="h-[65vh] w-full flex flex-col items-center justify-center gap-2">
+              <p className="text-lg font-medium">Volunteer not found</p>
+              <Button type="primary" onClick={handleModalClose}>Go Back</Button>
+            </div>
+          ) : (
             <div>
               <div>
                 <p className="text-xl font-medium mb-4">Personal Details</p>
@@ -438,31 +446,45 @@ const ProfileDetails = () => {
                   ))}
                 </div>
               </div>
-              <div>
-                <p className="text-xl font-medium border-t mt-5 pt-5">Some Legal Information</p>
-                <div className="flex flex-col gap-5 divide-y">
-                  {legalInformations.map((item, index) => (
-                    <div key={index} className="flex flex-col gap-2 pt-4">
-                      <p className="text-base font-medium text-black mb-1">{`${index + 1}) ${item.title}:`}</p>
-                      {
-                        item?.data?.map(field =>
-                        (
-                          <div className={(field?.title === "Description" && !field?.value) ? 'hidden' : ''}>
-                            <p className="text-sm font-medium text-gray-medium">
-                              {field.title}
-                            </p>
-                            <p className="text-sm text-black font-medium">
-                              {field.value ? (field?.title === "Description" ? field?.value : 'Yes') : 'No'}
-                            </p>
-                          </div>
-                        ))
-                      }
+              <div className="border-t mt-5 pt-5">
+                <Collapse
+                  accordion
+                  expandIconPosition="end"
+                  expandIcon={({ isActive }) => (
+                    <CaretRightOutlined className="text-gray-medium !text-lg" rotate={isActive ? 90 : 0} />
+                  )}
+                  className="bg-white border-none [&_.ant-collapse-header]:!p-2 [&_.ant-collapse-content-box]:!border-none"
+                >
+                  <Panel
+                    header={<p className="text-xl font-medium underline">Some Legal Information</p>}
+                    key="1"
+                    className="[&_.ant-collapse-content]:mt-4 [&_.ant-collapse-content]:border-none [&_.ant-collapse-content-box]:!py-0"
+                  >
+                    <div className="flex flex-col gap-5 divide-y">
+                      {legalInformations.map((item, index) => (
+                        <div key={index} className="flex flex-col gap-2 pt-3">
+                          <p className="text-base font-medium text-black mb-1">{`${index + 1}) ${item.title}:`}</p>
+                          {
+                            item?.data?.map(field =>
+                            (
+                              <div className={(field?.title === "Description" && !field?.value) ? 'hidden' : ''}>
+                                <p className="text-sm font-medium text-gray-medium">
+                                  {field.title}
+                                </p>
+                                <p className="text-sm text-black font-medium">
+                                  {field.value ? (field?.title === "Description" ? field?.value : 'Yes') : 'No'}
+                                </p>
+                              </div>
+                            ))
+                          }
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </Panel>
+                </Collapse>
               </div>
               <div>
-                <div className="flex flex-col gap-5 border-t my-5 pt-5">
+                <div className="flex flex-col gap-5 border-t my-4 pt-5">
                   {consentPermissions.map((item, index) => (
                     <div key={index} className="flex flex-col gap-2">
                       <p className="text-sm font-medium text-gray-medium">
@@ -475,15 +497,18 @@ const ProfileDetails = () => {
                   ))}
                 </div>
               </div>
-              <div>
-                <p className="text-xl font-medium border-t mt-5 pt-5 mb-3">About Me</p>
-                <div className="flex gap-2 underline">
-                  {volunteerDetails?.video_url && <a href={volunteerDetails?.video_url} target="_blank">See Video</a>}
-                  {volunteerDetails?.document_url && <a href={volunteerDetails?.document_url} target="_blank" rel="noopener noreferrer" >
-                    See Document
-                  </a>}
+              {
+                volunteerDetails?.volunteer_experience_details?.volunteer_experience &&
+                <div>
+                  <p className="text-xl font-medium border-t mt-5 pt-5 mb-3">About Me</p>
+                  <div className="flex gap-2 underline">
+                    {volunteerDetails?.video_url && <a href={volunteerDetails?.video_url} target="_blank">See Video</a>}
+                    {volunteerDetails?.document_url && <a href={volunteerDetails?.document_url} target="_blank" rel="noopener noreferrer" >
+                      See Document
+                    </a>}
+                  </div>
                 </div>
-              </div>
+              }
             </div>
           )
       }

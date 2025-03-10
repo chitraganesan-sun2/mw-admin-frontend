@@ -40,7 +40,7 @@ const SideModal: React.FC<SideModalProps> = ({
                 open={isOpen}
                 width={400}
                 className="py-4 !px-0"
-                bodyStyle={{ padding: 0 }}
+                styles={{ body: { padding: 0 } }}
             >
                 <div className="flex flex-col h-full">
                     <div className="flex items-center justify-between gap-4 mb-3 px-5">

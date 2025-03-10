@@ -43,7 +43,7 @@ interface LearnerDetails {
   learner_goals: {
     expected_goals: string[];
     subjects_to_focus_on: string[];
-    preferred_volunteer_qualities: string[];
+    preferred_volunteer_qualities: string;
     skill_level: string;
   };
   learner_special_needs: {
@@ -154,7 +154,7 @@ const LearnerProfileDetails = () => {
         learner_goals: learner_goals || {
           expected_goals: [],
           subjects_to_focus_on: [],
-          preferred_volunteer_qualities: [],
+          preferred_volunteer_qualities: "-",
           skill_level: "-",
         },
         learner_special_needs: learner_special_needs || {
@@ -219,7 +219,7 @@ const LearnerProfileDetails = () => {
     { title: "Skill Level", value: learnerDetails?.learner_goals?.skill_level || "-" },
     { title: "Expected Goals", value: learnerDetails?.learner_goals?.expected_goals?.map((goal) => formatString(goal)).join(" | ") || "-" },
     { title: "Subjects to Focus On", value: learnerDetails?.learner_goals?.subjects_to_focus_on?.map((strength) => formatString(strength)).join(" | ") || "-" },
-    { title: "Preferred Volunteer Qualities", value: learnerDetails?.learner_goals?.preferred_volunteer_qualities?.map((quality) => formatString(quality)).join(" | ") || "-" },
+    { title: "Preferred Volunteer Qualities", value: learnerDetails?.learner_goals?.preferred_volunteer_qualities},
   ];
 
   const learnerSpecialNeedsDetails = [
