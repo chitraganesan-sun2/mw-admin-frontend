@@ -23,8 +23,8 @@ interface VolunteerDetails {
   country: string;
   education: string;
   higher_education: string;
-  work_experience: string,
-  volunteer_experience: string,
+  volunteer_experience: string;
+  volunteer_work_experience: string;
   high_school_status: string;
   parent_name: string;
   parent_email: string;
@@ -90,7 +90,7 @@ const ProfileDetails = () => {
         country: data?.volunteer_contact_details?.country,
         education: data?.volunteer_education || "-",
         higher_education: data?.volunteer_higher_education || "-",
-        work_experience: data?.work_experience || "-",
+        volunteer_work_experience: data?.volunteer_work_experience || "-",
         volunteer_experience: data?.volunteer_experience || "-",
         high_school_status: data?.volunteer_high_school_status || "-",
         // Parent/Guardian Details
@@ -169,7 +169,7 @@ const ProfileDetails = () => {
     },
     {
       title: "Work Experience",
-      value: volunteerDetails?.work_experience || "-",
+      value: volunteerDetails?.volunteer_work_experience || "-",
     },
     {
       title: "Volunteer Experience",
@@ -180,11 +180,11 @@ const ProfileDetails = () => {
       value: data?.volunteer_languages?.map((lang: any) => lang?.language_name)?.join(" | ") || "-",
       rootClassName: "col-span-2",
     },
-    {
-      title: "Subjects I teach",
-      value: data?.volunteer_subjects?.map((subject: any) => subject?.subject_name)?.join(" | ") || "-",
-      rootClassName: "col-span-2",
-    },
+    // {
+    //   title: "Subjects I teach",
+    //   value: data?.volunteer_subjects?.map((subject: any) => subject?.subject_name)?.join(" | ") || "-",
+    //   rootClassName: "col-span-2",
+    // },
     {
       title: "Skills I have",
       value: data?.volunteer_skills?.map((skill: any) => skill?.skill_name)?.join(" | ") || "-",

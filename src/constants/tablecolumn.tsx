@@ -1,5 +1,6 @@
 import React from "react";
 import { Volunteer, Report, Learner } from "@/constants/column";
+import ExpandableText from "@/components/common/Modals/ExpandableText";
 
 export const getVolunteerColumns = (
   handleSeeMoreDetails?: (id: string) => void
@@ -157,20 +158,12 @@ export const getReportColumns = (handleSeePost?: (id: string, reportId?: string)
       "p-6 text-sm !w-1/5 bg-gray-50 text-gray-900 !font-poppins",
     render: (_: unknown, record: Report) => (
       <div className="flex items-center gap-2">
-        <p className="text-gray-900 !font-poppins">
-          {record.reason.slice(0, 50)}
-          {record.reason.length > 50 && (
-            <span
-              onClick={() => handleSeePost?.(record.docId, record.reportId)}
-              className="cursor-pointer"
-            >&nbsp;...</span>
-          )}
-        </p>
+        <ExpandableText text={record.reason} maxLength={120} />
       </div>
     ),
   },
   {
-    title: "Report Time",
+    title: "Reported On",
     dataIndex: "report_time",
     key: "report_time",
     sorter: true,
