@@ -74,7 +74,7 @@ export default function ReportsPage() {
           title: item?.source_title,
           profile_name: item?.author?.name,
           reason: formatString(item?.report_description),
-          report_time: toUserTimeZone({ date: item?.created_at, format: "DD MMM, YYYY",}),
+          report_time: toUserTimeZone({ date: item?.created_at, format: "h:mm A, DD MMM YYYY",}),
           report_status: item?.report_status || "pending",
         })),
         total: response.data?.total || 0,
