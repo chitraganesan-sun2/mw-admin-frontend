@@ -21,7 +21,7 @@ const TagComponent = ({
     <Tag
       closeIcon={false}
       onClose={isClose ? onClose : undefined}
-      rootClassName={`${className}  font-poppins w-fit flex items-center gap-2 flex-row-reverse`}
+      rootClassName={`${className} font-poppins w-fit flex items-center gap-2 flex-row-reverse`}
       icon={
         isClose ? (
           <BiX

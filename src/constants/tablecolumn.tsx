@@ -139,7 +139,7 @@ export const getReportColumns = (handleSeePost?: (id: string, reportId?: string)
     key: "title",
     sorter: true,
     className:
-      "p-6 text-sm !w-1/5 !font-semibold text-gray-900 !font-poppins",
+      "!w-[20%] p-6 text-sm !font-semibold text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
   },
   {
     title: "Reported By",
@@ -147,7 +147,7 @@ export const getReportColumns = (handleSeePost?: (id: string, reportId?: string)
     key: "profile_name",
     sorter: true,
     className:
-      "p-6 text-sm !w-1/5 !font-semibold text-gray-900 !font-poppins",
+      "!w-[15%] p-6 text-sm !font-semibold text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
   },
   {
     title: "Reason",
@@ -155,10 +155,10 @@ export const getReportColumns = (handleSeePost?: (id: string, reportId?: string)
     key: "reason",
     sorter: false,
     className:
-      "p-6 text-sm !w-1/5 bg-gray-50 text-gray-900 !font-poppins",
+      "!w-[25%] !max-w-[40vw] p-6 text-sm bg-gray-50 text-gray-900 !font-poppins max-h-14 overflow-hidden",
     render: (_: unknown, record: Report) => (
-      <div className="flex items-center gap-2">
-        <ExpandableText text={record.reason} maxLength={120} />
+      <div className="flex items-center gap-2 max-h-14 overflow-hidden">
+        <ExpandableText text={record.reason} maxLength={120} actionLabel="read&nbsp;more" />
       </div>
     ),
   },
@@ -167,14 +167,14 @@ export const getReportColumns = (handleSeePost?: (id: string, reportId?: string)
     dataIndex: "report_time",
     key: "report_time",
     sorter: true,
-    className: "p-6 !w-1/9 text-sm text-gray-900 !font-poppins",
+    className: "!w-[10%] p-6 text-sm text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
   },
   {
     title: "Review Status",
     dataIndex: "review_status",
     key: "review_status",
     sorter: false,
-    className: "p-6 !w-1/9 text-sm text-gray-900 !font-poppins",
+    className: "!w-[10%] p-6 text-sm text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
     render: (_: unknown, record: Report) => (
       <span
         className={`text-sm text-gray-900 !font-poppins ${record.report_status === "pending"
@@ -205,6 +205,7 @@ export const getReportColumns = (handleSeePost?: (id: string, reportId?: string)
   {
     title: "",
     key: "actions",
+    className: "!w-[10%]",
     render: (_: unknown, record: Report) => (
       <div className="flex items-center gap-2">
         <p
@@ -215,6 +216,5 @@ export const getReportColumns = (handleSeePost?: (id: string, reportId?: string)
         </p>
       </div>
     ),
-    className: "",
   },
 ];

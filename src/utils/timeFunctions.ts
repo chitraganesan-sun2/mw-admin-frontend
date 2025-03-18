@@ -11,9 +11,21 @@ const localTimeZone = Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || mom
 export const timesAgo = (date: string) => {
     if (!date) return "";
     const createdAt = moment.utc(date).local();
-    const diffInMinutes = moment().diff(createdAt, "minutes");    
-    const timeAgo = diffInMinutes < 5 ? "Just now" : createdAt.fromNow();
-    return timeAgo;
+    const diffInMinutes = moment().diff(createdAt, "minutes");
+
+    if (diffInMinutes < 1) return "Just now";
+
+    let timeString = createdAt.fromNow(true)
+        .replace(/^an /, "1 ")
+        .replace(/^a /, "1 ")
+        .replace("minutes", "mins")
+        .replace("minute", "min")
+        .replace("hours", "hrs")
+        .replace("hour", "hr")
+        .replace("seconds", "secs")
+        .replace("second", "sec");
+
+    return `${timeString} ago`;
 };
 
 export const toUserTimeZone = ({
