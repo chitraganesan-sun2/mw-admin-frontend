@@ -49,25 +49,33 @@ const CommentCard = ({
               <p className="font-semibold text-black text-sm">
                 {timesAgo(comment.created_at)}
               </p>
-          <div className="flex items-center gap-2 ml-auto">
-            {onDelete && (
-              <button
-                onClick={() => onDelete(comment.comment_id)}
-                className="text-red-600 hover:text-red-700"
-              >
-                <DeleteCloseIcon height={15} width={15} />
-              </button>
-            )}
-          </div>
             </div>
-            <p className="text-[12px] font-normal">{comment.comment_text}</p>
+            <p className="text-[12px] font-normal !break-all">{comment.comment_text}</p>
           </div>
         </div>
-        <div className="flex flex-col items-center">
-          <div className="cursor-pointer scale-75">
-            <HeartLikeIcon height={20} width={20} />
+        <div className="flex gap-2">
+          <div className="flex flex-col items-center">
+            <div className="cursor-pointer scale-75">
+              {
+                likesCount > 0 ? (
+                  <HeartLikeIcon height={20} width={20} />
+                ) : (
+                  <HeartLikeIcon height={20} width={20} />
+                )
+              }
+            </div>
+            {likesCount}
           </div>
-          {likesCount}
+          <div className="flex gap-2">
+            {onDelete && (
+              <span
+                onClick={() => onDelete(comment.comment_id)}
+                className="cursor-pointer text-red-600 hover:text-red-700 mt-1"
+              >
+                <DeleteCloseIcon height={15} width={15} />
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </div>

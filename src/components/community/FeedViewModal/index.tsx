@@ -20,12 +20,13 @@ import { rejectReport, resolveReport } from "@/api/reports";
 import { usePathname } from "next/navigation";
 import { showToast } from "@/components/common/Toast";
 import Button from "@/components/common/Button";
-import { IoCheckmark, IoClose } from "react-icons/io5";
+import { IoCheckmark, IoClose, IoTrash } from "react-icons/io5";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { toUserTimeZone } from "@/utils/timeFunctions";
 
 const CustomNextArrow = (props: any) => {
   const { onClick } = props;
@@ -174,10 +175,10 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
       setLoadingState(false);
     }
   };
-  
+
   const handleKeepPost = () => handleAction(resolveReport, "Resource Kept", "Resource not kept", setIsKeeping);
   const handleRejectReport = () => handleAction(rejectReport, "Resource Rejected", "Resource not rejected", setIsRejecting);
-  
+
   const handleDeleteEvent = async () => {
     setIsDeleteAlertLoading(true);
     try {
@@ -256,8 +257,8 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
         ) : isError ? (
           <ErrorMsg />
         ) : (
-          <div className="grid lg:grid-cols-[1fr,0.7fr] h-[720px]">
-            <div className="relative bg-gray-300 w-full md:h-[250px] lg:h-[720px] overflow-hidden">
+          <div className="flex h-[720px]">
+            <div className="w-[60%] relative bg-gray-300 md:h-[250px] lg:h-[720px] overflow-hidden">
               <Slider className="flex gap-20" {...sliderSettings}>
                 {post?.images?.map((image) => (
                   <div key={image?.image_id} className="relative w-full h-[300px] md:h-[400px] lg:h-[720px]">
@@ -271,15 +272,17 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                 ))}
               </Slider>
             </div>
-            <div className="flex flex-col lg:h-[720px] relative">
+            <div className="w-[40%] flex flex-col lg:h-[720px] relative">
               <div className="flex justify-end items-center px-5 pb-2 pt-5 gap-3">
-
-                {isReportsPage && (
-                  <>
-                    <Button loading={isKeeping} onClick={isBtnDisabled ? undefined : handleKeepPost} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Post" />
-                    <Button loading={isRejecting} onClick={isBtnDisabled ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />
-                  </>
-                )}
+                <div className="flex flex-wrap gap-2">
+                  {isReportsPage && (
+                    <>
+                      <Button loading={isKeeping} onClick={isBtnDisabled ? undefined : handleKeepPost} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Post" />
+                      <Button loading={isRejecting} onClick={isBtnDisabled ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />
+                    </>
+                  )}
+                  <Button btnVariant="error" icon={<IoTrash size={18} />} title="Remove Post" onClick={() => handleTriggerDeleteEvent(post?.post_id)} />
+                </div>
                 <FeedModalCloseIcon
                   className="cursor-pointer"
                   onClick={handleCloseModal}
@@ -309,18 +312,18 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                         />
                         <div className="w-1.5 h-1.5 rounded-full bg-black"></div>
                         <p className="font-semibold text-black">
-                          {new Date(post?.created_at).toLocaleDateString()}
+                          {toUserTimeZone({ date: post?.created_at, format: "DD/MM/YYYY" })}
                         </p>
-                        <button
+                        {/* <button
                           onClick={() =>
                             handleTriggerDeleteEvent(post?.post_id)
                           }
                         >
                           <DeleteCloseIcon />
-                        </button>
+                        </button> */}
                       </div>
 
-                      <p className="text-sm font-normal">{post?.description}</p>
+                      <p className="text-sm font-normal !break-all">{post?.description}</p>
                     </div>
                   </div>
                   <Divider />

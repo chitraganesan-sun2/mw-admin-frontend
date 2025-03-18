@@ -61,7 +61,7 @@ export default function ReportsPage() {
     setReportId(reportId || null);
     setId(id);
   }, []);
-  const columns = useMemo(() => getReportColumns(handleViewAction), []);
+  const columns = useMemo(() => getReportColumns(handleViewAction), [handleViewAction]);
 
   const getAllReports = useCallback(async () => {
     const response: any = await getReportsByType(debouncedTab, pagination);
