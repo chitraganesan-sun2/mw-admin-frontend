@@ -7,7 +7,7 @@ const ExpandableText = ({ text, maxLength = 100, actionLabel = "" }: { text: str
     return (
         <div>
             <p className="text-gray-800">
-                <span className="whitespace-normal break-words overflow-wrap">
+                <span className="break-word">
                     {text.length > maxLength ? text.slice(0, maxLength - 20) : text}
                 </span>
                 {text.length > maxLength && (

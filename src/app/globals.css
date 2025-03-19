@@ -57,6 +57,11 @@ body {
   align-items: center;
 }
 
+.break-word {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
 /* Add these styles if they don't exist already */
 .no-scrollbar::-webkit-scrollbar {
   display: none;

@@ -258,7 +258,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
           <ErrorMsg />
         ) : (
           <div className="flex h-[720px]">
-            <div className="w-[60%] relative bg-gray-300 md:h-[250px] lg:h-[720px] overflow-hidden">
+            <div className="w-[55%] relative bg-gray-300 md:h-[250px] lg:h-[720px] overflow-hidden">
               <Slider className="flex gap-20" {...sliderSettings}>
                 {post?.images?.map((image) => (
                   <div key={image?.image_id} className="relative w-full h-[300px] md:h-[400px] lg:h-[720px]">
@@ -272,7 +272,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                 ))}
               </Slider>
             </div>
-            <div className="w-[40%] flex flex-col lg:h-[720px] relative">
+            <div className="w-[45%] flex flex-col lg:h-[720px] relative">
               <div className="flex justify-end items-center px-5 pb-2 pt-5 gap-3">
                 <div className="flex flex-wrap gap-2">
                   {isReportsPage && (
@@ -301,14 +301,15 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                       />
                     </div>
                     <div className="ml-3 flex-1 flex flex-col ">
-                      <div className="flex items-center gap-3 w-full min-h-[40px]">
-                        <p className="font-semibold text-black">
+                      <div className="flex flex-wrap items-center gap-3 w-full min-h-[40px]">
+                        <p className="font-bold text-base text-black">
                           {post?.author?.name}
                         </p>
                         <div className="w-1.5 h-1.5 rounded-full bg-black"></div>
                         <TagComponent
                           text={post?.created_by}
                           className="w-fit capitalize"
+                          tagClassName={post?.created_by === "volunteer" ? "!bg-[#FFE9D4]" : "!bg-[#DFF5FF]"}
                         />
                         <div className="w-1.5 h-1.5 rounded-full bg-black"></div>
                         <p className="font-semibold text-black">
@@ -332,7 +333,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                   <h3 className="text-xl font-semibold text-black mb-3">
                     Comments
                   </h3>
-                  <div className="flex flex-col gap-3 overflow-y-auto flex-1 pb-[75px] pr-3 hide-scrollbar">
+                  <div className="flex flex-col gap-5 overflow-y-auto flex-1 pb-[75px] pr-3 hide-scrollbar">
                     {commentsLoading ? (
                       <div className="flex flex-col gap-3">
                         <CommentSkeleton size={8} />
