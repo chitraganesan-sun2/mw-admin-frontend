@@ -155,9 +155,9 @@ export const getReportColumns = (handleSeePost?: (id: string, reportId?: string)
     key: "reason",
     sorter: false,
     className:
-      "!w-[25%] !max-w-[40vw] p-6 text-sm bg-gray-50 text-gray-900 !font-poppins max-h-14 overflow-hidden",
+      "!w-[25%] !max-w-[40vw] p-6 text-sm bg-gray-50 text-gray-900 !font-poppins overflow-hidden",
     render: (_: unknown, record: Report) => (
-      <div className="flex items-center gap-2 max-h-14 overflow-hidden">
+      <div className="flex items-center gap-2 overflow-hidden">
         <ExpandableText text={record.reason} maxLength={120} actionLabel="read&nbsp;more" />
       </div>
     ),
