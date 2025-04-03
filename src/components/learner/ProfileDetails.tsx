@@ -42,7 +42,7 @@ interface LearnerDetails {
   };
   learner_goals: {
     expected_goals: string[];
-    subjects_to_focus_on: string[];
+    skills_and_expertise: string[];
     preferred_volunteer_qualities: string;
     skill_level: string;
   };
@@ -153,7 +153,7 @@ const LearnerProfileDetails = () => {
         },
         learner_goals: learner_goals || {
           expected_goals: [],
-          subjects_to_focus_on: [],
+          skills_and_expertise: [],
           preferred_volunteer_qualities: "-",
           skill_level: "-",
         },
@@ -218,7 +218,7 @@ const LearnerProfileDetails = () => {
   const learnerGoalsDetails = [
     { title: "Skill Level", value: learnerDetails?.learner_goals?.skill_level || "-" },
     { title: "Expected Goals", value: learnerDetails?.learner_goals?.expected_goals?.map((goal) => formatString(goal)).join(" | ") || "-" },
-    { title: "Subjects to Focus On", value: learnerDetails?.learner_goals?.subjects_to_focus_on?.map((strength) => formatString(strength)).join(" | ") || "-" },
+    { title: "Skills and expertise to learn", value: learnerDetails?.learner_goals?.skills_and_expertise?.map((skills) => formatString(skills)).join(" | ") || "-" },
     { title: "Preferred Volunteer Qualities", value: learnerDetails?.learner_goals?.preferred_volunteer_qualities},
   ];
 
@@ -250,10 +250,10 @@ const LearnerProfileDetails = () => {
       title: "Photo/Video Consent",
       value: learnerDetails?.photo_or_video_consent ? "Yes" : "No",
     },
-    {
-      title: "Acknowledgement of Program Policies",
-      value: learnerDetails?.acknowledgement_of_program_policies ? "Yes" : "No",
-    },
+    // {
+    //   title: "Acknowledgement of Program Policies",
+    //   value: learnerDetails?.acknowledgement_of_program_policies ? "Yes" : "No",
+    // },
   ];
 
   const additionalInfoDetails = [
