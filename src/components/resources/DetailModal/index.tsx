@@ -13,10 +13,10 @@ import { useQuery } from "@tanstack/react-query";
 import { deleteResource, getSingleResource } from "@/api/resources";
 import { showToast } from "@/components/common/Toast";
 import { usePathname } from "next/navigation";
-import { rejectReport, resolveReport } from "@/api/reports";
+import { getReportStatus, rejectReport, resolveReport } from "@/api/reports";
 import LottieLoader from "@/components/common/Loader/Lottie";
 import { queryClient } from "@/api/query-client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 const curatedLinks = [
@@ -27,14 +27,19 @@ const curatedLinks = [
 type DetailModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  refetch?: () => void;
 };
 
-const DetailModal = ({ isOpen, onClose }: DetailModalProps) => {
+const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
   const pathname = usePathname();
   const isReportsPage = pathname.includes("reports");
 
   const [resourceId] = useQueryState("id");
   const [reportId] = useQueryState("reportId");
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isKeeping, setIsKeeping] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
 
   const { data: resource, isFetching } = useQuery({
     queryKey: ["resource-single", resourceId],
@@ -42,68 +47,68 @@ const DetailModal = ({ isOpen, onClose }: DetailModalProps) => {
     enabled: !!resourceId,
   });
 
+  const { data: ReportStatus } = useQuery({
+    queryKey: ["report-status", reportId],
+    queryFn: () => (reportId ? getReportStatus(reportId) : null),
+    enabled: !!reportId,
+  });
+
+  console.log(ReportStatus);
+  
+
   const invalidateQueries = () => {
-    queryClient.invalidateQueries({ queryKey: [isReportsPage ? "resource-reports" : "resources"] });
+    if (isReportsPage) {
+      refetch?.();
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["resources"] });
+    }
   };
-
-  const handleDelete = async () => {
-    if (!resourceId) return;
+  const handleAction = async (action: any, id: any, successMessage: any, errorMessage: any, setLoading: any) => {
+    if (!id) return;
+    setLoading(true);
     try {
-      if (isReportsPage && reportId) await resolveReport(reportId);
-      const res = await deleteResource(resourceId);
-
+      const res = await action(id);
       if (res === 200) {
-        showToast({ message: "Resource Deleted" });
+        showToast({ message: successMessage });
         invalidateQueries();
         onClose();
       } else {
-        showToast({ message: "Resource not deleted", type: "error" });
+        showToast({ message: errorMessage, type: "error" });
       }
     } catch (error) {
       showToast({ message: "An error occurred", type: "error" });
+    } finally {
+      setLoading(false);
     }
   };
+  
+  const handleDelete = () => handleAction(deleteResource, resourceId, "Resource Deleted", "Resource not deleted", setIsDeleting);
+  const handleKeepResource = () => handleAction(resolveReport, reportId, "Resource Kept", "Resource not kept", setIsKeeping);
+  const handleRejectReport = () => handleAction(rejectReport, reportId, "Resource Rejected", "Resource not rejected", setIsRejecting);
+  
 
-  const handleKeepResource = async () => {
-    if (!reportId) return;
+  const renderSkills = () =>
+    resource?.resource_skills?.map((item: any, index: number) => (
+        <TagComponent
+            key={index}
+            text={item?.skill_name}
+            className="!py-0 !px-4 !text-[0.75rem] w-fit"
+        />
+    ));
 
-    try {
-      const res = await rejectReport(reportId);
-      if (res === 200) {
-        showToast({ message: "Resource Kept" });
-        invalidateQueries();
-        onClose();
-      } else {
-        showToast({ message: "Resource not kept", type: "error" });
-      }
-    } catch (error) {
-      showToast({ message: "An error occurred", type: "error" });
-    }
-  };
-
-  const renderCuratedLinks = useMemo(
-    () =>
-      curatedLinks.map((item, index) => (
+  const renderCuratedLinks = () =>
+    resource?.curated_links?.map((item: any, index: number) => (
         <p key={index}>
-          {index + 1}. {item.title} -{" "}
-          <Link href={item.link} target="_blank" className="text-primary underline">
-            {item.link}
-          </Link>
+            {index + 1}. {item?.title} -{" "}
+            <Link href={item?.url} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                {item?.url}
+            </Link>
         </p>
-      )),
-    []
-  );
-
-  const renderSkills = useMemo(
-    () =>
-      resource?.resource_skills?.map((item: any, index: number) => (
-        <TagComponent key={index} text={item?.skill_name} className="!py-0 !px-4 !text-[0.75rem] w-fit" />
-      )),
-    [resource?.resource_skills]
-  );
+    ));
 
   if (!resourceId) return null;
 
+  const isLoading = isDeleting || isKeeping || isRejecting;
   return (
     <ViewModal modalOpen={isOpen} onClose={onClose} width={800} height="100%">
       {isFetching ? (
@@ -137,21 +142,30 @@ const DetailModal = ({ isOpen, onClose }: DetailModalProps) => {
               </div>
               <Divider />
               <div className="flex flex-col gap-2">
-                <p className="font-medium text-black">Skills you gain</p>
-                <div className="flex flex-wrap gap-y-2">{renderSkills}</div>
+                <p className="font-medium text-black">Skills Gained</p>
+                <div className="flex flex-wrap gap-y-2">{renderSkills()}</div>
               </div>
               <Divider />
               <div className="flex flex-col gap-2 max-h-[150px] overflow-y-auto">
                 <p className="font-medium text-black">Curated Links</p>
-                <div className="flex flex-col gap-2">{renderCuratedLinks}</div>
+                {resource?.curated_links?.length > 0 ? (
+                  <div className="flex flex-col gap-2">{renderCuratedLinks()}</div>
+                ) : (
+                  <p className="text-sm text-gray-light">
+                    No curated links provided.
+                  </p>
+                )}
               </div>
             </div>
           </div>
           <div className="flex justify-end gap-2 border-t px-5 py-3">
-            <Button onClick={handleDelete} btnVariant="error" icon={<IoClose size={18} />} title="Remove Resource" />
             {isReportsPage && (
-              <Button onClick={handleKeepResource} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Resource" />
+              <>
+                <Button loading={isKeeping} onClick={isLoading ? undefined : handleKeepResource} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Resource" />
+                <Button loading={isRejecting} onClick={isLoading ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />
+              </>
             )}
+            <Button loading={isDeleting} onClick={isLoading ? undefined : handleDelete} btnVariant="error" icon={<IoClose size={18} />} title="Remove Resource" />
           </div>
         </div>
       )}

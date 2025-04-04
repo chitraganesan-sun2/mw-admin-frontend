@@ -1,6 +1,12 @@
 import { endpoints } from "../constants";
 import { GET_API, PUT_API } from "../request";
 
+export const getReportStatus = async (report_id: string) => {
+    const endpoint = endpoints.report.getReportStatus(report_id);
+    const response = await GET_API(endpoint);
+    return response;
+}
+
 export const getReportsByType = async (report_type: string, params?: any) => {
     const endpoint = endpoints.report.getAllReports(report_type);
     const response = await GET_API(`${endpoint}?${new URLSearchParams({ ...params })}`);

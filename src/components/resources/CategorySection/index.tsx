@@ -40,9 +40,10 @@ const CategorySection = ({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {categories &&
-              categories?.length > 0 &&
+          {categories?.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {categories &&
+                categories?.length > 0 &&
               categories?.map((resource: any, index: number) => (
                 <div
                   key={resource?.resource_id || index}
@@ -58,8 +59,8 @@ const CategorySection = ({
                 </div>
               ))}
           </div>
-          {categories?.length === 0 && (
-            <span className="min-w-[250px] min-h-[275px] !h-full !w-full flex-center">
+          ):  (
+            <span className="min-w-[250px] min-h-[50vh] !h-full !w-full flex-center">
               No Resource Found
             </span>
           )}

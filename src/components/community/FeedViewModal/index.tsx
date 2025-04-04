@@ -20,11 +20,55 @@ import { rejectReport, resolveReport } from "@/api/reports";
 import { usePathname } from "next/navigation";
 import { showToast } from "@/components/common/Toast";
 import Button from "@/components/common/Button";
-import { IoCheckmark } from "react-icons/io5";
+import { IoCheckmark, IoClose, IoTrash } from "react-icons/io5";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { toUserTimeZone } from "@/utils/timeFunctions";
+
+const CustomNextArrow = (props: any) => {
+  const { onClick } = props;
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white !z-50 absolute right-3 top-1/2 transform -translate-y-1/2 text-primary border border-primary p-2 rounded-full shadow-md cursor-pointer"
+    >
+      <FaChevronRight className="text-xs md:text-lg" />
+    </div>
+  );
+};
+
+const CustomPrevArrow = (props: any) => {
+  const { onClick } = props;
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white !z-50 absolute left-3 top-1/2 transform -translate-y-1/2 text-primary border border-primary p-2 rounded-full shadow-md cursor-pointer"
+    >
+      <FaChevronLeft className="text-xs md:text-lg" />
+    </div>
+  );
+};
+
+const sliderSettings = {
+  infinite: true,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  autoplay: true,
+  autoplaySpeed: 3000,
+  speed: 1000,
+  arrows: true,
+  adaptiveHeight: false,
+  nextArrow: <CustomNextArrow />,
+  prevArrow: <CustomPrevArrow />,
+};
 
 type FeedViewModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  refetch?: () => void;
 };
 
 interface PostData {
@@ -49,7 +93,7 @@ interface PostData {
   total_comments: number;
 }
 
-const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
+const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const [id] = useQueryState("id");
@@ -57,7 +101,6 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
   const isReportsPage = pathname.includes("reports");
   const [reportId] = useQueryState("reportId");
 
-  const [isKeeping, setIsKeeping] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState<boolean>(false);
   const [isDeleteAlertLoading, setIsDeleteAlertLoading] =
     useState<boolean>(false);
@@ -103,38 +146,54 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
     onClose();
   };
 
-  const hanldeDeleteEvent = async () => {
-    setIsDeleteAlertLoading(true);
-    if (isReportsPage && reportId) {
-      const res = await resolveReport(reportId);
+  const invalidateQueries = () => {
+    if (isReportsPage) {
+      refetch?.();
+    } else {
+      queryClient.invalidateQueries({ queryKey: ["get-posts"] });
     }
-    await DELETE_API(endpoints.post.deletePost(currentDeletePostId as string))
-      .then(() => {
-        queryClient.invalidateQueries({
-          queryKey: ["get-posts"],
-        });
-      })
-      .finally(() => {
-        setIsDeleteAlertOpen(false);
-        setIsDeleteAlertLoading(false);
-        onClose();
-      });
   };
 
-  const handleKeepResource = async () => {
+  const [isKeeping, setIsKeeping] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+
+  const handleAction = async (action: any, successMessage: any, errorMessage: any, setLoadingState: any) => {
     if (!reportId) return;
-    setIsKeeping(true);
-    const res = await rejectReport(reportId || "");
-    if (res === 200) {
-      showToast({ message: "Resource Kept" });
-      queryClient.invalidateQueries({
-        queryKey: [isReportsPage ? "resource-reports" : "resources"],
-      });
-      onClose();
-    } else {
-      showToast({ message: "Resource not kept", type: "error" });
+    try {
+      setLoadingState(true);
+      const res = await action(reportId);
+      if (res === 200) {
+        showToast({ message: successMessage });
+        invalidateQueries();
+        onClose();
+      } else {
+        showToast({ message: errorMessage, type: "error" });
+      }
+    } catch (error) {
+      showToast({ message: "An error occurred", type: "error" });
+    } finally {
+      setLoadingState(false);
     }
-    setIsKeeping(false);
+  };
+
+  const handleKeepPost = () => handleAction(resolveReport, "Resource Kept", "Resource not kept", setIsKeeping);
+  const handleRejectReport = () => handleAction(rejectReport, "Resource Rejected", "Resource not rejected", setIsRejecting);
+
+  const handleDeleteEvent = async () => {
+    setIsDeleteAlertLoading(true);
+    try {
+      if (isReportsPage && reportId) {
+        await resolveReport(reportId);
+      }
+      await DELETE_API(endpoints.post.deletePost(currentDeletePostId || ""));
+      invalidateQueries();
+    } catch (error) {
+      showToast({ message: "An error occurred", type: "error" });
+    } finally {
+      setIsDeleteAlertOpen(false);
+      setIsDeleteAlertLoading(false);
+      onClose();
+    }
   };
 
   const handleTriggerDeleteEvent = (postId: string) => {
@@ -163,12 +222,14 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
     setCurrentDeleteCommentId(commentId);
   };
 
+  const isBtnDisabled = isDeleteAlertLoading || isKeeping || isRejecting;
+
   return (
     <>
       <AlertModal
         isOpen={isOpen && isDeleteAlertOpen}
         onClose={() => setIsDeleteAlertOpen(false)}
-        onPrimaryAction={hanldeDeleteEvent}
+        onPrimaryAction={handleDeleteEvent}
         title="Delete Post"
         description="Are you sure you want to delete this post? Once deleted, it cannot be undone, and this action is irreversible."
         isLoading={isDeleteAlertLoading}
@@ -196,27 +257,32 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
         ) : isError ? (
           <ErrorMsg />
         ) : (
-          <div className="grid lg:grid-cols-[1fr,0.7fr] h-[720px]">
-            <div className="relative w-full md:h-[250px] lg:h-[720px]">
-              <Image
-                src={post?.images[0]?.image_url}
-                alt="feed image"
-                fill
-                className="object-cover"
-              />
+          <div className="flex h-[720px]">
+            <div className="w-[55%] relative bg-gray-300 md:h-[250px] lg:h-[720px] overflow-hidden">
+              <Slider className="flex gap-20" {...sliderSettings}>
+                {post?.images?.map((image) => (
+                  <div key={image?.image_id} className="relative w-full h-[300px] md:h-[400px] lg:h-[720px]">
+                    <Image
+                      src={image?.image_url}
+                      alt="feed image"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                ))}
+              </Slider>
             </div>
-            <div className="flex flex-col lg:h-[720px] relative">
+            <div className="w-[45%] flex flex-col lg:h-[720px] relative">
               <div className="flex justify-end items-center px-5 pb-2 pt-5 gap-3">
-                {isReportsPage && (
-                  <Button
-                    onClick={handleKeepResource}
-                    loading={isKeeping}
-                    disabled={isDeleteAlertLoading}
-                    icon={<IoCheckmark size={18} />}
-                    btnVariant="success"
-                    title="Keep Resource"
-                  />
-                )}
+                <div className="flex flex-wrap gap-2">
+                  {isReportsPage && (
+                    <>
+                      <Button loading={isKeeping} onClick={isBtnDisabled ? undefined : handleKeepPost} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Post" />
+                      <Button loading={isRejecting} onClick={isBtnDisabled ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />
+                    </>
+                  )}
+                  <Button btnVariant="error" icon={<IoTrash size={18} />} title="Remove Post" onClick={() => handleTriggerDeleteEvent(post?.post_id)} />
+                </div>
                 <FeedModalCloseIcon
                   className="cursor-pointer"
                   onClick={handleCloseModal}
@@ -235,29 +301,30 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
                       />
                     </div>
                     <div className="ml-3 flex-1 flex flex-col ">
-                      <div className="flex items-center gap-3 w-full min-h-[40px]">
-                        <p className="font-semibold text-black">
+                      <div className="flex flex-wrap items-center gap-3 w-full min-h-[40px]">
+                        <p className="font-bold text-base text-black">
                           {post?.author?.name}
                         </p>
                         <div className="w-1.5 h-1.5 rounded-full bg-black"></div>
                         <TagComponent
                           text={post?.created_by}
                           className="w-fit capitalize"
+                          tagClassName={post?.created_by === "volunteer" ? "!bg-[#FFE9D4]" : "!bg-[#DFF5FF]"}
                         />
                         <div className="w-1.5 h-1.5 rounded-full bg-black"></div>
                         <p className="font-semibold text-black">
-                          {new Date(post?.created_at).toLocaleDateString()}
+                          {toUserTimeZone({ date: post?.created_at, format: "DD/MM/YYYY" })}
                         </p>
-                        <button
+                        {/* <button
                           onClick={() =>
                             handleTriggerDeleteEvent(post?.post_id)
                           }
                         >
                           <DeleteCloseIcon />
-                        </button>
+                        </button> */}
                       </div>
 
-                      <p className="text-sm font-normal">{post?.description}</p>
+                      <p className="text-sm font-normal !break-all">{post?.description}</p>
                     </div>
                   </div>
                   <Divider />
@@ -266,7 +333,7 @@ const FeedViewModal = ({ isOpen, onClose }: FeedViewModalProps) => {
                   <h3 className="text-xl font-semibold text-black mb-3">
                     Comments
                   </h3>
-                  <div className="flex flex-col gap-3 overflow-y-auto flex-1 pb-[75px] pr-3 hide-scrollbar">
+                  <div className="flex flex-col gap-5 overflow-y-auto flex-1 pb-[75px] pr-3 hide-scrollbar">
                     {commentsLoading ? (
                       <div className="flex flex-col gap-3">
                         <CommentSkeleton size={8} />

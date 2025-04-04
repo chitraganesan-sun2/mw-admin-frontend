@@ -36,14 +36,24 @@ const config: Config = {
           DEFAULT: "#DC2626",
           light: "#FEE2E2",
         },
-        warning: "#CA8A04",
+        warning: {
+          DEFAULT: "#CA8A04",
+          light: "#FEF3C7",
+        },
         learner: {
           background: "#DFF5FF",
           text: "#09baee",
         },
       },
       fontFamily: {
-        poppins: "poppins",
+        poppins: ["Poppins", "sans-serif"],
+      },
+      fontWeight: {
+          light: "var(--font-light)",
+          regular: "var(--font-regular)",
+          medium: "var(--font-medium)",
+          semibold: "var(--font-semibold)",
+          bold: "var(--font-bold)",
       },
     },
   },

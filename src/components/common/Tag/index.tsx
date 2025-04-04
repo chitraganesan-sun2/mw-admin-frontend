@@ -7,6 +7,7 @@ interface TagComponentProps {
   isClose?: boolean;
   onClose?: () => void;
   className?: string;
+  tagClassName?: string;
   icon?: any;
 }
 
@@ -16,12 +17,13 @@ const TagComponent = ({
   onClose,
   className,
   icon,
+  tagClassName = "",
 }: TagComponentProps) => {
   return (
     <Tag
       closeIcon={false}
       onClose={isClose ? onClose : undefined}
-      rootClassName={`${className}  font-poppins w-fit flex items-center gap-2 flex-row-reverse`}
+      rootClassName={`${className} font-poppins w-fit flex items-center gap-2 flex-row-reverse !m-0`}
       icon={
         isClose ? (
           <BiX
@@ -31,7 +33,7 @@ const TagComponent = ({
           />
         ) : undefined
       }
-      className={`bg-background text-black border-background font-medium text-[0.8rem] capitalize rounded-full`}
+      className={`bg-background text-black border-background font-medium text-[0.8rem] capitalize rounded-full ${tagClassName}`}
     >
       {text} {icon ? icon : null}
     </Tag>

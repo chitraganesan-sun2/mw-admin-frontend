@@ -23,8 +23,8 @@ interface PaginationParams {
 }
 
 const tabs = [
-  { key: "resource", title: "Resources" },
-  { key: "post", title: "Community Post" },
+  { key: "resource", title: "Resource" },
+  { key: "post", title: "Community" },
 ];
 
 export default function ReportsPage() {
@@ -46,7 +46,7 @@ export default function ReportsPage() {
     size: 10,
   });
   const [isFilterOn, setIsFilterOn] = useState(false);
-  const [debouncedTab, setDebouncedTab] = useState(currentTab); // Debounced tab state
+  const [debouncedTab, setDebouncedTab] = useState(currentTab);
 
   // Debounce effect for tab switching
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function ReportsPage() {
     setReportId(reportId || null);
     setId(id);
   }, []);
-  const columns = useMemo(() => getReportColumns(handleViewAction), []);
+  const columns = useMemo(() => getReportColumns(handleViewAction), [handleViewAction]);
 
   const getAllReports = useCallback(async () => {
     const response: any = await getReportsByType(debouncedTab, pagination);
@@ -71,12 +71,10 @@ export default function ReportsPage() {
           id: item.report_id,
           docId: item.report_type_id,
           reportId: item.report_id,
+          title: item?.source_title,
           profile_name: item?.author?.name,
           reason: formatString(item?.report_description),
-          report_time: toUserTimeZone({
-            date: item?.created_at,
-            format: "DD MMM, YYYY",
-          }),
+          report_time: toUserTimeZone({ date: item?.created_at, format: "h:mm A, DD MMM YYYY",}),
           report_status: item?.report_status || "pending",
         })),
         total: response.data?.total || 0,
@@ -85,7 +83,7 @@ export default function ReportsPage() {
     return { data: [], total: 0 };
   }, [debouncedTab, pagination]);
 
-  const { data, isFetching } = useQuery({
+  const { data, isFetching, refetch } = useQuery({
     queryKey: ["reports", debouncedTab, pagination.page, pagination.size],
     queryFn: getAllReports,
     placeholderData: (previousData) => previousData, 
@@ -109,18 +107,20 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="w-full h-full p-6">
+    <div className="w-full px-6">
       {currentTab === "resource" ? (
         <ResourceModal
           key={`${currentTab}-${reportId}`}
           isOpen={mode === "view"}
           onClose={handleCloseModal}
+          refetch={refetch}
         />
       ) : (
         <CommunityModal
           key={`${currentTab}-${reportId}`}
           isOpen={mode === "view"}
           onClose={handleCloseModal}
+          refetch={refetch}
         />
       )}
 
@@ -140,7 +140,7 @@ export default function ReportsPage() {
       />
 
       <Table
-        key={`table-${reportId}`}
+        key={`table-${currentTab}`}
         rootClassName="!opcacity-100"
         data={data?.data || []}
         columns={columns}
