@@ -42,7 +42,7 @@ interface LearnerDetails {
   };
   learner_goals: {
     expected_goals: string[];
-    skills_and_expertise: string[];
+    skills_to_learn: {skill_id: string, skill_name: string}[];
     preferred_volunteer_qualities: string;
     skill_level: string;
   };
@@ -153,7 +153,7 @@ const LearnerProfileDetails = () => {
         },
         learner_goals: learner_goals || {
           expected_goals: [],
-          skills_and_expertise: [],
+          skills_to_learn: [],
           preferred_volunteer_qualities: "-",
           skill_level: "-",
         },
@@ -218,7 +218,7 @@ const LearnerProfileDetails = () => {
   const learnerGoalsDetails = [
     { title: "Skill Level", value: learnerDetails?.learner_goals?.skill_level || "-" },
     { title: "Expected Goals", value: learnerDetails?.learner_goals?.expected_goals?.map((goal) => formatString(goal)).join(" | ") || "-" },
-    { title: "Skills and expertise to learn", value: learnerDetails?.learner_goals?.skills_and_expertise?.map((skills) => formatString(skills)).join(" | ") || "-" },
+    { title: "Skills and expertise to learn", value: learnerDetails?.learner_goals?.skills_to_learn?.map((skill) => skill?.skill_name).join(" | ") || "-" },
     { title: "Preferred Volunteer Qualities", value: learnerDetails?.learner_goals?.preferred_volunteer_qualities},
   ];
 
