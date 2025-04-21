@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useRouter } from "next/navigation";
 import { NuqsAdapter } from "nuqs/adapters/next";
+import { Toaster } from "react-hot-toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +28,7 @@ export default function QueryProvider({
     <QueryClientProvider client={queryClient}>
       <NuqsAdapter>
         {children}
+        <Toaster />
         <ReactQueryDevtools initialIsOpen={true} buttonPosition="bottom-left" />
       </NuqsAdapter>
     </QueryClientProvider>
