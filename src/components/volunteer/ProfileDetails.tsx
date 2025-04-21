@@ -3,211 +3,65 @@ import CenterModal from "@/components/common/Modals/CenterModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
 import { GET_API, PUT_API } from "@/api/request";
-import moment from "moment";
 import { Spin, Button } from "antd";
 import { useQueryState } from "nuqs";
 import Image from "next/image";
 import { formatString } from "@/utils/stringFunctions";
 import { CaretRightOutlined } from "@ant-design/icons";
 import { Collapse } from "antd";
+import { formatVolunteerData } from "./format";
 const { Panel } = Collapse;
 
-interface VolunteerDetails {
-  profile_image: string;
-  name: string;
-  gender: string;
-  date_of_birth: string;
-  email_address: string;
-  phone_number: string;
-  zip_code: string;
-  country: string;
-  education: string;
-  higher_education: string;
-  volunteer_experience: string;
-  volunteer_work_experience: string;
-  high_school_status: string;
-  parent_name: string;
-  parent_email: string;
-  onboarded_status: string;
-  volunteer_id: string;
-  criminal_background_check_details: any;
-  sex_offender_check_details: any;
-  disciplinary_check_details: any;
-  health_and_safety_check_details: any;
-  other_consents_details: any;
-  volunteer_experience_details: any;
-  document_url: string;
-  video_url: string;
-  photo_or_video_consent: boolean;
-  acknowledgement_of_program_policies: boolean;
-}
+const getValue = (val: any) => val || "-";
+const getFormattedValue = (val?: string) => formatString(val || "") || "-";
 
-const ProfileDetails = () => {
+const VolunteerProfileDetails = () => {
   const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
-  const [hideFooter, setHideFooter] = useState(true);
   const queryClient = useQueryClient();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isAcceptLoading, setIsAcceptLoading] = useState(false);
-  const [isRejectLoading, setIsRejectLoading] = useState(false);
+  const [hideFooter, setHideFooter] = useState(true);
   const [volunteerDetails, setVolunteerDetails] = useState<VolunteerDetails>();
 
-  const getIndividualVolunteer = async () => {
-    const response = await GET_API(
-      endpoints.volunteer.getVolunteerDetails(volunteerId as string)
-    );
-    return response.data;
-  };
+  const [isAcceptLoading, setIsAcceptLoading] = useState(false);
+  const [isRejectLoading, setIsRejectLoading] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["volunteer-details", volunteerId],
-    queryFn: () => getIndividualVolunteer(),
+    queryFn: async () => (await GET_API(endpoints.volunteer.getVolunteerDetails(volunteerId || ''))).data,
     enabled: !!volunteerId,
   });
 
-  const formatDate = (date: string) => {
-    if (moment(date, "DD-MM-YYYY", true).isValid()) {
-      return date;
-    }
-    return moment(date).format("DD-MM-YYYY");
-  };
-
   useEffect(() => {
     if (data) {
-      const { criminal_background_check_details, sex_offender_check_details, disciplinary_check_details, health_and_safety_check_details, other_consents_details, volunteer_experience_details } = data?.legal_and_safety_info;
-      const formattedData: VolunteerDetails = {
-        // Personal Details
-        profile_image: data?.profile_picture?.image_url || "",
-        name: data?.volunteer_first_name + " " + data?.volunteer_last_name,
-        gender: data?.volunteer_gender,
-        date_of_birth: formatDate(data?.volunteer_birth_date) || "-",
-        email_address: data?.volunteer_contact_details?.email,
-        phone_number:
-          data?.volunteer_contact_details?.contact_number?.country_code +
-          " " +
-          data?.volunteer_contact_details?.contact_number?.number,
-        zip_code: data?.volunteer_contact_details?.zip_code,
-        country: data?.volunteer_contact_details?.country,
-        education: data?.volunteer_education || "-",
-        higher_education: data?.volunteer_higher_education || "-",
-        volunteer_work_experience: data?.volunteer_work_experience || "-",
-        volunteer_experience: data?.volunteer_experience || "-",
-        high_school_status: data?.volunteer_high_school_status || "-",
-        // Parent/Guardian Details
-        parent_name: data?.volunteer_parent_name || "-",
-        parent_email: data?.volunteer_parent_email || "-",
-        volunteer_id: data?.volunteer_id,
-        onboarded_status: data?.onboarded_status,
-        video_url: data?.profile_video?.video_url,
-        document_url: data?.profile_document?.document_url,
-        // Legal Information
-        criminal_background_check_details: criminal_background_check_details,
-        sex_offender_check_details: sex_offender_check_details,
-        disciplinary_check_details: disciplinary_check_details,
-        health_and_safety_check_details: health_and_safety_check_details,
-        other_consents_details: other_consents_details,
-        volunteer_experience_details: volunteer_experience_details,
-        photo_or_video_consent: data?.consent_and_permissions?.photo_or_video_consent,
-        acknowledgement_of_program_policies: data?.consent_and_permissions?.acknowledgement_of_program_policies,
-      }
-      if (data.onboarded_status === "verification_pending") {
-        setHideFooter(false);
-      } else {
-        setHideFooter(true);
-      }
-
-      setVolunteerDetails(formattedData);
+      setHideFooter(data?.onboarded_status !== "verification_pending");
+      setVolunteerDetails(formatVolunteerData(data));
     }
   }, [data]);
 
   useEffect(() => {
-    if (volunteerId) {
-      setIsOpen(true);
-    }
+    if (volunteerId) setIsOpen(true);
   }, [volunteerId]);
 
   const profileDetails = [
-    {
-      title: "Name",
-      value: volunteerDetails?.name || "-",
-      rootClassName: "col-span-2",
-    },
-    {
-      title: "Gender",
-      value: volunteerDetails?.gender || "-",
-      rootClassName: "capitalize",
-    },
-    {
-      title: "Date of Birth",
-      value: volunteerDetails?.date_of_birth || "-",
-    },
-    {
-      title: "Email Address",
-      value: volunteerDetails?.email_address || "-",
-    },
-    {
-      title: "Phone Number",
-      value: volunteerDetails?.phone_number || "-",
-    },
-    {
-      title: "Zip Code",
-      value: volunteerDetails?.zip_code || "-",
-    },
-    {
-      title: "Country",
-      value: formatString(volunteerDetails?.country || "") || "-",
-      rootClassName: "capitalize",
-    },
-    {
-      title: "Higher Education",
-      value: volunteerDetails?.higher_education || "-",
-      rootClassName: "capitalize",
-    },
-    {
-      title: "Education",
-      value: volunteerDetails?.education || "-",
-    },
-    {
-      title: "Work Experience",
-      value: volunteerDetails?.volunteer_work_experience || "-",
-    },
-    {
-      title: "Volunteer Experience",
-      value: volunteerDetails?.volunteer_experience || "-",
-    },
-    {
-      title: "Languages I speak",
-      value: data?.volunteer_languages?.map((lang: any) => lang?.language_name)?.join(" | ") || "-",
-      rootClassName: "col-span-2",
-    },
-    // {
-    //   title: "Subjects I teach",
-    //   value: data?.volunteer_subjects?.map((subject: any) => subject?.subject_name)?.join(" | ") || "-",
-    //   rootClassName: "col-span-2",
-    // },
-    {
-      title: "Skills I have",
-      value: data?.volunteer_skills?.map((skill: any) => skill?.skill_name)?.join(" | ") || "-",
-      rootClassName: "col-span-2",
-    },
-    {
-      title: "Why do you want to tutor with us, and what do you hope to gain from this experience? What subjects would you like to teach, and why?",
-      value: data?.volunteer_description || "-",
-      rootClassName: "col-span-2",
-    },
+    { title: "Name", value: getValue(volunteerDetails?.name), rootClassName: "col-span-2", },
+    { title: "Gender", value: getFormattedValue(volunteerDetails?.gender), rootClassName: "capitalize", },
+    { title: "Date of Birth", value: getValue(volunteerDetails?.date_of_birth), },
+    { title: "Email", value: getValue(volunteerDetails?.email_address) },
+    { title: "Phone Number", value: getValue(volunteerDetails?.phone_number) },
+    { title: "Zip Code", value: getValue(volunteerDetails?.zip_code) },
+    { title: "Country", value: getFormattedValue(volunteerDetails?.country) },
+    { title: "Higher Education", value: volunteerDetails?.higher_education, rootClassName: "capitalize", },
+    { title: "Education", value: volunteerDetails?.education, },
+    { title: "Work Experience", value: volunteerDetails?.volunteer_work_experience, },
+    { title: "Volunteer Experience", value: volunteerDetails?.volunteer_experience, },
+    { title: "Languages I speak", value: data?.volunteer_languages?.map((lang: any) => lang?.language_name)?.join(" | ") || "-", rootClassName: "col-span-2", },
+    { title: "Skills I have", value: data?.volunteer_skills?.map((skill: any) => skill?.skill_name)?.join(" | ") || "-", rootClassName: "col-span-2", },
+    { title: "Why do you want to tutor with us, and what do you hope to gain from this experience? What subjects would you like to teach, and why?", value: data?.volunteer_description || "-", rootClassName: "col-span-2", },
   ];
-
   const parentDetails = [
-    {
-      title: "Parent/Guardian Name",
-      value: volunteerDetails?.parent_name || "-",
-      rootClassName: "col-span-1",
-    },
-    {
-      title: "Parent/Guardian Email",
-      value: volunteerDetails?.parent_email || "-",
-      rootClassName: "col-span-1",
-    },
+    { title: "Parent/Guardian Name", value: volunteerDetails?.parent_name, rootClassName: "col-span-1" },
+    { title: "Parent/Guardian Email", value: volunteerDetails?.parent_email, rootClassName: "col-span-1" },
   ]
 
   const legalInformations = [
@@ -320,14 +174,10 @@ const ProfileDetails = () => {
   ]
 
   const consentPermissions = [
-    {
-      title: "Do you consent to the use of your photo or video?",
-      value: volunteerDetails?.photo_or_video_consent,
-    },
-    {
-      title: "Do you acknowledge the program policies?",
-      value: volunteerDetails?.acknowledgement_of_program_policies,
-    }
+    { title: "Do you consent to the use of your photo or video?", value: volunteerDetails?.photo_or_video_consent },
+    { title: "Do you consent to the use of cookies?", value: volunteerDetails?.photo_or_video_consent },
+    { title: "Do you acknowledge the privacy policies?", value: volunteerDetails?.privacy_policy_accepted },
+    { title: "Do you acknowledge the terms & conditions?", value: volunteerDetails?.terms_and_conditions_accepted },
   ]
 
   const handleModalClose = () => {
@@ -464,18 +314,16 @@ const ProfileDetails = () => {
                       {legalInformations.map((item, index) => (
                         <div key={index} className="flex flex-col gap-2 pt-3">
                           <p className="text-base font-medium text-black mb-1">{`${index + 1}) ${item.title}:`}</p>
-                          {
-                            item?.data?.map(field =>
-                            (
-                              <div className={(field?.title === "Description" && !field?.value) ? 'hidden' : ''}>
-                                <p className="text-sm font-medium text-gray-medium">
-                                  {field.title}
-                                </p>
-                                <p className="text-sm text-black font-medium">
-                                  {field.value ? (field?.title === "Description" ? field?.value : 'Yes') : 'No'}
-                                </p>
-                              </div>
-                            ))
+                          {item?.data?.map(field => (
+                            <div className={(field?.title === "Description" && !field?.value) ? 'hidden' : ''}>
+                              <p className="text-sm font-medium text-gray-medium">
+                                {field.title}
+                              </p>
+                              <p className="text-sm text-black font-medium">
+                                {field.value ? (field?.title === "Description" ? field?.value : 'Yes') : 'No'}
+                              </p>
+                            </div>
+                          ))
                           }
                         </div>
                       ))}
@@ -484,7 +332,8 @@ const ProfileDetails = () => {
                 </Collapse>
               </div>
               <div>
-                <div className="flex flex-col gap-5 border-t my-4 pt-5">
+                <p className="text-xl font-medium border-t mt-5 pt-5 mb-4">Consents</p>
+                <div className="flex flex-col gap-4 my-4">
                   {consentPermissions.map((item, index) => (
                     <div key={index} className="flex flex-col gap-2">
                       <p className="text-sm font-medium text-gray-medium">
@@ -516,4 +365,4 @@ const ProfileDetails = () => {
   );
 };
 
-export default ProfileDetails;
+export default VolunteerProfileDetails;
