@@ -76,7 +76,7 @@ const Input = (props: any) => {
 
     return (
         <div className="mb-4 w-full h-auto flex flex-col gap-2">
-            {label && <label className="font-medium text-base">{label}</label>}
+            {label && <label className="font-medium text-base">{label} <span className="text-red-500">{props?.required && "*"}</span></label>}
             {renderInput()}
         </div>
     );

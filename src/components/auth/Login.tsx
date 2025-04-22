@@ -8,6 +8,8 @@ import { POST_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import { showToast } from "../common/Toast";
+
 const Login = () => {
   const [loginFormData, setloginFormData] = useState<any>({});
   const router = useRouter();
@@ -18,20 +20,21 @@ const Login = () => {
   };
 
   const handleFormSubmit = () => {
-    if (!loginFormData.username || !loginFormData.password) return alert("Enter all fields");
-    let payload = {
-      username: loginFormData.username,
-      password: loginFormData.password,
-    };
+    const { username, password } = loginFormData;
+    if (!username || !password) return showToast({ message: "Please enter both username and password", type: "error" });
+
+    let payload = { username, password };
+
     setLoading(true);
     POST_API(endpoints.auth.login, payload)
       .then((res) => {
-        Cookies.set("token", res.data.jwt, { expires: 1 });
+        Cookies.set("token", res?.data?.jwt, { expires: 1 });
         setloginFormData({});
         router.replace("/volunteer");
       })
       .catch((err) => {
-        console.log(err);
+        const errorMessage = err?.status === 401 ? "Invalid username or password" : "Something went wrong";
+        showToast({ message: errorMessage, type: "error" });
         setLoading(false);
       });
   };
