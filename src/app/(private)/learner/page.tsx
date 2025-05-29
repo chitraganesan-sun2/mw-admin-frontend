@@ -1,7 +1,7 @@
 "use client";
 
 import { endpoints } from "@/api/constants";
-import { GET_API } from "@/api/request";
+import { DELETE_API, GET_API } from "@/api/request";
 import Table from "@/components/Table";
 import { getLearnerColumns } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { calculateAge } from "@/utils/moment";
 import { formatString } from "@/utils/stringFunctions";
 import LearnerProfileDetails from "@/components/learner/ProfileDetails";
+import AlertModal from "@/components/common/Modals/AlertModal";
 
 interface PaginationParams {
   page: number | string;
@@ -30,19 +31,32 @@ interface TableVolunteer {
 
 export default function LearnersPage() {
   const [learnerData, setLearnerData] = useState<TableVolunteer[]>([]);
-
   const [total, setTotal] = useState<number>(0);
   const [size, setSize] = useQueryState("size", { defaultValue: "10" });
   const [page, setPage] = useQueryState("page", { defaultValue: "1" });
   const [learnerId, setLearnerId] = useQueryState("learner_id");
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [isDeleteAlertLoading, setIsDeleteAlertLoading] = useState(false);
+  const [learnerToDelete, setLearnerToDelete] = useState<string | null>(null);
 
   const handleSeeMoreDetails = (id: string) => {
     setLearnerId(id);
   };
-  const columns = getLearnerColumns(handleSeeMoreDetails);
+
+  const handleDeleteLearner = (id: string) => {
+    setLearnerToDelete(id);
+    setIsDeleteAlertOpen(true);
+  };
+
+  const handleModalConfirm = () => {
+    setIsDeleteAlertLoading(true);
+    handleDeleteEvent();
+  };
+
+  const columns = getLearnerColumns(handleSeeMoreDetails, handleDeleteLearner);
 
   const getAlllearners = async ({ page, size }: PaginationParams) => {
-    try{
+    try {
       const response: any = await GET_API(
         `${endpoints.learner.getAllLearners}?page=${page}&size=${size}`
       );
@@ -52,7 +66,7 @@ export default function LearnersPage() {
       return {
         ...response.data,
         items: filteredItems.slice(0, size),
-      }
+      };
     } catch (error) {
       console.log(error);
       return {
@@ -62,7 +76,11 @@ export default function LearnersPage() {
     }
   };
 
-  const { data: learners, isFetching } = useQuery({
+  const {
+    data: learners,
+    isFetching,
+    refetch,
+  } = useQuery({
     queryKey: ["learners", page, size],
     queryFn: () => getAlllearners({ page, size }),
   });
@@ -72,7 +90,10 @@ export default function LearnersPage() {
       const transformedData = learners?.items?.map((learner: any) => ({
         learner_id: learner?.learner_id,
         name: learner?.learner_full_name,
-        age: calculateAge(learner?.learner_dob) === 0 ? "Less than 1 year" : calculateAge(learner?.learner_dob) || "-",
+        age:
+          calculateAge(learner?.learner_dob) === 0
+            ? "Less than 1 year"
+            : calculateAge(learner?.learner_dob) || "-",
         location: formatString(learner?.country) || "-",
       }));
       setLearnerData(transformedData);
@@ -83,6 +104,17 @@ export default function LearnersPage() {
   const handleTableChange = (pagination: any) => {
     setSize(pagination.pageSize);
     setPage(pagination.current);
+  };
+
+  const handleDeleteEvent = async () => {
+    DELETE_API(endpoints.learner.deleteLearner(learnerToDelete || "")).then(
+      (res) => {
+        console.log(res, "res");
+        setIsDeleteAlertOpen(false);
+        setIsDeleteAlertLoading(false);
+        refetch();
+      }
+    );
   };
 
   const { setHeaderOptions } = useComponentStore();
@@ -97,6 +129,15 @@ export default function LearnersPage() {
 
   return (
     <div className="w-full h-auto p-6 animate-fadeIn">
+      <AlertModal
+        isOpen={isDeleteAlertOpen}
+        onClose={() => setIsDeleteAlertOpen(false)}
+        onPrimaryAction={handleModalConfirm}
+        title="Delete Learner"
+        description="Are you sure you want to delete this learner? Once deleted, it cannot be undone, and this action is irreversible. All associated data will be permanently removed, and you won't be able to recover it. Please confirm if you wish to proceed."
+        primaryActionText="Yes, Delete"
+        isLoading={isDeleteAlertLoading}
+      />
       <LearnerProfileDetails />
       <Table
         key="learners"
@@ -112,6 +153,7 @@ export default function LearnersPage() {
         }}
         onChange={handleTableChange}
         handleSeeMoreDetails={handleSeeMoreDetails}
+        handleDelete={handleDeleteLearner}
       />
     </div>
   );
