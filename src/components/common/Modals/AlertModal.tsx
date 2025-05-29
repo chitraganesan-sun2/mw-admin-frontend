@@ -14,7 +14,7 @@ interface AlertModalProps {
   onPrimaryAction: () => void;
   onSecondaryAction?: () => void;
   isLoading?: boolean;
-  type?: 'warning' | 'danger' | 'info';
+  type?: "warning" | "danger" | "info";
 }
 
 const AlertModal = ({
@@ -27,9 +27,8 @@ const AlertModal = ({
   onPrimaryAction,
   onSecondaryAction,
   isLoading = false,
-  type = 'danger'
+  type = "danger",
 }: AlertModalProps) => {
-
   const handleSecondaryAction = () => {
     if (onSecondaryAction) {
       onSecondaryAction();
@@ -40,23 +39,18 @@ const AlertModal = ({
 
   const getTitleColor = () => {
     switch (type) {
-      case 'danger':
-        return 'text-[#DC2626]';
-      case 'warning':
-        return 'text-[#F59E0B]';
+      case "danger":
+        return "text-[#DC2626]";
+      case "warning":
+        return "text-[#F59E0B]";
       default:
-        return 'text-black';
+        return "text-black";
     }
   };
 
   return (
-    <ViewModal
-      modalOpen={isOpen}
-      onClose={onClose}
-      width={484}
-      zIndex={100000}
-    >
-      <div className="flex flex-col gap-3">
+    <ViewModal modalOpen={isOpen} onClose={onClose} width={484} zIndex={100000}>
+      <div className="flex flex-col gap-3 !font-poppins">
         <div className="flex items-center justify-between px-5 pt-3">
           <h2 className={`text-2xl font-medium ${getTitleColor()}`}>{title}</h2>
           <span className="cursor-pointer" onClick={onClose}>
@@ -71,14 +65,14 @@ const AlertModal = ({
           <Button
             disabled={isLoading}
             onClick={handleSecondaryAction}
-            className="w-fit text-sm h-9 !bg-white rounded-lg py-2 !text-black !border !border-stroke"
+            className="w-fit text-sm h-9 font-medium !font-poppins !bg-white rounded-lg py-2 !text-black !border !border-stroke"
           >
             {secondaryActionText}
           </Button>
           <Button
             loading={isLoading}
             onClick={onPrimaryAction}
-            className="w-fit text-sm h-9 !bg-black !border-none rounded-lg py-2 !text-white hover:!text-white"
+            className="w-fit text-sm h-9 font-medium !font-poppins !bg-black !border-none rounded-lg py-2 !text-white hover:!text-white"
           >
             {primaryActionText}
           </Button>
