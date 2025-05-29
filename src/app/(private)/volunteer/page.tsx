@@ -1,7 +1,7 @@
 "use client";
 
 import { endpoints } from "@/api/constants";
-import { GET_API } from "@/api/request";
+import { GET_API, DELETE_API } from "@/api/request";
 import Table from "@/components/Table";
 import { getVolunteerColumns } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
@@ -15,6 +15,7 @@ import { calculateAge } from "@/utils/moment";
 import GroupFilters from "@/components/common/Filters";
 import VolunteerFilterModal from "@/components/volunteer/VolunteerFilterModal";
 import { formatString } from "@/utils/stringFunctions";
+import AlertModal from "@/components/common/Modals/AlertModal";
 
 interface PaginationParams {
   page: number | string;
@@ -47,18 +48,32 @@ const tabs = [
 
 export default function LearnersPage() {
   const [volunteerData, setVolunteerData] = useState<TableVolunteer[]>([]);
-
   const [total, setTotal] = useState<number>(0);
   const [size, setSize] = useQueryState("size", { defaultValue: "10" });
   const [page, setPage] = useQueryState("page", { defaultValue: "1" });
   const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
-
+  const { setHeaderOptions } = useComponentStore();
+  const pathname = usePathname();
   const [isFilterOn, setIsFilterOn] = useState(false);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [isDeleteAlertLoading, setIsDeleteAlertLoading] = useState(false);
+  const [volunteerToDelete, setVolunteerToDelete] = useState<string | null>(
+    null
+  );
 
   const handleSeeMoreDetails = (id: string) => {
     setVolunteerId(id);
   };
-  const columns = getVolunteerColumns(handleSeeMoreDetails);
+
+  const handleDeleteVolunteer = (id: string) => {
+    setVolunteerToDelete(id);
+    setIsDeleteAlertOpen(true);
+  };
+
+  const handleModalConfirm = () => {
+    setIsDeleteAlertLoading(true);
+    handleDeleteEvent();
+  };
 
   const getAllVolunteers = async ({ page, size }: PaginationParams) => {
     const response: any = await GET_API(
@@ -78,7 +93,11 @@ export default function LearnersPage() {
     };
   };
 
-  const { data: volunteers, isFetching } = useQuery({
+  const {
+    data: volunteers,
+    isFetching,
+    refetch,
+  } = useQuery({
     queryKey: ["volunteers", page, size],
     queryFn: () => getAllVolunteers({ page, size }),
   });
@@ -103,8 +122,21 @@ export default function LearnersPage() {
     setPage(pagination.current);
   };
 
-  const { setHeaderOptions } = useComponentStore();
-  const pathname = usePathname();
+  const handleDeleteEvent = async () => {
+    DELETE_API(
+      endpoints.volunteer.deleteVolunteer(volunteerToDelete || "")
+    ).then((res) => {
+      console.log(res, "res");
+      setIsDeleteAlertOpen(false);
+      setIsDeleteAlertLoading(false);
+      refetch();
+    });
+  };
+
+  const columns = getVolunteerColumns(
+    handleSeeMoreDetails,
+    handleDeleteVolunteer
+  );
 
   useEffect(() => {
     setHeaderOptions({
@@ -115,6 +147,15 @@ export default function LearnersPage() {
 
   return (
     <div className="w-full h-auto p-6 animate-fadeIn">
+      <AlertModal
+        isOpen={isDeleteAlertOpen}
+        onClose={() => setIsDeleteAlertOpen(false)}
+        onPrimaryAction={handleModalConfirm}
+        title="Delete Volunteer"
+        description="Are you sure you want to delete this volunteer? Once deleted, it cannot be undone, and this action is irreversible. All associated data will be permanently removed, and you won't be able to recover it. Please confirm if you wish to proceed."
+        primaryActionText="Yes, Delete"
+        isLoading={isDeleteAlertLoading}
+      />
       <ProfileDetailsModal />
       <VolunteerFilterModal
         isFilterApplying={false}
@@ -143,6 +184,7 @@ export default function LearnersPage() {
         }}
         onChange={handleTableChange}
         handleSeeMoreDetails={handleSeeMoreDetails}
+        handleDelete={handleDeleteVolunteer}
       />
     </div>
   );

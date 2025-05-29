@@ -9,6 +9,7 @@ interface TableProps {
   columns?: any;
   handleSeeMoreDetails?: (id: string) => void;
   handleSeePost?: (id: string) => void;
+  handleDelete?: (id: string) => void;
   rootClassName?: string;
 }
 
@@ -18,7 +19,7 @@ const Table: React.FC<TableProps> = ({
   pagination,
   onChange,
   columns,
-  rootClassName
+  rootClassName,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
