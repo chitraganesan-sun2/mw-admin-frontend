@@ -13,6 +13,8 @@ export interface Learner {
   age: number;
   location: string;
   learner_id: string;
+  email: string;
+  onboarded_status: string;
 }
 
 export interface Report {
