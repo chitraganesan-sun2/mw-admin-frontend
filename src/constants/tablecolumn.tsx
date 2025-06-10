@@ -14,7 +14,7 @@ export const getVolunteerColumns = (
     key: "name",
     sorter: (a: any, b: any) => a?.name?.localeCompare(b?.name),
     className:
-      "px-6 !py-3 text-sm w-1/5 !font-semibold text-gray-900 !font-poppins",
+      "px-6 !py-3 text-sm w-[200px]  !font-semibold text-gray-900 !font-poppins",
   },
   {
     title: "Age",
@@ -22,32 +22,52 @@ export const getVolunteerColumns = (
     key: "age",
     sorter: (a: any, b: any) => a?.age - b?.age,
     className:
-      "px-6 !py-3 text-sm w-1/9 bg-gray-50 text-gray-900 !font-poppins",
+      "px-6 !py-3 text-sm w-[100px]  bg-gray-50 text-gray-900 !font-poppins",
   },
   {
     title: "Location",
     dataIndex: "location",
     key: "location",
     sorter: false,
-    className: "px-6 !py-3 w-1/5 text-sm text-gray-900 !font-poppins",
+    className: "px-6 !py-3 w-[100px]  text-sm text-gray-900 !font-poppins",
+  },
+  {
+    title: "Email",
+    dataIndex: "email",
+    key: "email",
+    sorter: false,
+    className: "px-6 !py-3 w-[100px]  text-sm text-gray-900 !font-poppins",
   },
   {
     title: "Requested Status",
     dataIndex: "onboarded_status",
     key: "onboarded_status",
-    sorter: false,
-    className: "!p-0 w-1/5 text-sm text-gray-900 !font-poppins",
+    sorter: (a: any, b: any) => {
+      const statusOrder = {
+        verification_completed: 1,
+        verification_pending: 2,
+        details_pending: 3,
+        verification_rejected: 4,
+      };
+      return (
+        statusOrder[a.onboarded_status as keyof typeof statusOrder] -
+        statusOrder[b.onboarded_status as keyof typeof statusOrder]
+      );
+    },
+    className: "!p-0 w-[150px]  text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: Volunteer) => {
       if ("onboarded_status" in record) {
         return (
           <span
-            className={`px-6 !py-3 w-1/5 !font-poppins ${
+            className={`px-6 !py-3 w-[100px] !font-poppins ${
               record.onboarded_status === "verification_pending"
                 ? "text-warning"
                 : record.onboarded_status === "verification_completed"
                 ? "text-success"
                 : record.onboarded_status === "verification_rejected"
                 ? "text-error"
+                : record.onboarded_status === "details_pending"
+                ? "text-blue-500"
                 : "text-gray-500"
             }`}
           >
@@ -60,6 +80,8 @@ export const getVolunteerColumns = (
                     ? "bg-success"
                     : record.onboarded_status === "verification_rejected"
                     ? "bg-error"
+                    : record.onboarded_status === "details_pending"
+                    ? "bg-blue-500"
                     : "bg-gray-500"
                 }`}
               ></div>
@@ -69,6 +91,8 @@ export const getVolunteerColumns = (
                 ? "Completed"
                 : record.onboarded_status === "verification_rejected"
                 ? "Rejected"
+                : record.onboarded_status === "details_pending"
+                ? "Form Incompleted"
                 : "Details Pending"}
             </span>
           </span>
@@ -80,26 +104,29 @@ export const getVolunteerColumns = (
   {
     title: "Details",
     key: "details",
-    className: "!p-0 w-1/5 text-sm text-gray-900 !font-poppins",
+    className: "!p-0 w-[150px]  text-sm text-gray-900 !font-poppins",
 
     render: (_: unknown, record: Volunteer) => (
       <div className="flex items-center gap-2">
-        <p
-          onClick={() => handleSeeMoreDetails?.(record?.volunteer_id)}
-          className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
-        >
-          See more details
-        </p>
+        {record.onboarded_status === "details_pending" ? (
+          <span>-</span>
+        ) : (
+          <p
+            onClick={() => handleSeeMoreDetails?.(record?.volunteer_id)}
+            className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
+          >
+            See more details
+          </p>
+        )}
       </div>
     ),
   },
   {
     title: "ACTIONS",
     key: "actions",
-    className: "!p-0 w-1/5 text-sm text-gray-900 !font-poppins",
-
+    className: "!p-0 !w-[200px] text-sm text-gray-900 !font-poppins",
     render: (_: any, record: any) => (
-      <div className="flex space-x-1 justify-center">
+      <div className="flex space-x-4 justify-center w-full">
         <div
           onClick={() => handleDeleteVolunteer?.(record.volunteer_id)}
           className="cursor-pointer"
@@ -108,7 +135,7 @@ export const getVolunteerColumns = (
         </div>
       </div>
     ),
-    width: 100,
+    width: 200,
     align: "center",
   },
 ];
@@ -122,43 +149,123 @@ export const getLearnerColumns = (
     dataIndex: "name",
     key: "name",
     sorter: (a: any, b: any) => a?.name?.localeCompare(b?.name),
-    className: "p-6 text-sm w-1/3 !font-semibold text-gray-900 !font-poppins",
+    className:
+      "p-6 text-sm w-[200px] !font-semibold text-gray-900 !font-poppins",
   },
   {
     title: "Age",
     dataIndex: "age",
     key: "age",
     sorter: (a: any, b: any) => a?.age - b?.age,
-    className: "p-6 text-sm w-1/5 bg-gray-50 text-gray-900 !font-poppins",
+    className: "p-6 text-sm w-[100px] bg-gray-50 text-gray-900 !font-poppins",
   },
   {
     title: "Location",
     dataIndex: "location",
     key: "location",
     sorter: false,
-    className: "p-6 w-1/4 text-sm text-gray-900 !font-poppins",
+    className: "p-6 w-[100px] text-sm text-gray-900 !font-poppins",
+  },
+  {
+    title: "Email",
+    dataIndex: "email",
+    key: "email",
+    sorter: false,
+    className: "p-6 w-[100px] text-sm text-gray-900 !font-poppins",
+    render: (_: unknown, record: Learner) => (
+      <span className="text-gray-900 !font-poppins">
+        {record?.email?.toLowerCase() || "-"}
+      </span>
+    ),
+  },
+  {
+    title: "Requested Status",
+    dataIndex: "onboarded_status",
+    key: "onboarded_status",
+    sorter: (a: any, b: any) => {
+      const statusOrder = {
+        verification_completed: 1,
+        verification_pending: 2,
+        details_pending: 3,
+        verification_rejected: 4,
+      };
+      return (
+        statusOrder[a.onboarded_status as keyof typeof statusOrder] -
+        statusOrder[b.onboarded_status as keyof typeof statusOrder]
+      );
+    },
+    className: "!p-0 w-[150px]  text-sm text-gray-900 !font-poppins",
+    render: (_: unknown, record: Volunteer) => {
+      if ("onboarded_status" in record) {
+        return (
+          <span
+            className={`px-6 !py-3 w-[100px] !font-poppins ${
+              record.onboarded_status === "verification_pending"
+                ? "text-warning"
+                : record.onboarded_status === "verification_completed"
+                ? "text-success"
+                : record.onboarded_status === "verification_rejected"
+                ? "text-error"
+                : record.onboarded_status === "details_pending"
+                ? "text-blue-500"
+                : "text-gray-500"
+            }`}
+          >
+            <span className="flex items-center gap-1">
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  record.onboarded_status === "verification_pending"
+                    ? "bg-warning"
+                    : record.onboarded_status === "verification_completed"
+                    ? "bg-success"
+                    : record.onboarded_status === "verification_rejected"
+                    ? "bg-error"
+                    : record.onboarded_status === "details_pending"
+                    ? "bg-blue-500"
+                    : "bg-gray-500"
+                }`}
+              ></div>
+              {record.onboarded_status === "verification_pending"
+                ? "Pending"
+                : record.onboarded_status === "verification_completed"
+                ? "Completed"
+                : record.onboarded_status === "verification_rejected"
+                ? "Rejected"
+                : record.onboarded_status === "details_pending"
+                ? "Form Incompleted"
+                : "Details Pending"}
+            </span>
+          </span>
+        );
+      }
+      return null;
+    },
   },
   {
     title: "Details",
     key: "details",
-    className: "!p-0 w-1/5 text-sm text-gray-900 !font-poppins",
+    className: "!p-0 w-[150px]  text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: Learner) => (
       <div className="flex items-center gap-2">
-        <p
-          onClick={() => handleSeeMoreDetails?.(record?.learner_id)}
-          className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
-        >
-          See more details
-        </p>
+        {record.onboarded_status === "details_pending" ? (
+          <span>-</span>
+        ) : (
+          <p
+            onClick={() => handleSeeMoreDetails?.(record?.learner_id)}
+            className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
+          >
+            See more details
+          </p>
+        )}
       </div>
     ),
   },
   {
     title: "ACTIONS",
     key: "actions",
-    className: "!p-0 w-1/5 text-sm text-gray-900 !font-poppins",
+    className: "!p-0 !w-[200px] text-sm text-gray-900 !font-poppins",
     render: (_: any, record: any) => (
-      <div className="flex space-x-1 justify-center">
+      <div className="flex space-x-4 justify-center w-full">
         <div
           onClick={() => handleDeleteLearner?.(record.learner_id)}
           className="cursor-pointer"
@@ -167,7 +274,7 @@ export const getLearnerColumns = (
         </div>
       </div>
     ),
-    width: 100,
+    width: 200,
     align: "center",
   },
 ];
