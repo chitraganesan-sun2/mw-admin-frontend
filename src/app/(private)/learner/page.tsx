@@ -60,12 +60,10 @@ export default function LearnersPage() {
       const response: any = await GET_API(
         `${endpoints.learner.getAllLearners}?page=${page}&size=${size}`
       );
-
-      const filteredItems = response?.data?.items;
-
       return {
         ...response.data,
-        items: filteredItems.slice(0, size),
+        items: response.data.items,
+        total: response.data.total,
       };
     } catch (error) {
       console.log(error);
@@ -89,12 +87,14 @@ export default function LearnersPage() {
     if (learners?.items) {
       const transformedData = learners?.items?.map((learner: any) => ({
         learner_id: learner?.learner_id,
-        name: learner?.learner_full_name,
+        name: learner?.learner_full_name || "-",
         age:
           calculateAge(learner?.learner_dob) === 0
             ? "Less than 1 year"
             : calculateAge(learner?.learner_dob) || "-",
         location: formatString(learner?.country) || "-",
+        email: learner?.email?.toLowerCase() || "-",
+        onboarded_status: learner?.onboarded_status,
       }));
       setLearnerData(transformedData);
       setTotal(learners?.total);

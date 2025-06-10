@@ -80,16 +80,11 @@ export default function LearnersPage() {
       `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`
     );
 
-    const filteredItems = response.data.items.filter(
-      (volunteer: any) => volunteer.onboarded_status !== "details_pending"
-    );
-
+    // Return the data as is, since the API should handle pagination
     return {
       ...response.data,
-      items: filteredItems.slice(0, size),
-      total: response.data.items.filter(
-        (volunteer: any) => volunteer.onboarded_status !== "details_pending"
-      ).length,
+      items: response.data.items,
+      total: response.data.total,
     };
   };
 
@@ -103,15 +98,21 @@ export default function LearnersPage() {
   });
 
   useEffect(() => {
-    console.log(volunteers, "volunteers ");
+    console.log("Volunteers Query Result:", volunteers);
+    console.log("Volunteers Items:", volunteers?.items);
     if (volunteers?.items) {
       const transformedData = volunteers.items.map((volunteer: any) => ({
         volunteer_id: volunteer.volunteer_id,
-        name: `${volunteer.volunteer_first_name} ${volunteer.volunteer_last_name}`,
+        name:
+          volunteer.volunteer_first_name && volunteer.volunteer_last_name
+            ? `${volunteer.volunteer_first_name} ${volunteer.volunteer_last_name}`
+            : "-",
         age: calculateAge(volunteer?.volunteer_birth_date) || "-",
         location: formatString(volunteer?.country) || "-",
         onboarded_status: volunteer.onboarded_status,
+        email: volunteer?.email?.toLowerCase() || "-",
       }));
+      console.log("Transformed Data:", transformedData);
       setVolunteerData(transformedData);
       setTotal(volunteers.total);
     }
