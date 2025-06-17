@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Checkbox, Input, Modal } from "antd";
 import ModalCloseIcon from "@/assets/icons/ModalCloseIcon";
 import { FaSearch } from "react-icons/fa";
@@ -14,12 +14,13 @@ interface SelectionModalProps {
   selectedItems: string[];
   onSelectItem: (id: string) => void;
   type: "learner" | "volunteer";
+  onSave: () => void;
 }
 
 const groupItemsByAlphabet = (items: { id: string; label: string }[]) => {
   const groups: { [key: string]: { id: string; label: string }[] } = {};
   items.forEach((item) => {
-    const letter = item.label[0].toUpperCase();
+    const letter = item?.label?.[0]?.toUpperCase();
     if (!groups[letter]) groups[letter] = [];
     groups[letter].push(item);
   });
@@ -44,6 +45,7 @@ const SelectionModal = ({
   selectedItems,
   onSelectItem,
   type,
+  onSave,
 }: SelectionModalProps) => {
   const selectedColor =
     type === "learner"
@@ -54,6 +56,12 @@ const SelectionModal = ({
     type === "learner"
       ? "bg-[#f0faff] border-[#dff5ff]"
       : "bg-[#fff4ea] border-[#ffe9d4]";
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredItems = items.filter((item) =>
+    item.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Modal
@@ -90,18 +98,23 @@ const SelectionModal = ({
             <Input
               placeholder="Search"
               className="w-full border px-4 pl-8 border-stroke rounded-full font-medium font-poppins text-sm p-2"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
             <FaSearch className="absolute left-3 top-[18px] -translate-y-1/2 text-gray-400" />
           </div>
           <div className="flex items-center gap-2 mt-2">
-            <Checkbox onChange={(e) => handleCheck(e.target.checked)} />
+            <Checkbox
+              checked={selectedItems.length === items.length}
+              onChange={(e) => handleCheck(e.target.checked)}
+            />
             <span className="text-sm font-normal text-gray-500">
               Select all items
             </span>
           </div>
         </div>
         <div className="flex flex-col gap-4 max-h-[350px] overflow-y-auto hide-scrollbar">
-          {groupItemsByAlphabet(items).map((group) => (
+          {groupItemsByAlphabet(filteredItems).map((group) => (
             <div key={group.letter} className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <span>{group.letter}</span>
@@ -132,7 +145,10 @@ const SelectionModal = ({
           >
             Cancel
           </Button>
-          <Button className="w-fit h-[40px] font-poppins font-medium !bg-black !text-white !rounded-xl ">
+          <Button
+            className="w-fit h-[40px] font-poppins font-medium !bg-black !text-white !rounded-xl "
+            onClick={onSave}
+          >
             Save
           </Button>
         </div>

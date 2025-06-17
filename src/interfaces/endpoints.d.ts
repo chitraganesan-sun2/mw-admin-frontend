@@ -10,6 +10,11 @@ type EndpointProps = {
     ) => string;
   };
   common: (path: CommonPath) => string;
+  broadcast: {
+    getRecipients: string;
+    sendEmail: string;
+    sendEmailWithAttachment: string;
+  };
   volunteer: {
     getAllVolunteers: string;
     getVolunteerDetails: (volunteerId: string) => string;
@@ -35,6 +40,8 @@ type EndpointProps = {
   comment: {
     getPostComments: (post_id: string) => string;
     deleteComment: (comment_id: string) => string;
+    getLocation: string;
+    getLanguage: string;
   };
   report: {
     getReportStatus: (report_id: string) => string;

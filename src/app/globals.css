@@ -159,3 +159,17 @@ body {
   border-radius: 4px !important;
   min-height: 32px !important;
 }
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: black !important;
+  border-color: black !important;
+}
+
+.ant-checkbox-wrapper:hover .ant-checkbox-inner,
+.ant-checkbox:hover .ant-checkbox-inner {
+  border-color: black !important;
+}
+
+.ant-checkbox-indeterminate .ant-checkbox-inner::after {
+  background-color: black !important;
+}
