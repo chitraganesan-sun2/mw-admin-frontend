@@ -188,7 +188,7 @@ const Broadcast = () => {
       <SelectionModal
         isOpen={isLearnerSelectionOpen}
         onClose={() => setIsLearnerSelectionOpen(false)}
-        handleCheck={handleSelectLearners}
+        handleCheck={handleSelectAllLearners}
         items={learnerMails.map((learner) => ({
           id: learner.learner_id,
           label: learner.email,
@@ -200,7 +200,7 @@ const Broadcast = () => {
       <SelectionModal
         isOpen={isVolunteerSelectionOpen}
         onClose={() => setIsVolunteerSelectionOpen(false)}
-        handleCheck={handleSelectVolunteers}
+        handleCheck={handleSelectAllVolunteers}
         items={volunteerMails.map((volunteer) => ({
           id: volunteer.volunteer_id,
           label: volunteer.email,
