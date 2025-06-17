@@ -1,4 +1,11 @@
-import { CommunityIcon, DashBoardIcon, ReportIcon, ResourceIcon, VolunteerIcon } from "@/assets/icons";
+import {
+  CommunityIcon,
+  DashBoardIcon,
+  MailIcon,
+  ReportIcon,
+  ResourceIcon,
+  VolunteerIcon,
+} from "@/assets/icons";
 
 export const getHeaderTitle = (pathname: string) => {
   const path = pathname.split("/")?.[1];
@@ -20,6 +27,8 @@ export const getHeaderIcon = (pathname: string) => {
       return <ResourceIcon />;
     case "community":
       return <CommunityIcon />;
+    case "broadcast":
+      return <MailIcon />;
     default:
       return null;
   }

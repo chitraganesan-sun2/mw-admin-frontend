@@ -1,7 +1,11 @@
-
 import Logo from "@/components/common/Logo";
 import SectionCard from "./SectionCard";
-import { CommunityIcon, ResourceIcon, SignOutIcon } from "@/assets/icons";
+import {
+  CommunityIcon,
+  MailIcon,
+  ResourceIcon,
+  SignOutIcon,
+} from "@/assets/icons";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { DashBoardIcon, VolunteerIcon, ReportIcon } from "@/assets/icons";
@@ -40,6 +44,11 @@ const Sidebar = () => {
       text: "Community",
       icon: <CommunityIcon />,
     },
+    {
+      href: "/broadcast",
+      text: "Broadcast",
+      icon: <MailIcon />,
+    },
   ];
 
   const handleSignOut = () => {
@@ -58,7 +67,10 @@ const Sidebar = () => {
         </div>
       </div>
       <div>
-        <button onClick={handleSignOut} className="flex items-center gap-2 text-[#B91C1C] px-4 py-2 rounded-md">
+        <button
+          onClick={handleSignOut}
+          className="flex items-center gap-2 text-[#B91C1C] px-4 py-2 rounded-md"
+        >
           <SignOutIcon />
           <span>Sign Out</span>
         </button>
