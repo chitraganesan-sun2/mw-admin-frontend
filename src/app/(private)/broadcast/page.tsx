@@ -51,6 +51,7 @@ const Broadcast = () => {
   const [allLanguages, setAllLanguages] = useState<any[]>([]);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
   const [isLanguageLoading, setIsLanguageLoading] = useState(false);
+  const [isNoData, setIsNoData] = useState(false);
 
   const [errors, setErrors] = useState({
     location: "",
@@ -101,6 +102,14 @@ const Broadcast = () => {
           email: learner.learner_email,
         }))
       );
+      if (
+        response.data.volunteer_recipients_list.length === 0 &&
+        response.data.learner_recipients_list.length === 0
+      ) {
+        setIsNoData(true);
+      } else {
+        setIsNoData(false);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -378,7 +387,13 @@ const Broadcast = () => {
             )}
           </div>
         )}
+        {isNoData && (
+          <div className="text-sm font-normal text-center text-gray-500 col-span-2">
+            No volunteers or learners found
+          </div>
+        )}
       </div>
+
       <div className="bg-white border border-stroke  w-full rounded-2xl p-5 flex flex-col gap-5">
         <div>
           <input
