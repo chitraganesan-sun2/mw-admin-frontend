@@ -225,7 +225,6 @@ const Broadcast = () => {
     } else {
       // without attachment
       var formData = new FormData();
-
       formData.append("emails", allEmails);
       formData.append("subject", subject);
       formData.append("body", message);
@@ -247,6 +246,10 @@ const Broadcast = () => {
     setSubject("");
     setMessage("");
     setAttachFiles([]);
+    setVolunteers([]);
+    setLearners([]);
+    setAllVolunteers([]);
+    setAllLearners([]);
   };
 
   useEffect(() => {
@@ -337,10 +340,6 @@ const Broadcast = () => {
                   volunteers.length === allVolunteers.length &&
                   allVolunteers.length > 0
                 }
-                indeterminate={
-                  volunteers.length > 0 &&
-                  volunteers.length < allVolunteers.length
-                }
                 onChange={handleSelectAllVolunteers}
               />
               <span className="text-sm font-normal text-gray-500">
@@ -367,9 +366,6 @@ const Broadcast = () => {
                 checked={
                   learners.length === allLearners?.length &&
                   allLearners?.length > 0
-                }
-                indeterminate={
-                  learners.length > 0 && learners.length < allLearners?.length
                 }
                 onChange={handleSelectAllLearners}
               />

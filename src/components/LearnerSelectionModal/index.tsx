@@ -63,6 +63,16 @@ const SelectionModal = ({
     item.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleClose = () => {
+    setSearchTerm("");
+    onClose();
+  };
+
+  const handleSave = () => {
+    setSearchTerm("");
+    onSave();
+  };
+
   return (
     <Modal
       open={isOpen}
@@ -70,7 +80,7 @@ const SelectionModal = ({
       height={height}
       centered
       footer={null}
-      onCancel={onClose}
+      onCancel={handleClose}
       closeIcon={false}
       className={`${customClassName} !font-poppins`}
     >
@@ -88,7 +98,7 @@ const SelectionModal = ({
             <div className="flex items-center gap-2 bg-[#e0e0e0] w-fit rounded-full px-2 py-1 text-black">
               {items?.length} Available
             </div>
-            <span className="cursor-pointer" onClick={onClose}>
+            <span className="cursor-pointer" onClick={handleClose}>
               <ModalCloseIcon />
             </span>
           </div>
@@ -141,13 +151,13 @@ const SelectionModal = ({
         <div className="flex items-center gap-2 mt-5 justify-end">
           <Button
             className="w-fit h-[40px] font-poppins font-medium !bg-white !text-black !rounded-xl !border !border-stroke"
-            onClick={onClose}
+            onClick={handleClose}
           >
             Cancel
           </Button>
           <Button
             className="w-fit h-[40px] font-poppins font-medium !bg-black !text-white !rounded-xl "
-            onClick={onSave}
+            onClick={handleSave}
           >
             Save
           </Button>
