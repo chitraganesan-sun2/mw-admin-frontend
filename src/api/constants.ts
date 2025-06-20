@@ -36,6 +36,13 @@ export const endpoints: EndpointProps = {
   comment: {
     getPostComments: (post_id: string) => `admin/comment/${post_id}`,
     deleteComment: (comment_id: string) => `admin/comment/${comment_id}`,
+    getLocation: "admin/mail/get_locations",
+    getLanguage: "admin/mail/get_languages",
+  },
+  broadcast: {
+    getRecipients: "admin/mail/get_recipients",
+    sendEmail: "admin/mail/send_email",
+    sendEmailWithAttachment: "admin/mail/send_email_with_attachments",
   },
   report: {
     getReportStatus: (report_id: string) => `admin/report/${report_id}`,

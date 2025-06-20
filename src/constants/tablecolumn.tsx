@@ -36,7 +36,8 @@ export const getVolunteerColumns = (
     dataIndex: "email",
     key: "email",
     sorter: false,
-    className: "px-6 !py-3 w-[100px]  text-sm text-gray-900 !font-poppins",
+    className:
+      "px-6 !py-3 w-[100px] !lowercase text-sm text-gray-900 !font-poppins",
   },
   {
     title: "Requested Status",
@@ -171,7 +172,7 @@ export const getLearnerColumns = (
     dataIndex: "email",
     key: "email",
     sorter: false,
-    className: "p-6 w-[100px] text-sm text-gray-900 !font-poppins",
+    className: "p-6 w-[100px] !lowercase text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: Learner) => (
       <span className="text-gray-900 !font-poppins">
         {record?.email?.toLowerCase() || "-"}
