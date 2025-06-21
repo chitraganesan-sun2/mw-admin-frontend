@@ -78,8 +78,8 @@ const Broadcast = () => {
     setIsLanguageLoading(true);
     const response: any = await GET_API(endpoints.comment.getLanguage);
     const languages = response.data.map((language: any) => ({
-      label: language.language_name,
-      value: language.language_name,
+      label: language,
+      value: language,
     }));
     setAllLanguages(languages);
     setIsLanguageLoading(false);
@@ -264,6 +264,8 @@ const Broadcast = () => {
   useEffect(() => {
     if (location && language) {
       getRecipients();
+      setVolunteers([]);
+      setLearners([]);
     }
   }, [location, language]);
 
