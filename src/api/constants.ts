@@ -10,12 +10,14 @@ export const endpoints: EndpointProps = {
   },
   common: (path: CommonPath) => `common/${path}/`,
   volunteer: {
+    allVolunteers: "admin/volunteer/development/all",
     getAllVolunteers: "admin/volunteer",
     getVolunteerDetails: (volunteerId: string) =>
       `admin/volunteer/${volunteerId}`,
     deleteVolunteer: (volunteerId: string) => `admin/volunteer/${volunteerId}`,
   },
   learner: {
+    allLearners: "admin/learner/development/all",
     getAllLearners: "admin/learner",
     getLearnerDetails: (learnerId: string) => `admin/learner/${learnerId}`,
     deleteLearner: (learnerId: string) => `admin/learner/${learnerId}`,
