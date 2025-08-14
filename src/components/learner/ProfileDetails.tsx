@@ -10,6 +10,7 @@ import { formatString } from "@/utils/stringFunctions";
 import { useQueryState } from "nuqs";
 import Image from "next/image";
 import { formatLearnerData } from "./format";
+import moment from "moment";
 
 const Section = ({ title, details, columns = 2 }: { title: string, details: any, columns?: number }) => (
   <div>
@@ -61,7 +62,7 @@ const LearnerProfileDetails = () => {
   const personalDetails = [
     { title: "Name", value: getValue(learnerDetails?.name) },
     { title: "Gender", value: getFormattedValue(learnerDetails?.gender) },
-    { title: "Date of Birth", value: getValue(learnerDetails?.date_of_birth) },
+    { title: "Date of Birth", value: getValue(learnerDetails?.date_of_birth) ? moment(learnerDetails?.date_of_birth).format("DD MMM YYYY") : "-" },
     { title: "Email", value: getValue(learnerDetails?.email) },
     { title: "Phone Number", value: getValue(learnerDetails?.phone_number) },
     { title: "Zip Code", value: getValue(learnerDetails?.zip_code) },
