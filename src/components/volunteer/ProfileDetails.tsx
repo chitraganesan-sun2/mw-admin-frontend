@@ -12,6 +12,7 @@ import { Collapse } from "antd";
 import { formatVolunteerData } from "./format";
 import moment from "moment";
 const { Panel } = Collapse;
+import noImage from "@/assets/images/no-image.webp";
 
 const getValue = (val: any) => val || "-";
 const getFormattedValue = (val?: string) => formatString(val || "") || "-";
@@ -372,7 +373,7 @@ const VolunteerProfileDetails = () => {
             <p className="text-xl font-medium mb-4">Personal Details</p>
             <div className="flex mb-3">
               <Image
-                src={volunteerDetails?.profile_image || ""}
+                src={volunteerDetails?.profile_image || noImage}
                 alt="profile"
                 className="rounded-xl min-h-[250px] max-h-[300px] !w-auto"
                 width={100}
