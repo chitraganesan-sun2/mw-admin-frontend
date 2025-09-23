@@ -73,14 +73,19 @@ export default function LearnersPage() {
   };
 
   const handleOnboardedStatusFilter = () => {
-    if (onboardedStatusFilter === null) {
+    if (
+      onboardedStatusFilter === null ||
+      onboardedStatusFilter === "verification_rejected"
+    ) {
       setOnboardedStatusFilter("verification_completed");
     } else if (onboardedStatusFilter === "verification_completed") {
-      setOnboardedStatusFilter("verification_rejected");
-    } else if (onboardedStatusFilter === "verification_rejected") {
+      setOnboardedStatusFilter("verification_pending");
+    } else if (onboardedStatusFilter === "verification_pending") {
+      setOnboardedStatusFilter("partially_filled");
+    } else if (onboardedStatusFilter === "partially_filled") {
       setOnboardedStatusFilter("details_pending");
     } else if (onboardedStatusFilter === "details_pending") {
-      setOnboardedStatusFilter("verification_pending");
+      setOnboardedStatusFilter("verification_rejected");
     }
   };
 

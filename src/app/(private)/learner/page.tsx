@@ -38,7 +38,8 @@ export default function LearnersPage() {
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [isDeleteAlertLoading, setIsDeleteAlertLoading] = useState(false);
   const [learnerToDelete, setLearnerToDelete] = useState<string | null>(null);
-  const [onboardedStatusFilter, setOnboardedStatusFilter] = useQueryState("onboarded_status");
+  const [onboardedStatusFilter, setOnboardedStatusFilter] =
+    useQueryState("onboarded_status");
 
   const handleSeeMoreDetails = (id: string) => {
     setLearnerId(id);
@@ -50,14 +51,19 @@ export default function LearnersPage() {
   };
 
   const handleOnboardedStatusFilter = () => {
-    if (onboardedStatusFilter === null) {
+    if (
+      onboardedStatusFilter === null ||
+      onboardedStatusFilter === "verification_rejected"
+    ) {
       setOnboardedStatusFilter("verification_completed");
     } else if (onboardedStatusFilter === "verification_completed") {
-      setOnboardedStatusFilter("verification_rejected");
-    } else if (onboardedStatusFilter === "verification_rejected") {
+      setOnboardedStatusFilter("verification_pending");
+    } else if (onboardedStatusFilter === "verification_pending") {
+      setOnboardedStatusFilter("partially_filled");
+    } else if (onboardedStatusFilter === "partially_filled") {
       setOnboardedStatusFilter("details_pending");
     } else if (onboardedStatusFilter === "details_pending") {
-      setOnboardedStatusFilter("verification_pending");
+      setOnboardedStatusFilter("verification_rejected");
     }
   };
 
@@ -66,17 +72,23 @@ export default function LearnersPage() {
     handleDeleteEvent();
   };
 
-  const columns = getLearnerColumns(handleSeeMoreDetails, handleDeleteLearner, handleOnboardedStatusFilter);
+  const columns = getLearnerColumns(
+    handleSeeMoreDetails,
+    handleDeleteLearner,
+    handleOnboardedStatusFilter
+  );
 
-  const getAlllearners = async ({ page, size, onboarded_status = "" }: PaginationParams & { onboarded_status?: string }) => {
+  const getAlllearners = async ({
+    page,
+    size,
+    onboarded_status = "",
+  }: PaginationParams & { onboarded_status?: string }) => {
     try {
       let url = `${endpoints.learner.getAllLearners}?page=${page}&size=${size}`;
       if (onboardedStatusFilter) {
         url += `&onboarded_status=${onboardedStatusFilter}`;
       }
-      const response: any = await GET_API(
-        url
-      );
+      const response: any = await GET_API(url);
       return {
         ...response.data,
         items: response.data.items,
@@ -97,7 +109,12 @@ export default function LearnersPage() {
     refetch,
   } = useQuery({
     queryKey: ["learners", page, size, onboardedStatusFilter],
-    queryFn: () => getAlllearners({ page, size, onboarded_status: onboardedStatusFilter as string }),
+    queryFn: () =>
+      getAlllearners({
+        page,
+        size,
+        onboarded_status: onboardedStatusFilter as string,
+      }),
   });
 
   useEffect(() => {
