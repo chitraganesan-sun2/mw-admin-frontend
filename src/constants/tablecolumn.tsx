@@ -4,6 +4,7 @@ import ExpandableText from "@/components/common/Modals/ExpandableText";
 import { Button } from "antd";
 import { DeleteIcon } from "@/assets/icons";
 import { FaSort } from "react-icons/fa";
+import moment from "moment";
 
 export const getVolunteerColumns = (
   handleSeeMoreDetails?: (id: string) => void,
@@ -327,6 +328,10 @@ export const getReportColumns = (
     sorter: true,
     className:
       "!w-[10%] p-6 text-sm text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
+    render: (_: unknown, record: Report) => {
+      if (!record.report_time) return "-";
+      return moment(record.report_time).format("DD-MMM-YYYY").toLowerCase();
+    },
   },
   {
     title: "Review Status",

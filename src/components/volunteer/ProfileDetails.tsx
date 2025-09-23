@@ -50,6 +50,29 @@ const VolunteerProfileDetails = () => {
     if (volunteerId) setIsOpen(true);
   }, [volunteerId]);
 
+  const volunteerDateOfBirth = (() => {
+    const dateOfBirth = volunteerDetails?.date_of_birth;
+    if (!dateOfBirth || dateOfBirth === "" || dateOfBirth === "Invalid date") {
+      return "-";
+    }
+    
+    // Try to parse the date with DD-MM-YYYY format first
+    const parsedDate = moment(dateOfBirth, "DD-MM-YYYY", true);
+    if (parsedDate.isValid()) {
+      return parsedDate.format("DD-MMM-YYYY");
+    }
+    
+    // Fallback to general parsing
+    const fallbackDate = moment(dateOfBirth);
+    return fallbackDate.isValid() ? fallbackDate.format("DD-MMM-YYYY") : "-";
+  })();
+
+  console.log(
+    volunteerDetails?.date_of_birth,
+    "volunteerDetails date of birth",
+    volunteerDateOfBirth
+  );
+
   const profileDetails = [
     {
       title: "Name",
@@ -63,11 +86,7 @@ const VolunteerProfileDetails = () => {
     },
     {
       title: "Date of Birth",
-      value:
-        volunteerDetails?.date_of_birth &&
-        volunteerDetails.date_of_birth !== "-"
-          ? moment(volunteerDetails.date_of_birth).format("DD MMM YYYY")
-          : "-",
+      value: volunteerDateOfBirth,
     },
     { title: "Email", value: getValue(volunteerDetails?.email_address) },
     { title: "Phone Number", value: getValue(volunteerDetails?.phone_number) },
