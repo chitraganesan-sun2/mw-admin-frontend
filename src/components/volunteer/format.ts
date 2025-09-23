@@ -1,9 +1,23 @@
 import moment from "moment";
 
-const formatDate = (date: string) =>
-    moment(date, "DD-MM-YYYY", true).isValid()
-        ? date
-        : moment(date).format("DD-MM-YYYY");
+const formatDate = (date: string) => {
+    if (!date) return "-";
+    
+    // First try to parse with DD-MM-YYYY format
+    const parsedDate = moment(date, "DD-MM-YYYY", true);
+    if (parsedDate.isValid()) {
+        return parsedDate.format("DD-MM-YYYY");
+    }
+    
+    // If that fails, try parsing with other common formats
+    const fallbackDate = moment(date);
+    if (fallbackDate.isValid()) {
+        return fallbackDate.format("DD-MM-YYYY");
+    }
+    
+    // If all parsing fails, return the original string or "-"
+    return date || "-";
+};
 
 export const formatVolunteerData = (data: any): VolunteerDetails => {
     const {

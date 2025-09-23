@@ -51,6 +51,8 @@ export default function LearnersPage() {
   const [total, setTotal] = useState<number>(0);
   const [size, setSize] = useQueryState("size", { defaultValue: "10" });
   const [page, setPage] = useQueryState("page", { defaultValue: "1" });
+  const [onboardedStatusFilter, setOnboardedStatusFilter] =
+    useQueryState("onboarded_status");
   const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
@@ -70,15 +72,36 @@ export default function LearnersPage() {
     setIsDeleteAlertOpen(true);
   };
 
+  const handleOnboardedStatusFilter = () => {
+    if (onboardedStatusFilter === null) {
+      setOnboardedStatusFilter("verification_completed");
+    } else if (onboardedStatusFilter === "verification_completed") {
+      setOnboardedStatusFilter("verification_rejected");
+    } else if (onboardedStatusFilter === "verification_rejected") {
+      setOnboardedStatusFilter("details_pending");
+    } else if (onboardedStatusFilter === "details_pending") {
+      setOnboardedStatusFilter("verification_pending");
+    }
+  };
+
   const handleModalConfirm = () => {
     setIsDeleteAlertLoading(true);
     handleDeleteEvent();
   };
 
-  const getAllVolunteers = async ({ page, size }: PaginationParams) => {
-    const response: any = await GET_API(
-      `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`
-    );
+  const getAllVolunteers = async ({
+    page,
+    size,
+    onboarded_status = "",
+  }: PaginationParams & { onboarded_status?: string }) => {
+    let url = `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`;
+
+    // Add onboarded_status filter if it exists
+    if (onboarded_status) {
+      url += `&onboarded_status=${onboarded_status}`;
+    }
+
+    const response: any = await GET_API(url);
 
     // Return the data as is, since the API should handle pagination
     return {
@@ -93,8 +116,13 @@ export default function LearnersPage() {
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ["volunteers", page, size],
-    queryFn: () => getAllVolunteers({ page, size }),
+    queryKey: ["volunteers", page, size, onboardedStatusFilter],
+    queryFn: () =>
+      getAllVolunteers({
+        page,
+        size,
+        onboarded_status: onboardedStatusFilter as string,
+      }),
   });
 
   useEffect(() => {
@@ -136,7 +164,8 @@ export default function LearnersPage() {
 
   const columns = getVolunteerColumns(
     handleSeeMoreDetails,
-    handleDeleteVolunteer
+    handleDeleteVolunteer,
+    handleOnboardedStatusFilter
   );
 
   useEffect(() => {
