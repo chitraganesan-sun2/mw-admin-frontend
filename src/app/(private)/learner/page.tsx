@@ -38,6 +38,7 @@ export default function LearnersPage() {
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [isDeleteAlertLoading, setIsDeleteAlertLoading] = useState(false);
   const [learnerToDelete, setLearnerToDelete] = useState<string | null>(null);
+  const [onboardedStatusFilter, setOnboardedStatusFilter] = useQueryState("onboarded_status");
 
   const handleSeeMoreDetails = (id: string) => {
     setLearnerId(id);
@@ -48,17 +49,33 @@ export default function LearnersPage() {
     setIsDeleteAlertOpen(true);
   };
 
+  const handleOnboardedStatusFilter = () => {
+    if (onboardedStatusFilter === null) {
+      setOnboardedStatusFilter("verification_completed");
+    } else if (onboardedStatusFilter === "verification_completed") {
+      setOnboardedStatusFilter("verification_rejected");
+    } else if (onboardedStatusFilter === "verification_rejected") {
+      setOnboardedStatusFilter("details_pending");
+    } else if (onboardedStatusFilter === "details_pending") {
+      setOnboardedStatusFilter("verification_pending");
+    }
+  };
+
   const handleModalConfirm = () => {
     setIsDeleteAlertLoading(true);
     handleDeleteEvent();
   };
 
-  const columns = getLearnerColumns(handleSeeMoreDetails, handleDeleteLearner);
+  const columns = getLearnerColumns(handleSeeMoreDetails, handleDeleteLearner, handleOnboardedStatusFilter);
 
-  const getAlllearners = async ({ page, size }: PaginationParams) => {
+  const getAlllearners = async ({ page, size, onboarded_status = "" }: PaginationParams & { onboarded_status?: string }) => {
     try {
+      let url = `${endpoints.learner.getAllLearners}?page=${page}&size=${size}`;
+      if (onboardedStatusFilter) {
+        url += `&onboarded_status=${onboardedStatusFilter}`;
+      }
       const response: any = await GET_API(
-        `${endpoints.learner.getAllLearners}?page=${page}&size=${size}`
+        url
       );
       return {
         ...response.data,
@@ -79,8 +96,8 @@ export default function LearnersPage() {
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ["learners", page, size],
-    queryFn: () => getAlllearners({ page, size }),
+    queryKey: ["learners", page, size, onboardedStatusFilter],
+    queryFn: () => getAlllearners({ page, size, onboarded_status: onboardedStatusFilter as string }),
   });
 
   useEffect(() => {

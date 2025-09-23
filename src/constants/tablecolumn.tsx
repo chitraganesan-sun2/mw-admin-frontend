@@ -3,10 +3,12 @@ import { Volunteer, Report, Learner } from "@/constants/column";
 import ExpandableText from "@/components/common/Modals/ExpandableText";
 import { Button } from "antd";
 import { DeleteIcon } from "@/assets/icons";
+import { FaSort } from "react-icons/fa";
 
 export const getVolunteerColumns = (
   handleSeeMoreDetails?: (id: string) => void,
-  handleDeleteVolunteer?: (id: string) => void
+  handleDeleteVolunteer?: (id: string) => void,
+  handleOnboardedStatusFilter?: () => void
 ) => [
   {
     title: "Name",
@@ -40,21 +42,21 @@ export const getVolunteerColumns = (
       "px-6 !py-3 w-[100px] !lowercase text-sm text-gray-900 !font-poppins",
   },
   {
-    title: "Requested Status",
+    title: (
+      <div
+        onClick={handleOnboardedStatusFilter}
+        style={{ cursor: "pointer" }}
+        className="w-full h-full flex items-center gap-2"
+      >
+        Requested Status
+        <FaSort className="text-gray-400" />
+      </div>
+    ),
     dataIndex: "onboarded_status",
     key: "onboarded_status",
-    sorter: (a: any, b: any) => {
-      const statusOrder = {
-        verification_completed: 1,
-        verification_pending: 2,
-        details_pending: 3,
-        verification_rejected: 4,
-      };
-      return (
-        statusOrder[a.onboarded_status as keyof typeof statusOrder] -
-        statusOrder[b.onboarded_status as keyof typeof statusOrder]
-      );
-    },
+    onFilter: (value: string, record: Volunteer) =>
+      record.onboarded_status === value,
+    sorter: false,
     className: "!p-0 w-[150px]  text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: Volunteer) => {
       if ("onboarded_status" in record) {
@@ -143,7 +145,8 @@ export const getVolunteerColumns = (
 
 export const getLearnerColumns = (
   handleSeeMoreDetails?: (id: string) => void,
-  handleDeleteLearner?: (id: string) => void
+  handleDeleteLearner?: (id: string) => void,
+  handleOnboardedStatusFilter?: () => void
 ) => [
   {
     title: "Name",
@@ -180,21 +183,22 @@ export const getLearnerColumns = (
     ),
   },
   {
-    title: "Requested Status",
+    title: (
+      <div
+        onClick={handleOnboardedStatusFilter}
+        style={{ cursor: "pointer" }}
+        className="w-full h-full flex items-center gap-2"
+      >
+        Requested Status
+        <FaSort className="text-gray-400" />
+      </div>
+    ),
     dataIndex: "onboarded_status",
     key: "onboarded_status",
-    sorter: (a: any, b: any) => {
-      const statusOrder = {
-        verification_completed: 1,
-        verification_pending: 2,
-        details_pending: 3,
-        verification_rejected: 4,
-      };
-      return (
-        statusOrder[a.onboarded_status as keyof typeof statusOrder] -
-        statusOrder[b.onboarded_status as keyof typeof statusOrder]
-      );
-    },
+    onFilter: (value: string, record: Learner) =>
+      record.onboarded_status === value,
+    onFilterChange: handleOnboardedStatusFilter,
+    sorter: false,
     className: "!p-0 w-[150px]  text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: Volunteer) => {
       if ("onboarded_status" in record) {
