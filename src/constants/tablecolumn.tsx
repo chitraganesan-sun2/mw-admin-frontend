@@ -47,10 +47,10 @@ export const getVolunteerColumns = (
       <div
         onClick={handleOnboardedStatusFilter}
         style={{ cursor: "pointer" }}
-        className="w-full h-full flex items-center gap-2"
+        className="w-full h-full flex items-center pr-5 gap-2 justify-between"
       >
         Requested Status
-        <FaSort className="text-gray-400" />
+        <FaSort className="text-gray-400 " />
       </div>
     ),
     dataIndex: "onboarded_status",
@@ -188,10 +188,10 @@ export const getLearnerColumns = (
       <div
         onClick={handleOnboardedStatusFilter}
         style={{ cursor: "pointer" }}
-        className="w-full h-full flex items-center gap-2"
+        className="w-full h-full flex pr-5 items-center gap-2 justify-between"
       >
         Requested Status
-        <FaSort className="text-gray-400" />
+        <FaSort className="text-gray-400"  />
       </div>
     ),
     dataIndex: "onboarded_status",
