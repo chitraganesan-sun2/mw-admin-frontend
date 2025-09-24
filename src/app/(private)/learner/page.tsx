@@ -50,21 +50,6 @@ export default function LearnersPage() {
     setIsDeleteAlertOpen(true);
   };
 
-  // const handleOnboardedStatusFilter = () => {
-  //   if (
-  //     onboardedStatusFilter === null ||
-  //     onboardedStatusFilter === "verification_rejected"
-  //   ) {
-  //     setOnboardedStatusFilter("verification_completed");
-  //   } else if (onboardedStatusFilter === "verification_completed") {
-  //     setOnboardedStatusFilter("verification_pending");
-  //   } else if (onboardedStatusFilter === "verification_pending") {
-  //     setOnboardedStatusFilter("partially_filled");
-  //   } else if (onboardedStatusFilter === "partially_filled") {
-  //     setOnboardedStatusFilter("verification_rejected");
-  //   } 
-  // };
-
   const handleOnboardedStatusFilter = () => {
     if (
       onboardedStatusFilter === null ||

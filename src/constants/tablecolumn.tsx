@@ -95,9 +95,9 @@ export const getVolunteerColumns = (
                 ? "Completed"
                 : record.onboarded_status === "verification_rejected"
                 ? "Rejected"
-                : record.onboarded_status === "details_pending"
-                ? "Form Incompleted"
-                : "Details Pending"}
+                : record.onboarded_status === "partially_filled"
+                ? "Details Pending"
+                : "Form Incompleted"}
             </span>
           </span>
         );
@@ -237,9 +237,9 @@ export const getLearnerColumns = (
                 ? "Completed"
                 : record.onboarded_status === "verification_rejected"
                 ? "Rejected"
-                : record.onboarded_status === "details_pending"
-                ? "Form Incompleted"
-                : "Details Pending"}
+                : record.onboarded_status === "partially_filled"
+                ? "Details Pending"
+                : "Form Incompleted"}
             </span>
           </span>
         );
