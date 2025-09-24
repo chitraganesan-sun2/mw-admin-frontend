@@ -27,7 +27,7 @@ const Section = ({
       {details.map(({ title, value, rootClassName = "" }: any, i: number) => (
         <div key={i} className={`flex flex-col gap-1 ${rootClassName}`}>
           <p className="text-sm font-medium text-gray-medium">{title}</p>
-          <p className="text-[1rem] text-gray-dark font-medium">{value}</p>
+          <p className="text-[1rem] text-gray-dark font-medium">{value || "-"}</p>
         </div>
       ))}
     </div>
@@ -70,7 +70,7 @@ const LearnerProfileDetails = () => {
     arr?.map(formatString).join(" | ") || "-";
   const formatSkillArray = (arr: any) =>
     arr?.map((s: any) => s?.skill_name).join(" | ") || "-";
-  const getValue = (val: any) => val || "-";
+  const getValue = (val: any) => (val && (Array.isArray(val) ? val.length > 0 : true)) ? val : "-";
   const getFormattedValue = (val?: string) => formatString(val || "") || "-";
 
   const personalDetails = [
