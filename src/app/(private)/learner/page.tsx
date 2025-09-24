@@ -38,6 +38,8 @@ export default function LearnersPage() {
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [isDeleteAlertLoading, setIsDeleteAlertLoading] = useState(false);
   const [learnerToDelete, setLearnerToDelete] = useState<string | null>(null);
+  const [onboardedStatusFilter, setOnboardedStatusFilter] =
+    useQueryState("onboarded_status");
 
   const handleSeeMoreDetails = (id: string) => {
     setLearnerId(id);
@@ -48,18 +50,61 @@ export default function LearnersPage() {
     setIsDeleteAlertOpen(true);
   };
 
+  // const handleOnboardedStatusFilter = () => {
+  //   if (
+  //     onboardedStatusFilter === null ||
+  //     onboardedStatusFilter === "verification_rejected"
+  //   ) {
+  //     setOnboardedStatusFilter("verification_completed");
+  //   } else if (onboardedStatusFilter === "verification_completed") {
+  //     setOnboardedStatusFilter("verification_pending");
+  //   } else if (onboardedStatusFilter === "verification_pending") {
+  //     setOnboardedStatusFilter("partially_filled");
+  //   } else if (onboardedStatusFilter === "partially_filled") {
+  //     setOnboardedStatusFilter("verification_rejected");
+  //   } 
+  // };
+
+  const handleOnboardedStatusFilter = () => {
+    if (
+      onboardedStatusFilter === null ||
+      onboardedStatusFilter === "verification_rejected"
+    ) {
+      setOnboardedStatusFilter("verification_completed");
+    } else if (onboardedStatusFilter === "verification_completed") {
+      setOnboardedStatusFilter("verification_pending");
+    } else if (onboardedStatusFilter === "verification_pending") {
+      setOnboardedStatusFilter("partially_filled");
+    } else if (onboardedStatusFilter === "partially_filled") {
+      setOnboardedStatusFilter("details_pending");
+    } else if (onboardedStatusFilter === "details_pending") {
+      setOnboardedStatusFilter("verification_rejected");
+    }
+  };
+
+
   const handleModalConfirm = () => {
     setIsDeleteAlertLoading(true);
     handleDeleteEvent();
   };
 
-  const columns = getLearnerColumns(handleSeeMoreDetails, handleDeleteLearner);
+  const columns = getLearnerColumns(
+    handleSeeMoreDetails,
+    handleDeleteLearner,
+    handleOnboardedStatusFilter
+  );
 
-  const getAlllearners = async ({ page, size }: PaginationParams) => {
+  const getAlllearners = async ({
+    page,
+    size,
+    onboarded_status = "",
+  }: PaginationParams & { onboarded_status?: string }) => {
     try {
-      const response: any = await GET_API(
-        `${endpoints.learner.getAllLearners}?page=${page}&size=${size}`
-      );
+      let url = `${endpoints.learner.getAllLearners}?page=${page}&size=${size}`;
+      if (onboardedStatusFilter) {
+        url += `&onboarded_status=${onboardedStatusFilter}`;
+      }
+      const response: any = await GET_API(url);
       return {
         ...response.data,
         items: response.data.items,
@@ -79,8 +124,13 @@ export default function LearnersPage() {
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ["learners", page, size],
-    queryFn: () => getAlllearners({ page, size }),
+    queryKey: ["learners", page, size, onboardedStatusFilter],
+    queryFn: () =>
+      getAlllearners({
+        page,
+        size,
+        onboarded_status: onboardedStatusFilter as string,
+      }),
   });
 
   useEffect(() => {

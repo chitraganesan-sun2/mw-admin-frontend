@@ -313,7 +313,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                         />
                         <div className="w-1.5 h-1.5 rounded-full bg-black"></div>
                         <p className="font-semibold text-black">
-                          {toUserTimeZone({ date: post?.created_at, format: "DD MMM YYYY" })}
+                          {toUserTimeZone({ date: post?.created_at, format: "DD-MMM-YYYY" })}
                         </p>
                         {/* <button
                           onClick={() =>

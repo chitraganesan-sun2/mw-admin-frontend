@@ -1,5 +1,8 @@
 
 interface LearnerDetails {
+    learner_personal_info: {
+        learner_date_of_birth?: string;
+    };
     profile_image: string;
     profile_picture_url: string;
     name: string;

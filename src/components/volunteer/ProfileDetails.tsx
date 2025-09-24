@@ -12,6 +12,7 @@ import { Collapse } from "antd";
 import { formatVolunteerData } from "./format";
 import moment from "moment";
 const { Panel } = Collapse;
+import noImage from "@/assets/images/no-image.webp";
 
 const getValue = (val: any) => val || "-";
 const getFormattedValue = (val?: string) => formatString(val || "") || "-";
@@ -49,6 +50,29 @@ const VolunteerProfileDetails = () => {
     if (volunteerId) setIsOpen(true);
   }, [volunteerId]);
 
+  const volunteerDateOfBirth = (() => {
+    const dateOfBirth = volunteerDetails?.date_of_birth;
+    if (!dateOfBirth || dateOfBirth === "" || dateOfBirth === "Invalid date") {
+      return "-";
+    }
+    
+    // Try to parse the date with DD-MM-YYYY format first
+    const parsedDate = moment(dateOfBirth, "DD-MM-YYYY", true);
+    if (parsedDate.isValid()) {
+      return parsedDate.format("DD-MMM-YYYY");
+    }
+    
+    // Fallback to general parsing
+    const fallbackDate = moment(dateOfBirth);
+    return fallbackDate.isValid() ? fallbackDate.format("DD-MMM-YYYY") : "-";
+  })();
+
+  console.log(
+    volunteerDetails?.date_of_birth,
+    "volunteerDetails date of birth",
+    volunteerDateOfBirth
+  );
+
   const profileDetails = [
     {
       title: "Name",
@@ -62,11 +86,7 @@ const VolunteerProfileDetails = () => {
     },
     {
       title: "Date of Birth",
-      value:
-        volunteerDetails?.date_of_birth &&
-        volunteerDetails.date_of_birth !== "-"
-          ? moment(volunteerDetails.date_of_birth).format("DD MMM YYYY")
-          : "-",
+      value: volunteerDateOfBirth,
     },
     { title: "Email", value: getValue(volunteerDetails?.email_address) },
     { title: "Phone Number", value: getValue(volunteerDetails?.phone_number) },
@@ -372,7 +392,7 @@ const VolunteerProfileDetails = () => {
             <p className="text-xl font-medium mb-4">Personal Details</p>
             <div className="flex mb-3">
               <Image
-                src={volunteerDetails?.profile_image || ""}
+                src={volunteerDetails?.profile_image || noImage}
                 alt="profile"
                 className="rounded-xl min-h-[250px] max-h-[300px] !w-auto"
                 width={100}
