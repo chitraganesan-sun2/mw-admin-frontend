@@ -12,6 +12,8 @@ interface LearnerDetails {
     phone_number: string;
     zip_code: string;
     country: string;
+    timezone: string;
+    utc_offset: string;
     primary_language: string;
 
     current_school: string;

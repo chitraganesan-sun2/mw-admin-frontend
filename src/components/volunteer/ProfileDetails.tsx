@@ -92,6 +92,8 @@ const VolunteerProfileDetails = () => {
     { title: "Phone Number", value: getValue(volunteerDetails?.phone_number) },
     { title: "Zip Code", value: getValue(volunteerDetails?.zip_code) },
     { title: "Country", value: getFormattedValue(volunteerDetails?.country) },
+    { title: "Timezone", value: getValue(volunteerDetails?.timezone) },
+    // { title: "UTC Offset", value: getValue(volunteerDetails?.utc_offset) },
     {
       title: "Higher Education",
       value: volunteerDetails?.higher_education,
