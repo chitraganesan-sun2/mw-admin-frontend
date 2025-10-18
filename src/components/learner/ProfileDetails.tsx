@@ -92,6 +92,8 @@ const LearnerProfileDetails = () => {
     { title: "Phone Number", value: getValue(learnerDetails?.phone_number) },
     { title: "Zip Code", value: getValue(learnerDetails?.zip_code) },
     { title: "Country", value: getFormattedValue(learnerDetails?.country) },
+    { title: "Timezone", value: getValue(learnerDetails?.timezone) },
+    // { title: "UTC Offset", value: getValue(learnerDetails?.utc_offset) },
     {
       title: "Primary Language",
       value: getValue(learnerDetails?.primary_language),

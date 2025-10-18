@@ -50,6 +50,8 @@ export const formatLearnerData = (data: any): LearnerDetails => {
     phone_number: formatContactNumber(contact.contact_number),
     zip_code: contact.zip_code || "-",
     country: contact.country || "-",
+    timezone: contact.timezone || "-",
+    utc_offset: contact.utc_offset || "-",
     primary_language: learner_personal_info?.learner_primary_language || "-",
 
     current_school: education?.current_school || "-",

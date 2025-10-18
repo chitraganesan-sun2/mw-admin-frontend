@@ -44,6 +44,8 @@ export const formatVolunteerData = (data: any): VolunteerDetails => {
         phone_number: `${contact.contact_number?.country_code || ""} ${contact.contact_number?.number || ""}`.trim(),
         zip_code: contact.zip_code || "-",
         country: contact.country || "-",
+        timezone: contact.timezone || "-",
+        utc_offset: contact.utc_offset || "-",
 
         education: data?.volunteer_education || "-",
         higher_education: data?.volunteer_higher_education || "-",

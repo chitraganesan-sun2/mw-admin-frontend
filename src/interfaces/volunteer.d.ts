@@ -7,6 +7,8 @@ interface VolunteerDetails {
     phone_number: string;
     zip_code: string;
     country: string;
+    timezone: string;
+    utc_offset: string;
 
     education: string;
     higher_education: string;
