@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
@@ -27,6 +27,20 @@ const VolunteerProfileDetails = () => {
 
   const [isAcceptLoading, setIsAcceptLoading] = useState(false);
   const [isRejectLoading, setIsRejectLoading] = useState(false);
+  const aboutMeVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    // Ensure video is in a clean, paused state on open
+    if (isOpen && aboutMeVideoRef.current) {
+      try {
+        aboutMeVideoRef.current.pause();
+        aboutMeVideoRef.current.currentTime = 0;
+        aboutMeVideoRef.current.load();
+      } catch (err) {
+        // no-op
+      }
+    }
+  }, [isOpen]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["volunteer-details", volunteerId],
@@ -303,6 +317,7 @@ const VolunteerProfileDetails = () => {
                     src={videoSrc}
                     controls
                     preload="metadata"
+                    ref={aboutMeVideoRef}
                     className="w-full rounded-xl shadow-lg"
                 >
                     Your browser does not support the video tag.
@@ -333,6 +348,15 @@ const VolunteerProfileDetails = () => {
   ];
 
   const handleModalClose = () => {
+    try {
+      if (aboutMeVideoRef.current) {
+        aboutMeVideoRef.current.pause();
+        aboutMeVideoRef.current.currentTime = 0;
+        aboutMeVideoRef.current.load();
+      }
+    } catch (err) {
+      // no-op
+    }
     setVolunteerId(null);
     setIsOpen(false);
   };
