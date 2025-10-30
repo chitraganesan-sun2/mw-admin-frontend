@@ -297,13 +297,13 @@ const VolunteerProfileDetails = () => {
     if (!videoSrc) return null;
     return (
         <div className="border-t mt-5 pt-5 mb-5">
-            <p className="text-xl font-medium underline mb-3">About Me</p>
+            <p className="text-sm font-medium text-gray-medium mb-3">About Me</p>
             <div className="w-full flex justify-start">
                 <video
                     src={videoSrc}
                     controls
                     preload="metadata"
-                    className="w-full max-w-2xl rounded-xl shadow-lg"
+                    className="w-full rounded-xl shadow-lg"
                 >
                     Your browser does not support the video tag.
                 </video>
