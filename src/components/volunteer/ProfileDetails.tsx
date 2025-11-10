@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
@@ -27,6 +27,20 @@ const VolunteerProfileDetails = () => {
 
   const [isAcceptLoading, setIsAcceptLoading] = useState(false);
   const [isRejectLoading, setIsRejectLoading] = useState(false);
+  const aboutMeVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    // Ensure video is in a clean, paused state on open
+    if (isOpen && aboutMeVideoRef.current) {
+      try {
+        aboutMeVideoRef.current.pause();
+        aboutMeVideoRef.current.currentTime = 0;
+        aboutMeVideoRef.current.load();
+      } catch (err) {
+        // no-op
+      }
+    }
+  }, [isOpen]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["volunteer-details", volunteerId],
@@ -124,12 +138,12 @@ const VolunteerProfileDetails = () => {
           ?.join(" | ") || "-",
       rootClassName: "col-span-2",
     },
+    // Removed long-form volunteer description as per requirement
     {
-      title:
-        "Why do you want to tutor with us, and what do you hope to gain from this experience? What subjects would you like to teach, and why?",
+      title: "Description",
       value: data?.volunteer_description || "-",
       rootClassName: "col-span-2",
-    },
+    }
   ];
   const parentDetails = [
     {
@@ -291,6 +305,29 @@ const VolunteerProfileDetails = () => {
     },
   ];
 
+  const renderAboutMeVideo = () => {
+    const anyData: any = data as any;
+    const videoSrc = data?.profile_video?.video_url || anyData?.profile_video?.url || anyData?.video_url || anyData?.url;
+    if (!videoSrc) return null;
+    return (
+        <div className="border-t mt-5 pt-5 mb-5">
+            <p className="text-sm font-medium text-gray-medium mb-3">About Me</p>
+            <div className="w-full flex justify-start">
+                <video
+                    src={videoSrc}
+                    controls
+                    preload="metadata"
+                    ref={aboutMeVideoRef}
+                    className="w-full rounded-xl shadow-lg"
+                >
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    );
+};
+
+
   const consentPermissions = [
     {
       title: "Do you consent to the use of your photo or video?",
@@ -311,6 +348,15 @@ const VolunteerProfileDetails = () => {
   ];
 
   const handleModalClose = () => {
+    try {
+      if (aboutMeVideoRef.current) {
+        aboutMeVideoRef.current.pause();
+        aboutMeVideoRef.current.currentTime = 0;
+        aboutMeVideoRef.current.load();
+      }
+    } catch (err) {
+      // no-op
+    }
     setVolunteerId(null);
     setIsOpen(false);
   };
@@ -417,6 +463,7 @@ const VolunteerProfileDetails = () => {
               ))}
             </div>
           </div>
+          {renderAboutMeVideo()}
           <div>
             <p className="text-xl font-medium border-t mt-5 pt-5 mb-4">
               Parent/Guardian Details
@@ -437,6 +484,7 @@ const VolunteerProfileDetails = () => {
               ))}
             </div>
           </div>
+          {/* {renderAboutMeVideo()} */}
           <div className="border-t mt-5 pt-5">
             <Collapse
               accordion
@@ -507,30 +555,7 @@ const VolunteerProfileDetails = () => {
               ))}
             </div>
           </div>
-          {volunteerDetails?.volunteer_experience_details
-            ?.volunteer_experience && (
-            <div>
-              <p className="text-xl font-medium border-t mt-5 pt-5 mb-3">
-                About Me
-              </p>
-              <div className="flex gap-2 underline">
-                {volunteerDetails?.video_url && (
-                  <a href={volunteerDetails?.video_url} target="_blank">
-                    See Video
-                  </a>
-                )}
-                {volunteerDetails?.document_url && (
-                  <a
-                    href={volunteerDetails?.document_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    See Document
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
+          {/* Removed duplicate bottom About Me links */}
         </div>
       )}
     </CenterModal>
