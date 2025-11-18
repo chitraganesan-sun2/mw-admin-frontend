@@ -40,6 +40,8 @@ export default function LearnersPage() {
   const [learnerToDelete, setLearnerToDelete] = useState<string | null>(null);
   const [onboardedStatusFilter, setOnboardedStatusFilter] =
     useQueryState("onboarded_status");
+  const [nameOrder, setNameOrder] = useQueryState("name_order");
+  const [ageOrder, setAgeOrder] = useQueryState("age_order");
 
   const handleSeeMoreDetails = (id: string) => {
     setLearnerId(id);
@@ -83,11 +85,23 @@ export default function LearnersPage() {
     page,
     size,
     onboarded_status = "",
-  }: PaginationParams & { onboarded_status?: string }) => {
+    name_order = "",
+    age_order = "",
+  }: PaginationParams & {
+    onboarded_status?: string;
+    name_order?: string;
+    age_order?: string;
+  }) => {
     try {
       let url = `${endpoints.learner.getAllLearners}?page=${page}&size=${size}`;
       if (onboardedStatusFilter) {
         url += `&onboarded_status=${onboardedStatusFilter}`;
+      }
+      if (name_order) {
+        url += `&name_order=${name_order}`;
+      }
+      if (age_order) {
+        url += `&age_order=${age_order}`;
       }
       const response: any = await GET_API(url);
       return {
@@ -109,12 +123,14 @@ export default function LearnersPage() {
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ["learners", page, size, onboardedStatusFilter],
+    queryKey: ["learners", page, size, onboardedStatusFilter, nameOrder, ageOrder],
     queryFn: () =>
       getAlllearners({
         page,
         size,
         onboarded_status: onboardedStatusFilter as string,
+        name_order: nameOrder as string,
+        age_order: ageOrder as string,
       }),
   });
 
@@ -136,9 +152,31 @@ export default function LearnersPage() {
     }
   }, [learners]);
 
-  const handleTableChange = (pagination: any) => {
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
     setSize(pagination.pageSize);
     setPage(pagination.current);
+
+    const sortInfo = Array.isArray(sorter) ? sorter[0] : sorter;
+    
+    if (sortInfo && sortInfo.order) {
+      const order = sortInfo.order === "ascend" ? "asc" : sortInfo.order === "descend" ? "desc" : null;
+      const field = sortInfo.field || sortInfo.columnKey;
+      
+      if (field === "name") {
+        setNameOrder(order || null);
+        if (order) {
+          setAgeOrder(null);
+        }
+      } else if (field === "age") {
+        setAgeOrder(order || null);
+        if (order) {
+          setNameOrder(null);
+        }
+      }
+    } else {
+      setNameOrder(null);
+      setAgeOrder(null);
+    }
   };
 
   const handleDeleteEvent = async () => {

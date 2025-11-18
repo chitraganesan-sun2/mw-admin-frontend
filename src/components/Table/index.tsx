@@ -5,7 +5,7 @@ interface TableProps {
   data: any;
   loading?: boolean;
   pagination?: any;
-  onChange?: (pagination: any) => void;
+  onChange?: (pagination: any, filters?: any, sorter?: any) => void;
   columns?: any;
   handleSeeMoreDetails?: (id: string) => void;
   handleSeePost?: (id: string) => void;
