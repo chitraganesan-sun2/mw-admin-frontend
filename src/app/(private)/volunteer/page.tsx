@@ -53,6 +53,8 @@ export default function LearnersPage() {
   const [page, setPage] = useQueryState("page", { defaultValue: "1" });
   const [onboardedStatusFilter, setOnboardedStatusFilter] =
     useQueryState("onboarded_status");
+  const [nameOrder, setNameOrder] = useQueryState("name_order");
+  const [ageOrder, setAgeOrder] = useQueryState("age_order");
   const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
@@ -98,12 +100,28 @@ export default function LearnersPage() {
     page,
     size,
     onboarded_status = "",
-  }: PaginationParams & { onboarded_status?: string }) => {
+    name_order = "",
+    age_order = "",
+  }: PaginationParams & {
+    onboarded_status?: string;
+    name_order?: string;
+    age_order?: string;
+  }) => {
     let url = `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`;
 
     // Add onboarded_status filter if it exists
     if (onboarded_status) {
       url += `&onboarded_status=${onboarded_status}`;
+    }
+
+    // Add name_order if it exists
+    if (name_order) {
+      url += `&name_order=${name_order}`;
+    }
+
+    // Add age_order if it exists
+    if (age_order) {
+      url += `&age_order=${age_order}`;
     }
 
     const response: any = await GET_API(url);
@@ -121,12 +139,14 @@ export default function LearnersPage() {
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ["volunteers", page, size, onboardedStatusFilter],
+    queryKey: ["volunteers", page, size, onboardedStatusFilter, nameOrder, ageOrder],
     queryFn: () =>
       getAllVolunteers({
         page,
         size,
         onboarded_status: onboardedStatusFilter as string,
+        name_order: nameOrder as string,
+        age_order: ageOrder as string,
       }),
   });
 
@@ -151,9 +171,32 @@ export default function LearnersPage() {
     }
   }, [volunteers]);
 
-  const handleTableChange = (pagination: any) => {
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
     setSize(pagination.pageSize);
     setPage(pagination.current);
+
+    const sortInfo = Array.isArray(sorter) ? sorter[0] : sorter;
+    
+    if (sortInfo && sortInfo.order) {
+      const order = sortInfo.order === "ascend" ? "asc" : sortInfo.order === "descend" ? "desc" : null;
+      const field = sortInfo.field || sortInfo.columnKey;
+      
+      if (field === "name") {
+        setNameOrder(order || null);
+        if (order) {
+          setAgeOrder(null);
+        }
+      } else if (field === "age") {
+        setAgeOrder(order || null);
+        if (order) {
+          setNameOrder(null);
+        }
+      }
+    } else {
+
+      setNameOrder(null);
+      setAgeOrder(null);
+    }
   };
 
   const handleDeleteEvent = async () => {
