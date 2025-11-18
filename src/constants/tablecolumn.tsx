@@ -15,7 +15,8 @@ export const getVolunteerColumns = (
     title: "Name",
     dataIndex: "name",
     key: "name",
-    sorter: (a: any, b: any) => a?.name?.localeCompare(b?.name),
+    field: "name",
+    sorter: true,
     className:
       "px-6 !py-3 text-sm w-[200px]  !font-semibold text-gray-900 !font-poppins",
   },
@@ -23,7 +24,8 @@ export const getVolunteerColumns = (
     title: "Age",
     dataIndex: "age",
     key: "age",
-    sorter: (a: any, b: any) => a?.age - b?.age,
+    field: "age",
+    sorter: true,
     className:
       "px-6 !py-3 text-sm w-[100px]  bg-gray-50 text-gray-900 !font-poppins",
   },
@@ -153,7 +155,8 @@ export const getLearnerColumns = (
     title: "Name",
     dataIndex: "name",
     key: "name",
-    sorter: (a: any, b: any) => a?.name?.localeCompare(b?.name),
+    field: "name",
+    sorter: true,
     className:
       "p-6 text-sm w-[200px] !font-semibold text-gray-900 !font-poppins",
   },
@@ -161,7 +164,8 @@ export const getLearnerColumns = (
     title: "Age",
     dataIndex: "age",
     key: "age",
-    sorter: (a: any, b: any) => a?.age - b?.age,
+    field: "age",
+    sorter: true,
     className: "p-6 text-sm w-[100px] bg-gray-50 text-gray-900 !font-poppins",
   },
   {
