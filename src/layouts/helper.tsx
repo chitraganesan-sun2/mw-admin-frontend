@@ -1,6 +1,7 @@
 import {
   CommunityIcon,
   DashBoardIcon,
+  HiringIcon,
   MailIcon,
   ReportIcon,
   ResourceIcon,
@@ -29,6 +30,8 @@ export const getHeaderIcon = (pathname: string) => {
       return <CommunityIcon />;
     case "broadcast":
       return <MailIcon />;
+    case "hiring":
+      return <HiringIcon />;
     default:
       return null;
   }

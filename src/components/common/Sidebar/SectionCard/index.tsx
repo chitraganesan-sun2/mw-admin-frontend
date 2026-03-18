@@ -30,6 +30,7 @@ const SectionCard = ({
         className="flex items-start gap-2 max-w-[125px] w-full ml-[-1rem]"
       >
         <span
+          style={isActive && textColor ? { color: textColor } : undefined}
           className={`text-[1.25rem] transition-all duration-300 ${
             isActive ? "" : "text-gray-light"
           }   `}

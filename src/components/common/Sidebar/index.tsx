@@ -5,6 +5,7 @@ import {
   MailIcon,
   ResourceIcon,
   SignOutIcon,
+  HiringIcon,
 } from "@/assets/icons";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -49,6 +50,12 @@ const Sidebar = () => {
       text: "Broadcast",
       icon: <MailIcon />,
     },
+      {
+      href: "/hiring",
+      text: "Hiring",
+      icon: <HiringIcon />,
+    },
+
   ];
 
   const handleSignOut = () => {
