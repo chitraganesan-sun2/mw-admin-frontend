@@ -17,6 +17,26 @@ import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import moment from "moment";
+
+export const ROLE_MAPPINGS: Record<string, { title: string; description: string; responsibilities: string[] }> = {
+  social_media_intern: {
+    title: "Social Media Intern",
+    description:
+      "Help grow MelodyWings’ online presence by creating engaging content and sharing stories from our community.",
+    responsibilities: [
+      "Creating posts for Instagram, TikTok, and other platforms",
+      "Designing simple graphics or short videos",
+      "Helping highlight volunteer stories and learner experiences",
+      "Assisting with campaigns that promote MelodyWings sessions and events",
+    ],
+  },
+};
+
+const formatRoleName = (roleStr: string) => {
+  if (!roleStr) return "-";
+  return roleStr.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+};
+
 export default function HiringPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
@@ -38,19 +58,8 @@ export default function HiringPage() {
     });
   }, [pathname, setHeaderOptions]);
 
-  const detailsTemplate: Omit<ApplicationDetails, "id" | "basicInfo"> = useMemo(
+  const detailsTemplate: Omit<ApplicationDetails, "id" | "basicInfo" | "appliedFor"> = useMemo(
     () => ({
-      appliedFor: {
-        title: "Social Media Intern",
-        description:
-          "Help grow MelodyWings’ online presence by creating engaging content and sharing stories from our community.",
-        responsibilities: [
-          "Creating posts for Instagram, TikTok, and other platforms",
-          "Designing simple graphics or short videos",
-          "Helping highlight volunteer stories and learner experiences",
-          "Assisting with campaigns that promote MelodyWings sessions and events",
-        ],
-      },
       applicationQuestions: [
         {
           question: "Are you looking for an internship opportunity",
@@ -227,6 +236,7 @@ export default function HiringPage() {
       url += `&search=${query}`;
     }
     const response: any = await GET_API(url);
+    console.log("API LIST RESPONSE:", response?.data);
     return {
       items: response?.data?.items || [],
       total: response?.data?.total || 0,
@@ -266,9 +276,33 @@ export default function HiringPage() {
       const response: any = await GET_API(endpoints.hiring.getApplication(row.id));
       const resData = response.data;
 
+      console.log("API DETAILS RESPONSE:", resData);
+
+      const roleCode = resData?.selected_position || "";
+      let appliedForData;
+
+      if (resData?.position) {
+        appliedForData = {
+          title: resData.position.title || formatRoleName(roleCode),
+          description: resData.position.description || resData?.custom_role_description || "-",
+          responsibilities: resData.position.responsibilities || [],
+        };
+      } else if (ROLE_MAPPINGS[roleCode]) {
+        appliedForData = {
+          ...ROLE_MAPPINGS[roleCode],
+          description: resData?.custom_role_description || ROLE_MAPPINGS[roleCode].description,
+        };
+      } else {
+        appliedForData = {
+          title: formatRoleName(roleCode),
+          description: resData?.custom_role_description || "-",
+          responsibilities: resData?.responsibilities || [],
+        };
+      }
+
       setSelectedDetails({
         id: row.id,
-        appliedFor: detailsTemplate.appliedFor,
+        appliedFor: appliedForData,
         basicInfo: {
           fullName: resData?.full_name || "-",
           email: resData?.email || "-",

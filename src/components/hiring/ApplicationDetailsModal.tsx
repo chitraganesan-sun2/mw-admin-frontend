@@ -96,16 +96,18 @@ export default function ApplicationDetailsModal({
                 <p className="text-[14px] text-[#4F4F4F] mt-1">
                   {data.appliedFor.description}
                 </p>
-                <div className="mt-3">
-                  <p className="text-[12px] text-[#121212] font-medium">
-                    Responsibilities may include:
-                  </p>
-                  <ul className="list-disc pl-5 mt-2 space-y-1 text-[12px] text-[#121212]">
-                    {data.appliedFor.responsibilities.map((r) => (
-                      <li key={r}>{r}</li>
-                    ))}
-                  </ul>
-                </div>
+                {data.appliedFor.responsibilities && data.appliedFor.responsibilities.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-[12px] text-[#121212] font-medium">
+                      Responsibilities may include:
+                    </p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1 text-[12px] text-[#121212]">
+                      {data.appliedFor.responsibilities.map((r) => (
+                        <li key={r}>{r}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
 
