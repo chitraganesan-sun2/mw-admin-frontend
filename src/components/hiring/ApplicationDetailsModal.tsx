@@ -55,12 +55,13 @@ export default function ApplicationDetailsModal({
   isOpen,
   onClose,
   data,
+  isLoading,
 }: {
   isOpen: boolean;
   onClose: () => void;
   data: ApplicationDetails | null;
+  isLoading?: boolean;
 }) {
-  if (!data) return null;
 
   return (
     <ViewModal modalOpen={isOpen} onClose={onClose} width={920} height="80vh" zIndex={100000}>
@@ -73,127 +74,140 @@ export default function ApplicationDetailsModal({
         </div>
         <Divider />
 
-        <div className="flex-1 overflow-y-auto px-7 py-6">
-          <div className="border border-stroke-light rounded-2xl p-5">
-            <p className="text-[20px] font-medium text-gray-900">Applied For</p>
-            <div className="mt-3">
-              <p className="text-[16px] font-medium text-gray-900">
-                {data.appliedFor.title}
-              </p>
-              <p className="text-[14px] text-[#4F4F4F] mt-1">
-                {data.appliedFor.description}
-              </p>
+        {isLoading ? (
+          <div className="flex-1 flex items-center justify-center p-10">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-8 h-8 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
+              <p className="text-sm text-gray-500 font-medium">Loading details...</p>
+            </div>
+          </div>
+        ) : !data ? (
+          <div className="flex-1 flex items-center justify-center p-10 text-gray-500">
+            No data available
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto px-7 py-6">
+            <div className="border border-stroke-light rounded-2xl p-5">
+              <p className="text-[20px] font-medium text-gray-900">Applied For</p>
               <div className="mt-3">
-                <p className="text-[12px] text-[#121212] font-medium">
-                  Responsibilities may include:
+                <p className="text-[16px] font-medium text-gray-900">
+                  {data.appliedFor.title}
                 </p>
-                <ul className="list-disc pl-5 mt-2 space-y-1 text-[12px] text-[#121212]">
-                  {data.appliedFor.responsibilities.map((r) => (
-                    <li key={r}>{r}</li>
-                  ))}
-                </ul>
+                <p className="text-[14px] text-[#4F4F4F] mt-1">
+                  {data.appliedFor.description}
+                </p>
+                <div className="mt-3">
+                  <p className="text-[12px] text-[#121212] font-medium">
+                    Responsibilities may include:
+                  </p>
+                  <ul className="list-disc pl-5 mt-2 space-y-1 text-[12px] text-[#121212]">
+                    {data.appliedFor.responsibilities.map((r) => (
+                      <li key={r}>{r}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-7">
+              <p className="text-[20px] font-medium text-[#000000]">
+                Basic Information
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-24 gap-y-6 mt-5">
+                <Field label="Full Name" value={data.basicInfo.fullName} />
+                <Field label="Email Address" value={data.basicInfo.email} />
+                <Field label="Phone No" value={data.basicInfo.phoneNo} />
+                <Field label="Date of Birth" value={data.basicInfo.dob} />
+                <Field label="Country of Residence*" value={data.basicInfo.country} />
+                <Field label="State" value={data.basicInfo.state} />
+                <Field
+                  label="LinkedIn or Portfolio"
+                  value={data.basicInfo.linkedInOrPortfolio}
+                />
+                <Field
+                  label="School / University"
+                  value={data.basicInfo.schoolOrUniversity}
+                />
+                <Field
+                  label="Grade Level/ Year"
+                  value={data.basicInfo.gradeLevelOrYear}
+                />
+                <Field
+                  label="Current Employment Details"
+                  value={data.basicInfo.currentEmploymentDetails}
+                />
+                <Field
+                  label="Compensation / Stipend Expectation"
+                  value={data.basicInfo.compensationExpectation}
+                />
+              </div>
+
+              <p className="text-[14px] text-[#4F4F4F] mt-6 leading-5 whitespace-pre-line">
+                {data.basicInfo.acknowledgement}
+              </p>
+              <div className="mt-6">
+                <Divider />
+              </div>
+            </div>
+
+            <div className="mt-10">
+              <p className="text-[20px] font-medium text-[#000000]">
+                Application Questions
+              </p>
+
+              <div className="mt-5 space-y-5">
+                {data.applicationQuestions.map((qa) => (
+                  <QAItem key={qa.question} {...qa} />
+                ))}
+              </div>
+              <div className="mt-8">
+                <Divider />
+              </div>
+            </div>
+
+            <div className="mt-10">
+              <p className="text-base font-semibold text-gray-900">
+                Legal and Safety Information
+              </p>
+
+              <div className="mt-5 space-y-5">
+                {data.legalAndSafety.map((section) => (
+                  <div
+                    key={section.title}
+                    className="border border-stroke-light rounded-2xl p-5"
+                  >
+                    <p className="text-[20px] font-medium text-[#000000]">
+                      {section.title}
+                    </p>
+                    <div className="mt-4 space-y-4">
+                      {section.items.map((qa) => (
+                        <QAItem key={qa.question} {...qa} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8">
+                <Divider />
+              </div>
+            </div>
+
+            <div className="mt-10 pb-4">
+              <p className="text-[20px] font-medium text-[#000000]">
+                Consent and Permissions
+              </p>
+
+              <div className="mt-5 space-y-4">
+                <QAItem
+                  question="Photo/Video Consent (for use in program materials or promotional content)"
+                  answer={data.consent.photoVideoConsent}
+                />
+                <p className="text-[14px] text-[#121212] leading-5">{data.consent.body}</p>
               </div>
             </div>
           </div>
-
-          <div className="mt-7">
-            <p className="text-[20px] font-medium text-[#000000]">
-              Basic Information
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-24 gap-y-6 mt-5">
-              <Field label="Full Name" value={data.basicInfo.fullName} />
-              <Field label="Email Address" value={data.basicInfo.email} />
-              <Field label="Phone No" value={data.basicInfo.phoneNo} />
-              <Field label="Date of Birth" value={data.basicInfo.dob} />
-              <Field label="Country of Residence*" value={data.basicInfo.country} />
-              <Field label="State" value={data.basicInfo.state} />
-              <Field
-                label="LinkedIn or Portfolio"
-                value={data.basicInfo.linkedInOrPortfolio}
-              />
-              <Field
-                label="School / University"
-                value={data.basicInfo.schoolOrUniversity}
-              />
-              <Field
-                label="Grade Level/ Year"
-                value={data.basicInfo.gradeLevelOrYear}
-              />
-              <Field
-                label="Current Employment Details"
-                value={data.basicInfo.currentEmploymentDetails}
-              />
-              <Field
-                label="Compensation / Stipend Expectation"
-                value={data.basicInfo.compensationExpectation}
-              />
-            </div>
-
-            <p className="text-[14px] text-[#4F4F4F] mt-6 leading-5 whitespace-pre-line">
-              {data.basicInfo.acknowledgement}
-            </p>
-            <div className="mt-6">
-              <Divider />
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <p className="text-[20px] font-medium text-[#000000]">
-              Application Questions
-            </p>
-
-            <div className="mt-5 space-y-5">
-              {data.applicationQuestions.map((qa) => (
-                <QAItem key={qa.question} {...qa} />
-              ))}
-            </div>
-            <div className="mt-8">
-              <Divider />
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <p className="text-base font-semibold text-gray-900">
-              Legal and Safety Information
-            </p>
-
-            <div className="mt-5 space-y-5">
-              {data.legalAndSafety.map((section) => (
-                <div
-                  key={section.title}
-                  className="border border-stroke-light rounded-2xl p-5"
-                >
-                  <p className="text-[20px] font-medium text-[#000000]">
-                    {section.title}
-                  </p>
-                  <div className="mt-4 space-y-4">
-                    {section.items.map((qa) => (
-                      <QAItem key={qa.question} {...qa} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-8">
-              <Divider />
-            </div>
-          </div>
-
-          <div className="mt-10 pb-4">
-            <p className="text-[20px] font-medium text-[#000000]">
-              Consent and Permissions
-            </p>
-
-            <div className="mt-5 space-y-4">
-              <QAItem
-                question="Photo/Video Consent (for use in program materials or promotional content)"
-                answer={data.consent.photoVideoConsent}
-              />
-              <p className="text-[14px] text-[#121212] leading-5">{data.consent.body}</p>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </ViewModal>
   );

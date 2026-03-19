@@ -13,82 +13,10 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useMemo, useState } from "react";
-
-const mockApplications: HiringApplicationRow[] = [
-  {
-    id: "1",
-    applicant_name: "John Doe",
-    email: "johndoe22@gmail.com",
-    submission_date: "12th Nov, 2024",
-  },
-  {
-    id: "2",
-    applicant_name: "Jane Doe",
-    email: "janedoe22@gmail.com",
-    submission_date: "12th Nov, 2024",
-  },
-  {
-    id: "3",
-    applicant_name: "Alex Smith",
-    email: "alexsmith@gmail.com",
-    submission_date: "13th Nov, 2024",
-  },
-  {
-    id: "4",
-    applicant_name: "Priya Kumar",
-    email: "priya.kumar@gmail.com",
-    submission_date: "14th Nov, 2024",
-  },
-  {
-    id: "5",
-    applicant_name: "Maria Garcia",
-    email: "maria.garcia@gmail.com",
-    submission_date: "15th Nov, 2024",
-  },
-  {
-    id: "6",
-    applicant_name: "Chen Wei",
-    email: "chen.wei@gmail.com",
-    submission_date: "16th Nov, 2024",
-  },
-  {
-    id: "7",
-    applicant_name: "Fatima Noor",
-    email: "fatima.noor@gmail.com",
-    submission_date: "17th Nov, 2024",
-  },
-  {
-    id: "8",
-    applicant_name: "Samuel Johnson",
-    email: "sam.johnson@gmail.com",
-    submission_date: "18th Nov, 2024",
-  },
-  {
-    id: "9",
-    applicant_name: "Aisha Khan",
-    email: "aisha.khan@gmail.com",
-    submission_date: "19th Nov, 2024",
-  },
-  {
-    id: "10",
-    applicant_name: "Rahul Verma",
-    email: "rahul.verma@gmail.com",
-    submission_date: "20th Nov, 2024",
-  },
-  {
-    id: "11",
-    applicant_name: "John Doe",
-    email: "johndoe22@gmail.com",
-    submission_date: "12th Nov, 2024",
-  },
-  {
-    id: "12",
-    applicant_name: "John Doe",
-    email: "johndoe22@gmail.com",
-    submission_date: "12th Nov, 2024",
-  },
-];
-
+import { useQuery } from "@tanstack/react-query";
+import { GET_API } from "@/api/request";
+import { endpoints } from "@/api/constants";
+import moment from "moment";
 export default function HiringPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
@@ -98,6 +26,7 @@ export default function HiringPage() {
   const [page, setPage] = useQueryState("page", { defaultValue: "1" });
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isDetailsLoading, setIsDetailsLoading] = useState(false);
   const [selectedDetails, setSelectedDetails] =
     useState<ApplicationDetails | null>(null);
 
@@ -292,15 +221,32 @@ export default function HiringPage() {
     []
   );
 
-  const filtered = useMemo(() => {
-    const q = (query ?? "").trim().toLowerCase();
-    if (!q) return mockApplications;
-    return mockApplications.filter((row) => {
-      const haystack =
-        `${row.applicant_name} ${row.email} ${row.submission_date}`.toLowerCase();
-      return haystack.includes(q);
-    });
-  }, [query]);
+  const getAllApplications = async ({ page, size, query }: { page: string | number, size: string | number, query?: string | null }) => {
+    let url = `${endpoints.hiring.getAllApplications}?page=${page}&size=${size}`;
+    if (query) {
+      url += `&search=${query}`;
+    }
+    const response: any = await GET_API(url);
+    return {
+      items: response?.data?.items || [],
+      total: response?.data?.total || 0,
+    };
+  };
+
+  const { data: applicationsData, isFetching } = useQuery({
+    queryKey: ["applications", page, size, query],
+    queryFn: () => getAllApplications({ page, size, query }),
+  });
+
+  const pagedData = useMemo(() => {
+    if (!applicationsData?.items) return [];
+    return applicationsData.items.map((app: any) => ({
+      id: app.application_id,
+      applicant_name: app.full_name,
+      email: app.email,
+      submission_date: moment(app.created_on).format("Do MMM, YYYY"),
+    }));
+  }, [applicationsData]);
 
   const pagination = useMemo(() => {
     const pageNum = Math.max(1, Number(page) || 1);
@@ -308,40 +254,105 @@ export default function HiringPage() {
     return { pageNum, pageSize };
   }, [page, size]);
 
-  const pagedData = useMemo(() => {
-    const start = (pagination.pageNum - 1) * pagination.pageSize;
-    return filtered.slice(start, start + pagination.pageSize);
-  }, [filtered, pagination.pageNum, pagination.pageSize]);
-
   const handleTableChange = (paginationConfig: any) => {
     setSize(String(paginationConfig.pageSize ?? 10));
     setPage(String(paginationConfig.current ?? 1));
   };
 
-  const handleViewApplication = (row: HiringApplicationRow) => {
-    setSelectedDetails({
-      ...detailsTemplate,
-      id: row.id,
-      basicInfo: {
-        fullName: row.applicant_name,
-        email: row.email,
-        phoneNo: "9876543210",
-        dob: "23/04/2004",
-        country: "INDIA",
-        state: "Maharashtra",
-        linkedInOrPortfolio: "www.portfolio.com",
-        schoolOrUniversity: "Indian Institute of Technology",
-        gradeLevelOrYear: "Final Year",
-        currentEmploymentDetails: "NIL",
-        compensationExpectation: "NIL",
-        acknowledgement: `This internship is currently unpaid and designed as a volunteer or learning opportunity. MelodyWings is a nonprofit organization, and while compensation cannot be guaranteed at this time, stipends or honorariums may be offered in the future if donations or funding become available.
-
-Please confirm that you understand and are comfortable with this arrangement.
-
-Yes, I understand and am willing to participate under these conditions`,
-      },
-    });
+  const handleViewApplication = async (row: HiringApplicationRow) => {
     setIsDetailsOpen(true);
+    setIsDetailsLoading(true);
+    try {
+      const response: any = await GET_API(endpoints.hiring.getApplication(row.id));
+      const resData = response.data;
+
+      setSelectedDetails({
+        id: row.id,
+        appliedFor: detailsTemplate.appliedFor,
+        basicInfo: {
+          fullName: resData?.full_name || "-",
+          email: resData?.email || "-",
+          phoneNo: resData?.phone ? `${resData.phone.country_code} ${resData.phone.number}` : "-",
+          dob: resData?.date_of_birth || "-",
+          country: resData?.address?.country || "-",
+          state: resData?.address?.state || "-",
+          linkedInOrPortfolio: resData?.linkedin_or_portfolio_url || "-",
+          schoolOrUniversity: resData?.education?.school_or_university || "-",
+          gradeLevelOrYear: resData?.education?.grade_level_or_year || "-",
+          currentEmploymentDetails: resData?.current_employment_details || "-",
+          compensationExpectation: resData?.compensation_expectation || "-",
+          acknowledgement: `This internship is currently unpaid and designed as a volunteer or learning opportunity. MelodyWings is a nonprofit organization, and while compensation cannot be guaranteed at this time, stipends or honorariums may be offered in the future if donations or funding become available.\n\nPlease confirm that you understand and are comfortable with this arrangement.\n\nYes, I understand and am willing to participate under these conditions`,
+        },
+        applicationQuestions: [
+          { question: "Are you looking for an internship opportunity", answer: resData?.application_questions?.looking_for_internship ? "Yes" : "No" },
+          { question: "Why are you interested in this opportunity with MelodyWings?", answer: resData?.application_questions?.interest_in_melodywings || "-" },
+          { question: "What relevant experience do you have for this role?", answer: resData?.application_questions?.relevant_experience || "-" },
+          { question: "What skills would you bring to this role?", answer: resData?.application_questions?.skills_for_role || "-" },
+          { question: "How many hours per week are you available?", answer: resData?.application_questions?.hours_per_week || "-" },
+          { question: "When would you be available to start?", answer: resData?.application_questions?.available_start_date || "-" },
+          { question: "Have you previously volunteered or worked with children or neurodivergent learners? If yes, please describe.", answer: resData?.application_questions?.children_or_neurodivergent_experience || "-" },
+          { question: "Is there anything else you would like us to know about you?", answer: resData?.application_questions?.additional_information || "-" },
+        ],
+        legalAndSafety: [
+          {
+            title: "1. Criminal Background Check",
+            items: [
+              { question: "Have you ever been convicted of a felony or misdemeanor?", answer: resData?.legal_and_safety?.criminal_background_check?.convicted_felony_or_misdemeanor === true ? "Yes" : resData?.legal_and_safety?.criminal_background_check?.convicted_felony_or_misdemeanor === false ? "No" : "-" },
+              { question: "Have you ever been involved in any criminal activity or legal proceedings, including pending charges or arrests?", answer: resData?.legal_and_safety?.criminal_background_check?.criminal_activity_or_pending_cases === true ? "Yes" : resData?.legal_and_safety?.criminal_background_check?.criminal_activity_or_pending_cases === false ? "No" : "-" },
+              { question: "Have you been convicted of any crime involving minors, abuse, or neglect?", answer: resData?.legal_and_safety?.criminal_background_check?.crime_involving_minors_abuse_neglect === true ? "Yes" : resData?.legal_and_safety?.criminal_background_check?.crime_involving_minors_abuse_neglect === false ? "No" : "-" },
+              { question: "Please describe the circumstances behind the 'yes' answer above.", answer: resData?.legal_and_safety?.criminal_background_check?.details_if_yes || "NIL" },
+            ],
+          },
+          {
+            title: "2. Sex Offender Registry Check",
+            items: [
+              { question: "Are you listed on any state or national sex offender registries?", answer: resData?.legal_and_safety?.sex_offender_registry_check?.listed_on_registry === true ? "Yes" : resData?.legal_and_safety?.sex_offender_registry_check?.listed_on_registry === false ? "No" : "-" },
+              { question: "Please describe the circumstances behind the 'yes' answer above.", answer: resData?.legal_and_safety?.sex_offender_registry_check?.details_if_yes || "NIL" },
+            ],
+          },
+          {
+            title: "3. Disciplinary History",
+            items: [
+              { question: "Have you ever been terminated or asked to resign from a volunteer or employment position for reasons related to misconduct or inappropriate behavior?", answer: resData?.legal_and_safety?.disciplinary_history?.terminated_for_misconduct === true ? "Yes" : resData?.legal_and_safety?.disciplinary_history?.terminated_for_misconduct === false ? "No" : "-" },
+              { question: "Have you ever been involved in any dispute with an employer or organization related to safety or ethical issues?", answer: resData?.legal_and_safety?.disciplinary_history?.dispute_related_to_safety_or_ethics === true ? "Yes" : resData?.legal_and_safety?.disciplinary_history?.dispute_related_to_safety_or_ethics === false ? "No" : "-" },
+              { question: "Have you ever faced dismissal, suspension, probation, or any other disciplinary or academic misconduct action from a college, university, or professional school?", answer: resData?.legal_and_safety?.disciplinary_history?.academic_or_professional_disciplinary_action === true ? "Yes" : resData?.legal_and_safety?.disciplinary_history?.academic_or_professional_disciplinary_action === false ? "No" : "-" },
+              { question: "Please describe the circumstances behind the 'yes' answer above.", answer: resData?.legal_and_safety?.disciplinary_history?.details_if_yes || "NIL" },
+            ],
+          },
+          {
+            title: "4. Health and Safety Information",
+            items: [
+              { question: "Do you have any physical or mental health conditions that may affect your ability to perform volunteer duties?", answer: resData?.legal_and_safety?.health_and_safety?.condition_affecting_volunteer_duties === true ? "Yes" : resData?.legal_and_safety?.health_and_safety?.condition_affecting_volunteer_duties === false ? "No" : "-" },
+              { question: "Please describe the circumstances behind the 'yes' answer above.", answer: resData?.legal_and_safety?.health_and_safety?.details_if_yes || "NIL" },
+            ],
+          },
+          {
+            title: "5. Consents",
+            items: [
+              { question: "Do you consent to child abuse registry and sex offender checks if needed?", answer: resData?.legal_and_safety?.consents?.agree_child_abuse_and_registry_checks ? "Yes" : "No" },
+              { question: "Do you agree to follow the organization's policies on confidentiality, behavior, and safeguarding procedures?*", answer: resData?.legal_and_safety?.consents?.agree_confidentiality_behavior_safeguarding_policies ? "Yes" : "No" },
+              { question: "Do you understand that your volunteer role may be terminated based on any criminal activity or failure to adhere to the organization's policies?*", answer: resData?.legal_and_safety?.consents?.understand_role_termination_if_policy_breach_or_criminal_activity ? "Yes" : "No" },
+              { question: "Please describe the circumstances behind the 'no' answer above.", answer: resData?.legal_and_safety?.consents?.details_if_no || "NIL" },
+            ],
+          },
+          {
+            title: "6. Previous Volunteer Experience",
+            items: [
+              { question: "Have you ever been involved in any incidents or complaints during previous volunteer roles?", answer: resData?.legal_and_safety?.previous_volunteer_experience?.incidents_or_complaints_in_previous_roles === true ? "Yes" : resData?.legal_and_safety?.previous_volunteer_experience?.incidents_or_complaints_in_previous_roles === false ? "No" : "-" },
+              { question: "Please describe the circumstances behind the 'yes' answer above.", answer: resData?.legal_and_safety?.previous_volunteer_experience?.details_if_yes || "NIL" },
+            ],
+          },
+        ],
+        consent: {
+          photoVideoConsent: resData?.permissions?.photo_video_consent ? "Yes" : "No",
+          body: detailsTemplate.consent.body,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to fetch application details:", error);
+    } finally {
+      setIsDetailsLoading(false);
+    }
   };
 
   const columns = useMemo(
@@ -355,12 +366,13 @@ Yes, I understand and am willing to participate under these conditions`,
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
         data={selectedDetails}
+        isLoading={isDetailsLoading}
       />
       <Table
         key="hiring-applications"
         data={pagedData}
         columns={columns}
-        loading={false}
+        loading={isFetching}
         onRow={(record: HiringApplicationRow) => ({
           onClick: () => handleViewApplication(record),
           className: "cursor-pointer",
@@ -368,7 +380,7 @@ Yes, I understand and am willing to participate under these conditions`,
         pagination={{
           current: pagination.pageNum,
           pageSize: pagination.pageSize,
-          total: filtered.length,
+          total: applicationsData?.total || 0,
           showSizeChanger: true,
           showQuickJumper: true,
         }}

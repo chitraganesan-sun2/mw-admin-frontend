@@ -52,6 +52,10 @@ type EndpointProps = {
     resolveReport: (report_id: string) => string;
     rejectReport: (report_id: string) => string;
   };
+  hiring: {
+    getAllApplications: string;
+    getApplication: (application_id: string) => string;
+  };
 };
 
 type CommonPath = "skills" | "languages" | "subjects" | "media" | "categories";
