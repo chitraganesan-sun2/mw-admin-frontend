@@ -18,7 +18,7 @@ import { GET_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import moment from "moment";
 
-export const ROLE_MAPPINGS: Record<string, { title: string; description: string; responsibilities: string[] }> = {
+const ROLE_MAPPINGS: Record<string, { title: string; description: string; responsibilities: string[] }> = {
   social_media_intern: {
     title: "Social Media Intern",
     description:
