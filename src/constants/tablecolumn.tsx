@@ -9,7 +9,7 @@ import moment from "moment";
 export const getVolunteerColumns = (
   handleSeeMoreDetails?: (id: string) => void,
   handleDeleteVolunteer?: (id: string) => void,
-  handleOnboardedStatusFilter?: () => void
+  handleOnboardedStatusFilter?: () => void,
 ) => [
   {
     title: "Name",
@@ -69,12 +69,12 @@ export const getVolunteerColumns = (
               record.onboarded_status === "verification_pending"
                 ? "text-warning"
                 : record.onboarded_status === "verification_completed"
-                ? "text-success"
-                : record.onboarded_status === "verification_rejected"
-                ? "text-error"
-                : record.onboarded_status === "details_pending"
-                ? "text-blue-500"
-                : "text-gray-500"
+                  ? "text-success"
+                  : record.onboarded_status === "verification_rejected"
+                    ? "text-error"
+                    : record.onboarded_status === "details_pending"
+                      ? "text-blue-500"
+                      : "text-gray-500"
             }`}
           >
             <span className="flex items-center gap-1">
@@ -83,23 +83,23 @@ export const getVolunteerColumns = (
                   record.onboarded_status === "verification_pending"
                     ? "bg-warning"
                     : record.onboarded_status === "verification_completed"
-                    ? "bg-success"
-                    : record.onboarded_status === "verification_rejected"
-                    ? "bg-error"
-                    : record.onboarded_status === "details_pending"
-                    ? "bg-blue-500"
-                    : "bg-gray-500"
+                      ? "bg-success"
+                      : record.onboarded_status === "verification_rejected"
+                        ? "bg-error"
+                        : record.onboarded_status === "details_pending"
+                          ? "bg-blue-500"
+                          : "bg-gray-500"
                 }`}
               ></div>
               {record.onboarded_status === "verification_pending"
                 ? "Pending"
                 : record.onboarded_status === "verification_completed"
-                ? "Completed"
-                : record.onboarded_status === "verification_rejected"
-                ? "Rejected"
-                : record.onboarded_status === "partially_filled"
-                ? "Details Pending"
-                : "Form Incompleted"}
+                  ? "Completed"
+                  : record.onboarded_status === "verification_rejected"
+                    ? "Rejected"
+                    : record.onboarded_status === "partially_filled"
+                      ? "Details Pending"
+                      : "Form Incompleted"}
             </span>
           </span>
         );
@@ -149,7 +149,7 @@ export const getVolunteerColumns = (
 export const getLearnerColumns = (
   handleSeeMoreDetails?: (id: string) => void,
   handleDeleteLearner?: (id: string) => void,
-  handleOnboardedStatusFilter?: () => void
+  handleOnboardedStatusFilter?: () => void,
 ) => [
   {
     title: "Name",
@@ -195,7 +195,7 @@ export const getLearnerColumns = (
         className="w-full h-full flex pr-5 items-center gap-2 justify-between"
       >
         Requested Status
-        <FaSort className="text-gray-400"  />
+        <FaSort className="text-gray-400" />
       </div>
     ),
     dataIndex: "onboarded_status",
@@ -213,12 +213,12 @@ export const getLearnerColumns = (
               record.onboarded_status === "verification_pending"
                 ? "text-warning"
                 : record.onboarded_status === "verification_completed"
-                ? "text-success"
-                : record.onboarded_status === "verification_rejected"
-                ? "text-error"
-                : record.onboarded_status === "details_pending"
-                ? "text-blue-500"
-                : "text-gray-500"
+                  ? "text-success"
+                  : record.onboarded_status === "verification_rejected"
+                    ? "text-error"
+                    : record.onboarded_status === "details_pending"
+                      ? "text-blue-500"
+                      : "text-gray-500"
             }`}
           >
             <span className="flex items-center gap-1">
@@ -227,23 +227,23 @@ export const getLearnerColumns = (
                   record.onboarded_status === "verification_pending"
                     ? "bg-warning"
                     : record.onboarded_status === "verification_completed"
-                    ? "bg-success"
-                    : record.onboarded_status === "verification_rejected"
-                    ? "bg-error"
-                    : record.onboarded_status === "details_pending"
-                    ? "bg-blue-500"
-                    : "bg-gray-500"
+                      ? "bg-success"
+                      : record.onboarded_status === "verification_rejected"
+                        ? "bg-error"
+                        : record.onboarded_status === "details_pending"
+                          ? "bg-blue-500"
+                          : "bg-gray-500"
                 }`}
               ></div>
               {record.onboarded_status === "verification_pending"
                 ? "Pending"
                 : record.onboarded_status === "verification_completed"
-                ? "Completed"
-                : record.onboarded_status === "verification_rejected"
-                ? "Rejected"
-                : record.onboarded_status === "partially_filled"
-                ? "Details Pending"
-                : "Form Incompleted"}
+                  ? "Completed"
+                  : record.onboarded_status === "verification_rejected"
+                    ? "Rejected"
+                    : record.onboarded_status === "partially_filled"
+                      ? "Details Pending"
+                      : "Form Incompleted"}
             </span>
           </span>
         );
@@ -290,7 +290,7 @@ export const getLearnerColumns = (
 ];
 
 export const getReportColumns = (
-  handleSeePost?: (id: string, reportId?: string) => void
+  handleSeePost?: (id: string, reportId?: string) => void,
 ) => [
   {
     title: "Title",
@@ -350,10 +350,10 @@ export const getReportColumns = (
           record.report_status === "pending"
             ? "!text-warning"
             : record.report_status === "resolved"
-            ? "!text-success"
-            : record.report_status === "rejected"
-            ? "!text-error"
-            : "!text-gray-500"
+              ? "!text-success"
+              : record.report_status === "rejected"
+                ? "!text-error"
+                : "!text-gray-500"
         }`}
       >
         <span className="flex items-center gap-1">
@@ -362,10 +362,10 @@ export const getReportColumns = (
               record.report_status === "pending"
                 ? "!bg-warning"
                 : record.report_status === "resolved"
-                ? "!bg-success"
-                : record.report_status === "rejected"
-                ? "!bg-error"
-                : "!bg-gray-500"
+                  ? "!bg-success"
+                  : record.report_status === "rejected"
+                    ? "!bg-error"
+                    : "!bg-gray-500"
             }`}
           ></div>
           {record.report_status}
@@ -387,5 +387,62 @@ export const getReportColumns = (
         </p>
       </div>
     ),
+  },
+];
+
+export interface HiringApplicationRow {
+  id: string;
+  applicant_name: string;
+  email: string;
+  submission_date: string;
+}
+
+export const getHiringColumns = (
+  onViewApplication?: (row: HiringApplicationRow) => void
+) => [
+  {
+    title: "Applicant Name",
+    dataIndex: "applicant_name",
+    key: "applicant_name",
+    sorter: false,
+    className:
+      "p-6 text-sm w-[220px] !font-semibold text-gray-900 !font-poppins",
+  },
+  {
+    title: "Email Address",
+    dataIndex: "email",
+    key: "email",
+    sorter: false,
+    className: "p-6 w-[240px] !lowercase text-sm text-gray-900 !font-poppins",
+    render: (_: unknown, record: HiringApplicationRow) => (
+      <span className="text-gray-900 !font-poppins">
+        {record?.email?.toLowerCase?.() || "-"}
+      </span>
+    ),
+  },
+  {
+    title: "Submission date",
+    dataIndex: "submission_date",
+    key: "submission_date",
+    sorter: false,
+    className:
+      "p-6 w-[200px] text-sm bg-gray-50 text-gray-900 !font-poppins whitespace-nowrap",
+  },
+  {
+    title: "",
+    key: "actions",
+    className: "!p-0 !w-[160px] text-sm text-gray-900 !font-poppins",
+    render: (_: unknown, record: HiringApplicationRow) => (
+      <p
+        onClick={(e) => {
+          e.stopPropagation();
+          onViewApplication?.(record);
+        }}
+        className="px-6 !py-3 !font-semibold text-gray-900 underline !font-poppins cursor-pointer whitespace-nowrap"
+      >
+        View application
+      </p>
+    ),
+    width: 160,
   },
 ];

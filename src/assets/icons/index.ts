@@ -18,3 +18,4 @@ export { default as CommentIcon } from "./CommentIcon";
 export { default as DeleteIcon } from "./DeleteIcon";
 export { default as DeleteCloseIcon } from "./DeleteCloseIcon";
 export { default as MailIcon } from "./MailIcon";
+export { default as HiringIcon } from "./HiringIcon";
