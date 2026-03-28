@@ -7,6 +7,7 @@ interface TableProps {
   pagination?: any;
   onChange?: (pagination: any, filters?: any, sorter?: any) => void;
   columns?: any;
+  onRow?: (record: any, index?: number) => any;
   handleSeeMoreDetails?: (id: string) => void;
   handleSeePost?: (id: string) => void;
   handleDelete?: (id: string) => void;
@@ -19,6 +20,7 @@ const Table: React.FC<TableProps> = ({
   pagination,
   onChange,
   columns,
+  onRow,
   rootClassName,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -43,6 +45,7 @@ const Table: React.FC<TableProps> = ({
           showQuickJumper: false,
         }}
         onChange={onChange}
+        onRow={onRow}
         rowKey="id"
         showSorterTooltip={false}
         sticky

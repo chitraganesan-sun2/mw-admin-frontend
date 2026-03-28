@@ -53,4 +53,8 @@ export const endpoints: EndpointProps = {
     resolveReport: (report_id: string) => `admin/report/${report_id}`,
     rejectReport: (report_id: string) => `admin/report/${report_id}`,
   },
+  hiring: {
+    getAllApplications: "admin/join-us",
+    getApplication: (application_id: string) => `admin/join-us/${application_id}`,
+  },
 };
