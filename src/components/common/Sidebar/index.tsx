@@ -8,7 +8,7 @@ import {
 } from "@/assets/icons";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { DashBoardIcon, VolunteerIcon, ReportIcon } from "@/assets/icons";
+import { VolunteerIcon, ReportIcon, HiringIcon } from "@/assets/icons";
 
 const Sidebar = () => {
   const router = useRouter();
@@ -49,7 +49,7 @@ const Sidebar = () => {
       text: "Broadcast",
       icon: <MailIcon />,
     },
-    Hiring hidden on mobile and desktop
+    // Hiring hidden on mobile and desktop
     {
       href: "/hiring",
       text: "Hiring",
