@@ -8,7 +8,7 @@ import {
 } from "@/assets/icons";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { DashBoardIcon, VolunteerIcon, ReportIcon } from "@/assets/icons";
+import { VolunteerIcon, ReportIcon, HiringIcon } from "@/assets/icons";
 
 const Sidebar = () => {
   const router = useRouter();
@@ -50,11 +50,11 @@ const Sidebar = () => {
       icon: <MailIcon />,
     },
     // Hiring hidden on mobile and desktop
-    // {
-    //   href: "/hiring",
-    //   text: "Hiring",
-    //   icon: <HiringIcon />,
-    // },
+    {
+      href: "/hiring",
+      text: "Hiring",
+      icon: <HiringIcon />,
+    },
   ];
 
   const handleSignOut = () => {
