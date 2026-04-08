@@ -6,6 +6,95 @@ import { DeleteIcon } from "@/assets/icons";
 import { FaSort } from "react-icons/fa";
 import moment from "moment";
 
+export interface DonationRow {
+  id: string;
+  donor_name: string;
+  email: string;
+  donation_date: string; // ISO string preferred
+  amount: number; // in dollars
+}
+
+export const getDonationColumns = (
+  onViewMore?: (row: DonationRow) => void
+) => [
+  {
+    title: "Donor Name",
+    dataIndex: "donor_name",
+    key: "donor_name",
+    sorter: false,
+    className:
+      "p-6 text-base w-[220px] !font-medium text-[#121212] !font-poppins font-medium",
+    render: (_: unknown, record: DonationRow) => (
+      <span className="text-base !font-semibold text-[#121212] !font-poppins !normal-case">
+        {record?.donor_name || "Anonymous"}
+      </span>
+    ),
+  },
+  {
+    title: "Email Address",
+    dataIndex: "email",
+    key: "email",
+    sorter: false,
+    className:
+      "p-6 w-[260px] text-base text-[#121212] !font-poppins !font-medium",
+    render: (_: unknown, record: DonationRow) => (
+      <span className="text-base font-medium text-[#121212] !font-poppins !normal-case">
+        {record?.email?.toLowerCase?.() || "-"}
+      </span>
+    ),
+  },
+  {
+    title: "Date",
+    dataIndex: "donation_date",
+    key: "donation_date",
+    sorter: (a: DonationRow, b: DonationRow) =>
+      new Date(a.donation_date).getTime() - new Date(b.donation_date).getTime(),
+    defaultSortOrder: "ascend" as const,
+    sortDirections: ["ascend", "descend"] as const,
+    className:
+      "p-6 w-[200px] text-base  text-[#121212] !font-poppins whitespace-nowrap !font-medium",
+    render: (_: unknown, record: DonationRow) => {
+      if (!record.donation_date) return "-";
+      return (
+        <span className="text-base font-medium text-[#121212] !font-poppins !normal-case">
+          {moment(record.donation_date).format("Do MMM, YYYY").toLowerCase()}
+        </span>
+      );
+    },
+  },
+  {
+    title: "Amount",
+    dataIndex: "amount",
+    key: "amount",
+    sorter: (a: DonationRow, b: DonationRow) => a.amount - b.amount,
+    sortDirections: ["ascend", "descend"] as const,
+    className:
+      "p-6 w-[140px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
+    render: (_: unknown, record: DonationRow) => (
+      <span className="text-base font-medium text-[#121212] !font-poppins !normal-case">
+        {record?.amount != null ? `$${record.amount}` : "-"}
+      </span>
+    ),
+  },
+  {
+    title: "",
+    key: "actions",
+    className: "!p-0 !w-[140px] text-sm text-gray-900 !font-poppins",
+    render: (_: unknown, record: DonationRow) => (
+      <p
+        onClick={(e) => {
+          e.stopPropagation();
+          onViewMore?.(record);
+        }}
+        className="px-6 !py-3 text-base font-medium text-[#121212] underline !font-poppins cursor-pointer whitespace-nowrap"
+      >
+        View more
+      </p>
+    ),
+    width: 140,
+  },
+];
+
 export const getVolunteerColumns = (
   handleSeeMoreDetails?: (id: string) => void,
   handleDeleteVolunteer?: (id: string) => void,

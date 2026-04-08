@@ -1,3 +1,4 @@
+"use client";
 import Logo from "@/components/common/Logo";
 import SectionCard from "./SectionCard";
 import {
@@ -5,13 +6,19 @@ import {
   MailIcon,
   ResourceIcon,
   SignOutIcon,
+  DonationIcon,
 } from "@/assets/icons";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { VolunteerIcon, ReportIcon, HiringIcon } from "@/assets/icons";
+import React from "react";
 
 const Sidebar = () => {
   const router = useRouter();
+  const [isClient, setIsClient] = React.useState(false);
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const linksData = [
     // {
@@ -45,6 +52,11 @@ const Sidebar = () => {
       icon: <CommunityIcon />,
     },
     {
+      href: "/donations",
+      text: "Donations",
+      icon: <DonationIcon />,
+    },
+    {
       href: "/broadcast",
       text: "Broadcast",
       icon: <MailIcon />,
@@ -73,13 +85,16 @@ const Sidebar = () => {
         </div>
       </div>
       <div>
+        {isClient && (
         <button
           onClick={handleSignOut}
+            type="button"
           className="flex items-center gap-2 text-[#B91C1C] px-4 py-2 rounded-md"
         >
           <SignOutIcon />
           <span>Sign Out</span>
         </button>
+        )}
       </div>
     </div>
   );

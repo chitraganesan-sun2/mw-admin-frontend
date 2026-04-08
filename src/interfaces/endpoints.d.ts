@@ -56,6 +56,10 @@ type EndpointProps = {
     getAllApplications: string;
     getApplication: (application_id: string) => string;
   };
+  donations: {
+    list: string;
+    getReceipt: (donation_id: string) => string;
+  };
 };
 
 type CommonPath = "skills" | "languages" | "subjects" | "media" | "categories";
