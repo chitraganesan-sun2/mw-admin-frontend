@@ -19,18 +19,23 @@ const CommonHeader: React.FC = () => {
     titleIconClick,
   } = headerOptions || {};
 
+  const isDonations = (title || "").toLowerCase().includes("donation");
+
   return (
     <div className="w-full h-full p-2 px-3 flex items-center justify-between">
       <div className="flex capitalize items-center">
         <Button
           icon={titleIcon}
           rootClassName={cn(
-            "flex items-center justify-center  !w-10 h-10 rounded-full hover:bg-gray-100",
+            "flex items-center justify-center  rounded-full hover:bg-gray-100",
+            isDonations ? "!w-12 h-12 [&_svg]:w-7 [&_svg]:h-7" : "!w-10 h-10",
             titleIconClick ? "cursor-pointer border-stroke mr-2" : "border-none"
           )}
           onClick={titleIconClick}
         />
-        <h1 className="text-lg font-medium">{formatString(title ?? "")}</h1>
+        <h1 className={cn("font-medium", isDonations ? "text-[20px]" : "text-lg")}>
+          {formatString(title ?? "")}
+        </h1>
       </div>
       <div
         className={cn(

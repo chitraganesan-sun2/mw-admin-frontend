@@ -57,4 +57,8 @@ export const endpoints: EndpointProps = {
     getAllApplications: "admin/join-us",
     getApplication: (application_id: string) => `admin/join-us/${application_id}`,
   },
+  donations: {
+    list: "admin/donation/list",
+    getReceipt: (donation_id: string) => `admin/donation/${donation_id}`,
+  },
 };
