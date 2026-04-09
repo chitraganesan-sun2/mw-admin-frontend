@@ -47,10 +47,7 @@ export const getDonationColumns = (
     title: "Date",
     dataIndex: "donation_date",
     key: "donation_date",
-    sorter: (a: DonationRow, b: DonationRow) =>
-      new Date(a.donation_date).getTime() - new Date(b.donation_date).getTime(),
-    defaultSortOrder: "ascend" as const,
-    sortDirections: ["ascend", "descend"] as const,
+    sorter: false,
     className:
       "p-6 w-[200px] text-base  text-[#121212] !font-poppins whitespace-nowrap !font-medium",
     render: (_: unknown, record: DonationRow) => {
@@ -66,8 +63,7 @@ export const getDonationColumns = (
     title: "Amount",
     dataIndex: "amount",
     key: "amount",
-    sorter: (a: DonationRow, b: DonationRow) => a.amount - b.amount,
-    sortDirections: ["ascend", "descend"] as const,
+    sorter: false,
     className:
       "p-6 w-[140px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
     render: (_: unknown, record: DonationRow) => (

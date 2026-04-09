@@ -13,6 +13,9 @@ import { endpoints } from "@/api/constants";
 import moment from "moment";
 import { SearchIcon } from "@/assets/icons";
 
+type DonationSortField = "donation_date" | "amount" | null;
+type DonationSortOrder = "ascend" | "descend" | null;
+
 export default function DonationsPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
@@ -24,6 +27,8 @@ export default function DonationsPage() {
   const [details, setDetails] = useState<DonationDetails | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [modalKey, setModalKey] = useState<string | number>("");
+  const [sortField, setSortField] = useState<DonationSortField>(null);
+  const [sortOrder, setSortOrder] = useState<DonationSortOrder>(null);
 
   const getDonations = async ({ page, size, query }: { page: number; size: number; query?: string }) => {
     const params = new URLSearchParams({
@@ -66,7 +71,7 @@ export default function DonationsPage() {
       : raw && typeof raw === "object"
         ? Object.values(raw as Record<string, any>)
         : [];
-    return items.map((it: any) => {
+    return items.map((it: any, index: number) => {
       const donationDateRaw =
         it?.date || it?.donation_date || it?.transaction_time || it?.created_on || it?.createdAt || "";
       const normalizedDate = donationDateRaw
@@ -81,7 +86,7 @@ export default function DonationsPage() {
       const donorName =
         it?.donor_name || it?.donor || it?.full_name || (it?.name_visibility === "anonymous" ? "Anonymous" : "Anonymous");
       return {
-        id: it?.donation_id || it?.id || it?._id || String(it?.transaction_id || Math.random()),
+        id: String(it?.donation_id ?? it?.id ?? it?._id ?? it?.transaction_id ?? `row-${index}`),
         donor_name: donorName || "Anonymous",
         email: it?.email || it?.donor_email || "-",
         donation_date: normalizedDate,
@@ -89,17 +94,6 @@ export default function DonationsPage() {
       };
     });
   }, [donationsData]);
-
-  // Pre-sort by date asc, then amount asc
-  const sortedData = useMemo(() => {
-    return [...data].sort((a, b) => {
-      const dateDiff =
-        new Date(a.donation_date).getTime() -
-        new Date(b.donation_date).getTime();
-      if (dateDiff !== 0) return dateDiff;
-      return a.amount - b.amount;
-    });
-  }, [data]);
 
   const handleViewMore = async (row: DonationRow) => {
     try {
@@ -189,10 +183,6 @@ export default function DonationsPage() {
     }
   };
 
-  const visibleData = useMemo(() => {
-    return sortedData;
-  }, [sortedData]);
-
   useEffect(() => {
     setHeaderOptions({
       title: "Donations",
@@ -201,11 +191,62 @@ export default function DonationsPage() {
     });
   }, [pathname, setHeaderOptions]);
 
-  const columns = useMemo(() => getDonationColumns(handleViewMore), []);
+  const visibleData = useMemo(() => {
+    if (!sortField || !sortOrder) return data;
+    const sorted = [...data];
+    if (sortField === "donation_date") {
+      sorted.sort((a, b) => {
+        const diff = new Date(a.donation_date).getTime() - new Date(b.donation_date).getTime();
+        return sortOrder === "ascend" ? diff : -diff;
+      });
+    } else if (sortField === "amount") {
+      sorted.sort((a, b) => {
+        const diff = a.amount - b.amount;
+        return sortOrder === "ascend" ? diff : -diff;
+      });
+    }
+    return sorted;
+  }, [data, sortField, sortOrder]);
 
-  const handleTableChange = (pagination: any) => {
+  const columns = useMemo(() => {
+    const baseColumns: any[] = getDonationColumns(handleViewMore);
+    return baseColumns.map((column: any) => {
+      if (column.key === "donation_date") {
+        return {
+          ...column,
+          sorter: true,
+          sortOrder: sortField === "donation_date" ? sortOrder : null,
+          sortDirections: ["descend", "ascend"],
+        };
+      }
+      if (column.key === "amount") {
+        return {
+          ...column,
+          sorter: true,
+          sortOrder: sortField === "amount" ? sortOrder : null,
+          sortDirections: ["descend", "ascend"],
+        };
+      }
+      return column;
+    });
+  }, [handleViewMore, sortField, sortOrder]);
+
+  const handleTableChange = (pagination: any, _filters?: any, sorter?: any) => {
     setPage(pagination.current);
     setPageSize(pagination.pageSize);
+
+    const currentSorter = Array.isArray(sorter) ? sorter[0] : sorter;
+    const field = currentSorter?.field as DonationSortField;
+    const order = (currentSorter?.order ?? null) as DonationSortOrder;
+
+    if ((field === "donation_date" || field === "amount") && order) {
+      setSortField(field);
+      setSortOrder(order);
+      return;
+    }
+
+    setSortField(null);
+    setSortOrder(null);
   };
 
   return (
@@ -221,7 +262,7 @@ export default function DonationsPage() {
         <div className="relative w-full">
           <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
             {/* search icon */}
-            <SearchIcon/>
+            <SearchIcon />
           </span>
           <input
             value={search}
@@ -234,21 +275,25 @@ export default function DonationsPage() {
           />
         </div>
       </div>
-      <Table
-        key="donations"
-        data={visibleData}
-        columns={columns}
-        loading={isLoading || isFetching}
-        rootClassName="[&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal [&_thead_th.ant-table-column-sort]:!bg-[#FAFAFA] [&_tbody_tr:hover>td]:!bg-[#FAFAFA] [&_tbody_td.ant-table-column-sort]:!bg-transparent [&_tbody_tr:hover>td.ant-table-column-sort]:!bg-[#FAFAFA] [&_.ant-table-column-sorter]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up.active]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down.active]:!text-[#9CA3AF]"
-        pagination={{
-          current: page,
-          pageSize: pageSize,
-          total: donationsData?.total || 0,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
-        onChange={handleTableChange}
-      />
+      {!isLoading && !isFetching && data.length === 0 ? (
+        <div className="w-full py-10 text-center text-[#6B7280]">No records available</div>
+      ) : (
+        <Table
+          key="donations"
+          data={visibleData}
+          columns={columns}
+          loading={isLoading || isFetching}
+          rootClassName="[&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal [&_thead_th.ant-table-column-sort]:!bg-[#FAFAFA] [&_tbody_tr:hover>td]:!bg-[#FAFAFA] [&_tbody_td.ant-table-column-sort]:!bg-transparent [&_tbody_tr:hover>td.ant-table-column-sort]:!bg-[#FAFAFA] [&_.ant-table-column-sorter]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up.active]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down.active]:!text-[#9CA3AF]"
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: donationsData?.total || 0,
+            showSizeChanger: true,
+            showQuickJumper: true,
+          }}
+          onChange={handleTableChange}
+        />
+      )}
     </div>
   );
 }
