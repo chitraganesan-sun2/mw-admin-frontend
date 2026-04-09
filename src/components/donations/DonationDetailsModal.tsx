@@ -128,13 +128,7 @@ export default function DonationDetailsModal({
                 <div>
                   <p className="text-sm text-[#4F4F4F]">Date and Time</p>
                   <p className="mt-2 text-[28px] font-semibold text-[#000000]">
-                    {new Date(data.dateTime).toLocaleString(undefined, {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                      hour: "numeric",
-                      minute: "2-digit",
-                    })}
+                    {formatDonationDateTime(data.dateTime)}
                   </p>
                 </div>
               </div>
@@ -186,6 +180,22 @@ export default function DonationDetailsModal({
       </div>
     </ViewModal>
   );
+}
+
+function formatDonationDateTime(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "-";
+  const datePart = d.toLocaleDateString(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+  let h = d.getHours();
+  const m = d.getMinutes().toString().padStart(2, "0");
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${datePart}, ${h}.${m} ${ampm}`;
 }
 
 function Field({ label, value }: { label: string; value?: string }) {

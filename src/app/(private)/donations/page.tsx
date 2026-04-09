@@ -114,7 +114,8 @@ export default function DonationsPage() {
       const d = payload?.data ?? payload;
 
       const amount = d?.final_amount ?? d?.amount ?? row.amount ?? 0;
-      const dateStr = d?.date ?? d?.donation_date ?? row.donation_date;
+      const dateStr =
+        d?.created_at ?? d?.createdAt ?? d?.date ?? d?.donation_date ?? row.donation_date;
       const normalizedDate = dateStr
         ? moment(dateStr, ["Do MMM, YYYY", moment.ISO_8601]).toISOString()
         : row.donation_date
