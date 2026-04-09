@@ -17,6 +17,7 @@ import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import moment from "moment";
+import { SearchIcon } from "@/assets/icons";
 
 const ROLE_MAPPINGS: Record<string, { title: string; description: string; responsibilities: string[] }> = {
   social_media_intern: {
@@ -47,7 +48,7 @@ export default function HiringPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
 
-  const [query] = useQueryState("query");
+  const [query, setQuery] = useQueryState("query");
   const [size, setSize] = useQueryState("size", { defaultValue: "10" });
   const [page, setPage] = useQueryState("page", { defaultValue: "1" });
 
@@ -58,9 +59,9 @@ export default function HiringPage() {
 
   useEffect(() => {
     setHeaderOptions({
-      title: "Applications",
+      title: "Hiring",
       titleIcon: getHeaderIcon(pathname),
-      showSearch: true,
+      showSearch: false,
     });
   }, [pathname, setHeaderOptions]);
 
@@ -239,7 +240,9 @@ export default function HiringPage() {
   const getAllApplications = async ({ page, size, query }: { page: string | number, size: string | number, query?: string | null }) => {
     let url = `${endpoints.hiring.getAllApplications}?page=${page}&size=${size}`;
     if (query) {
-      url += `&search=${query}`;
+      const encodedQuery = encodeURIComponent(query);
+      // Keep both keys for compatibility until backend contract is finalized.
+      url += `&search_query=${encodedQuery}&search=${encodedQuery}`;
     }
     const response: any = await GET_API(url);
     console.log("API LIST RESPONSE:", response?.data);
@@ -254,15 +257,26 @@ export default function HiringPage() {
     queryFn: () => getAllApplications({ page, size, query }),
   });
 
-  const pagedData = useMemo(() => {
+  const pagedData: HiringApplicationRow[] = useMemo(() => {
     if (!applicationsData?.items) return [];
     return applicationsData.items.map((app: any) => ({
       id: app.application_id,
       applicant_name: app.full_name,
       email: app.email,
       submission_date: moment(app.created_on).format("Do MMM, YYYY"),
+      submission_timestamp: new Date(app.created_on).getTime(),
     }));
   }, [applicationsData]);
+
+  const visibleData: HiringApplicationRow[] = useMemo(() => {
+    const normalizedQuery = (query ?? "").trim().toLowerCase();
+    if (!normalizedQuery) return pagedData;
+    return pagedData.filter((item) =>
+      item.applicant_name?.toLowerCase().includes(normalizedQuery) ||
+      item.email?.toLowerCase().includes(normalizedQuery) ||
+      item.submission_date?.toLowerCase().includes(normalizedQuery)
+    );
+  }, [pagedData, query]);
 
   const pagination = useMemo(() => {
     const pageNum = Math.max(1, Number(page) || 1);
@@ -492,11 +506,29 @@ export default function HiringPage() {
         data={selectedDetails}
         isLoading={isDetailsLoading}
       />
+      <div className="w-full mb-4 flex items-center justify-between gap-4">
+        <h2 className="text-[20px] font-medium text-[#121212] !font-poppins">Applications</h2>
+        <div className="relative w-full max-w-[280px]">
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#9CA3AF]">
+            <SearchIcon />
+          </span>
+          <input
+            value={query ?? ""}
+            onChange={(e) => {
+              setQuery(e.target.value || null);
+              setPage("1");
+            }}
+            placeholder="Search"
+            className="w-full h-10 rounded-[100px] border border-[#E0E0E0] bg-white pl-10 pr-4 text-[16px] font-normal text-[#121212] placeholder:text-[#9CA3AF] focus:outline-none"
+          />
+        </div>
+      </div>
       <Table
         key="hiring-applications"
-        data={pagedData}
+        data={visibleData}
         columns={columns}
         loading={isFetching}
+        rootClassName="[&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal [&_thead_th.ant-table-column-sort]:!bg-[#FAFAFA] [&_tbody_tr:hover>td]:!bg-[#FAFAFA] [&_tbody_td.ant-table-column-sort]:!bg-transparent [&_tbody_tr:hover>td.ant-table-column-sort]:!bg-[#FAFAFA] [&_.ant-table-column-sorter]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up.active]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down.active]:!text-[#9CA3AF]"
         onRow={(record: HiringApplicationRow) => ({
           onClick: () => handleViewApplication(record),
           className: "cursor-pointer",
