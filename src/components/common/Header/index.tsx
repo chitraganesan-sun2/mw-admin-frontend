@@ -33,7 +33,7 @@ const CommonHeader: React.FC = () => {
           )}
           onClick={titleIconClick}
         />
-        <h1 className={cn("font-medium", isDonations ? "text-[20px]" : "text-lg")}>
+        <h1 className={cn("font-medium", isDonations ? "text-[18px]" : "text-lg")}>
           {formatString(title ?? "")}
         </h1>
       </div>
