@@ -6,6 +6,7 @@ import {
   ReportIcon,
   ResourceIcon,
   VolunteerIcon,
+  DonationIcon,
 } from "@/assets/icons";
 
 export const getHeaderTitle = (pathname: string) => {
@@ -28,6 +29,8 @@ export const getHeaderIcon = (pathname: string) => {
       return <ResourceIcon />;
     case "community":
       return <CommunityIcon />;
+    case "donations":
+      return <DonationIcon />;
     case "broadcast":
       return <MailIcon />;
     case "hiring":

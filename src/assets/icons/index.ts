@@ -19,3 +19,5 @@ export { default as DeleteIcon } from "./DeleteIcon";
 export { default as DeleteCloseIcon } from "./DeleteCloseIcon";
 export { default as MailIcon } from "./MailIcon";
 export { default as HiringIcon } from "./HiringIcon";
+export { default as DonationIcon } from "./DonationIcon";
+export { default as SearchIcon } from "./SearchIcon";
