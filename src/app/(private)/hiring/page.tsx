@@ -11,7 +11,6 @@ import {
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
-import { useQueryState } from "nuqs";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
@@ -44,13 +43,30 @@ const toYesNo = (value: unknown) => {
   return "-";
 };
 
+const mapAppToHiringRow = (app: any): HiringApplicationRow => ({
+  id: app.application_id,
+  applicant_name: app.full_name,
+  email: app.email,
+  submission_date: moment(app.created_on).format("Do MMM, YYYY"),
+  submission_timestamp: new Date(app.created_on).getTime(),
+});
+
+const matchesHiringSearch = (row: HiringApplicationRow, q: string) => {
+  const needle = q.toLowerCase();
+  return (
+    row.applicant_name?.toLowerCase().includes(needle) ||
+    row.email?.toLowerCase().includes(needle) ||
+    row.submission_date?.toLowerCase().includes(needle)
+  );
+};
+
 export default function HiringPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
 
-  const [query, setQuery] = useQueryState("query");
-  const [size, setSize] = useQueryState("size", { defaultValue: "10" });
-  const [page, setPage] = useQueryState("page", { defaultValue: "1" });
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [search, setSearch] = useState("");
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
@@ -276,45 +292,72 @@ export default function HiringPage() {
     return { items, total };
   };
 
-  // Same pattern as donations: refetch when search changes (shows loading) and server returns filtered rows.
-  const { data: applicationsData, isFetching, isLoading } = useQuery({
-    queryKey: ["applications", page, size, query],
+  /** Join-us list API does not filter by search like donations; load all pages and filter client-side when searching. */
+  const fetchEveryApplicationPage = async () => {
+    const batchSize = 100;
+    const all: any[] = [];
+    let p = 1;
+    while (true) {
+      const { items, total } = await getAllApplications({
+        page: p,
+        size: batchSize,
+        searchQuery: undefined,
+      });
+      if (!items?.length) break;
+      all.push(...items);
+      if (typeof total === "number" && total > 0 && all.length >= total) break;
+      if (items.length < batchSize) break;
+      p += 1;
+      if (p > 500) break;
+    }
+    return all;
+  };
+
+  const trimmedSearch = search.trim();
+  const isSearchActive = trimmedSearch.length > 0;
+
+  const { data: listData, isFetching: listFetching, isLoading: listLoading } = useQuery({
+    queryKey: ["applications", "paginated", page, pageSize],
     queryFn: () =>
-      getAllApplications({ page, size, searchQuery: query ?? undefined }),
+      getAllApplications({
+        page,
+        size: pageSize,
+        searchQuery: undefined,
+      }),
+    enabled: !isSearchActive,
   });
 
+  const { data: searchData, isFetching: searchFetching, isLoading: searchLoading } = useQuery({
+    queryKey: ["applications", "globalSearch", trimmedSearch],
+    queryFn: async () => {
+      const raw = await fetchEveryApplicationPage();
+      const rows = raw.map(mapAppToHiringRow);
+      const filtered = rows.filter((row) => matchesHiringSearch(row, trimmedSearch));
+      return { filtered, total: filtered.length };
+    },
+    enabled: isSearchActive,
+  });
+
+  const isLoading = isSearchActive ? searchLoading : listLoading;
+  const isFetching = isSearchActive ? searchFetching : listFetching;
+
   const pagedData: HiringApplicationRow[] = useMemo(() => {
-    if (!applicationsData?.items) return [];
-    return applicationsData.items.map((app: any) => ({
-      id: app.application_id,
-      applicant_name: app.full_name,
-      email: app.email,
-      submission_date: moment(app.created_on).format("Do MMM, YYYY"),
-      submission_timestamp: new Date(app.created_on).getTime(),
-    }));
-  }, [applicationsData]);
+    if (isSearchActive) {
+      const filtered = searchData?.filtered ?? [];
+      const start = (page - 1) * pageSize;
+      return filtered.slice(start, start + pageSize);
+    }
+    if (!listData?.items) return [];
+    return listData.items.map(mapAppToHiringRow);
+  }, [isSearchActive, searchData, listData, page, pageSize]);
 
-  // Backend may ignore search params; filter the current response so the table always matches the search box.
-  const visibleData: HiringApplicationRow[] = useMemo(() => {
-    const q = (query ?? "").trim().toLowerCase();
-    if (!q) return pagedData;
-    return pagedData.filter(
-      (item) =>
-        item.applicant_name?.toLowerCase().includes(q) ||
-        item.email?.toLowerCase().includes(q) ||
-        item.submission_date?.toLowerCase().includes(q)
-    );
-  }, [pagedData, query]);
-
-  const pagination = useMemo(() => {
-    const pageNum = Math.max(1, Number(page) || 1);
-    const pageSize = Math.max(1, Number(size) || 10);
-    return { pageNum, pageSize };
-  }, [page, size]);
+  const totalCount = isSearchActive
+    ? searchData?.total ?? 0
+    : listData?.total ?? 0;
 
   const handleTableChange = (paginationConfig: any) => {
-    setSize(String(paginationConfig.pageSize ?? 10));
-    setPage(String(paginationConfig.current ?? 1));
+    setPage(paginationConfig.current ?? 1);
+    setPageSize(paginationConfig.pageSize ?? 10);
   };
 
   const handleViewApplication = async (row: HiringApplicationRow) => {
@@ -541,34 +584,39 @@ export default function HiringPage() {
             <SearchIcon />
           </span>
           <input
-            value={query ?? ""}
+            value={search}
             onChange={(e) => {
-              setQuery(e.target.value || null);
+              setSearch(e.target.value);
+              setPage(1);
             }}
             placeholder="Search"
             className="w-full h-10 rounded-[100px] border border-[#E0E0E0] bg-white pl-10 pr-4 text-[16px] font-normal text-[#121212] placeholder:text-[#9CA3AF] focus:outline-none"
           />
         </div>
       </div>
-      <Table
-        key="hiring-applications"
-        data={visibleData}
-        columns={columns}
-        loading={isLoading || isFetching}
-        rootClassName="[&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal [&_thead_th.ant-table-column-sort]:!bg-[#FAFAFA] [&_tbody_tr:hover>td]:!bg-[#FAFAFA] [&_tbody_td.ant-table-column-sort]:!bg-transparent [&_tbody_tr:hover>td.ant-table-column-sort]:!bg-[#FAFAFA] [&_.ant-table-column-sorter]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up.active]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down.active]:!text-[#9CA3AF]"
-        onRow={(record: HiringApplicationRow) => ({
-          onClick: () => handleViewApplication(record),
-          className: "cursor-pointer",
-        })}
-        pagination={{
-          current: pagination.pageNum,
-          pageSize: pagination.pageSize,
-          total: applicationsData?.total || 0,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
-        onChange={handleTableChange}
-      />
+      {!isLoading && !isFetching && pagedData.length === 0 ? (
+        <div className="w-full py-10 text-center text-[#6B7280]">No records available</div>
+      ) : (
+        <Table
+          key="hiring-applications"
+          data={pagedData}
+          columns={columns}
+          loading={isLoading || isFetching}
+          rootClassName="[&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal [&_thead_th.ant-table-column-sort]:!bg-[#FAFAFA] [&_tbody_tr:hover>td]:!bg-[#FAFAFA] [&_tbody_td.ant-table-column-sort]:!bg-transparent [&_tbody_tr:hover>td.ant-table-column-sort]:!bg-[#FAFAFA] [&_.ant-table-column-sorter]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up.active]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down.active]:!text-[#9CA3AF]"
+          onRow={(record: HiringApplicationRow) => ({
+            onClick: () => handleViewApplication(record),
+            className: "cursor-pointer",
+          })}
+          pagination={{
+            current: page,
+            pageSize: pageSize,
+            total: totalCount,
+            showSizeChanger: true,
+            showQuickJumper: true,
+          }}
+          onChange={handleTableChange}
+        />
+      )}
     </div>
   );
 }
