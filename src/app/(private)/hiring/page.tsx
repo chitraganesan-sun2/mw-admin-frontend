@@ -237,24 +237,50 @@ export default function HiringPage() {
     []
   );
 
-  const getAllApplications = async ({ page, size, query }: { page: string | number, size: string | number, query?: string | null }) => {
-    let url = `${endpoints.hiring.getAllApplications}?page=${page}&size=${size}`;
-    if (query) {
-      const encodedQuery = encodeURIComponent(query);
-      // Keep both keys for compatibility until backend contract is finalized.
-      url += `&search_query=${encodedQuery}&search=${encodedQuery}`;
+  const getAllApplications = async ({
+    page,
+    size,
+    searchQuery,
+  }: {
+    page: string | number;
+    size: string | number;
+    searchQuery?: string | null;
+  }) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+    const trimmed = (searchQuery ?? "").trim();
+    if (trimmed) {
+      params.append("search", trimmed);
+      params.append("search_query", trimmed);
     }
+    const url = `${endpoints.hiring.getAllApplications}?${params.toString()}`;
     const response: any = await GET_API(url);
-    console.log("API LIST RESPONSE:", response?.data);
-    return {
-      items: response?.data?.items || [],
-      total: response?.data?.total || 0,
-    };
+    const raw = response?.data ?? response ?? {};
+    const payload = raw?.data !== undefined ? raw.data : raw;
+    let items: any =
+      payload?.items ??
+      payload?.results ??
+      payload?.applications ??
+      (Array.isArray(payload) ? payload : []);
+    if (items && !Array.isArray(items) && typeof items === "object") {
+      items = Object.values(items);
+    }
+    const total =
+      payload?.total ??
+      payload?.total_count ??
+      payload?.count ??
+      raw?.total ??
+      (Array.isArray(items) ? items.length : 0);
+    return { items, total };
   };
 
-  const { data: applicationsData, isFetching } = useQuery({
+  // Same pattern as donations: refetch when search changes (shows loading) and server returns filtered rows.
+  const { data: applicationsData, isFetching, isLoading } = useQuery({
     queryKey: ["applications", page, size, query],
-    queryFn: () => getAllApplications({ page, size, query }),
+    queryFn: () =>
+      getAllApplications({ page, size, searchQuery: query ?? undefined }),
   });
 
   const pagedData: HiringApplicationRow[] = useMemo(() => {
@@ -268,13 +294,15 @@ export default function HiringPage() {
     }));
   }, [applicationsData]);
 
+  // Backend may ignore search params; filter the current response so the table always matches the search box.
   const visibleData: HiringApplicationRow[] = useMemo(() => {
-    const normalizedQuery = (query ?? "").trim().toLowerCase();
-    if (!normalizedQuery) return pagedData;
-    return pagedData.filter((item) =>
-      item.applicant_name?.toLowerCase().includes(normalizedQuery) ||
-      item.email?.toLowerCase().includes(normalizedQuery) ||
-      item.submission_date?.toLowerCase().includes(normalizedQuery)
+    const q = (query ?? "").trim().toLowerCase();
+    if (!q) return pagedData;
+    return pagedData.filter(
+      (item) =>
+        item.applicant_name?.toLowerCase().includes(q) ||
+        item.email?.toLowerCase().includes(q) ||
+        item.submission_date?.toLowerCase().includes(q)
     );
   }, [pagedData, query]);
 
@@ -516,7 +544,6 @@ export default function HiringPage() {
             value={query ?? ""}
             onChange={(e) => {
               setQuery(e.target.value || null);
-              setPage("1");
             }}
             placeholder="Search"
             className="w-full h-10 rounded-[100px] border border-[#E0E0E0] bg-white pl-10 pr-4 text-[16px] font-normal text-[#121212] placeholder:text-[#9CA3AF] focus:outline-none"
@@ -527,7 +554,7 @@ export default function HiringPage() {
         key="hiring-applications"
         data={visibleData}
         columns={columns}
-        loading={isFetching}
+        loading={isLoading || isFetching}
         rootClassName="[&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal [&_thead_th.ant-table-column-sort]:!bg-[#FAFAFA] [&_tbody_tr:hover>td]:!bg-[#FAFAFA] [&_tbody_td.ant-table-column-sort]:!bg-transparent [&_tbody_tr:hover>td.ant-table-column-sort]:!bg-[#FAFAFA] [&_.ant-table-column-sorter]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up.active]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down.active]:!text-[#9CA3AF]"
         onRow={(record: HiringApplicationRow) => ({
           onClick: () => handleViewApplication(record),
