@@ -31,7 +31,11 @@ export const getDonationColumns = (
     ),
   },
   {
-    title: "Email Address",
+    title: (
+      <span className="text-[16px] !font-medium text-[#121212] !font-poppins">
+        Email Address
+      </span>
+    ),
     dataIndex: "email",
     key: "email",
     sorter: false,
@@ -480,27 +484,37 @@ export interface HiringApplicationRow {
   applicant_name: string;
   email: string;
   submission_date: string;
+  submission_timestamp?: number;
 }
 
 export const getHiringColumns = (
   onViewApplication?: (row: HiringApplicationRow) => void
 ) => [
   {
-    title: "Applicant Name",
+    title: (
+      <span className="text-[16px] !font-medium text-[#121212] !font-poppins">
+        Applicant Name
+      </span>
+    ),
     dataIndex: "applicant_name",
     key: "applicant_name",
     sorter: false,
     className:
-      "p-6 text-sm w-[220px] !font-semibold text-gray-900 !font-poppins",
+      "p-6 text-base w-[220px] text-[#121212] !font-poppins",
+    render: (_: unknown, record: HiringApplicationRow) => (
+      <span className="text-[16px] !font-semibold text-[#121212] !font-poppins">
+        {record?.applicant_name || "-"}
+      </span>
+    ),
   },
   {
     title: "Email Address",
     dataIndex: "email",
     key: "email",
     sorter: false,
-    className: "p-6 w-[240px] !lowercase text-sm text-gray-900 !font-poppins",
+    className: "p-6 w-[240px] text-base text-[#121212] !font-poppins !font-medium",
     render: (_: unknown, record: HiringApplicationRow) => (
-      <span className="text-gray-900 !font-poppins">
+      <span className="text-base text-[#121212] !font-poppins !font-medium">
         {record?.email?.toLowerCase?.() || "-"}
       </span>
     ),
@@ -509,21 +523,23 @@ export const getHiringColumns = (
     title: "Submission date",
     dataIndex: "submission_date",
     key: "submission_date",
-    sorter: false,
+    sorter: (a: HiringApplicationRow, b: HiringApplicationRow) =>
+      (a.submission_timestamp ?? 0) - (b.submission_timestamp ?? 0),
+    sortDirections: ["ascend", "descend"] as const,
     className:
-      "p-6 w-[200px] text-sm bg-gray-50 text-gray-900 !font-poppins whitespace-nowrap",
+      "p-6 w-[200px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
   },
   {
     title: "",
     key: "actions",
-    className: "!p-0 !w-[160px] text-sm text-gray-900 !font-poppins",
+    className: "!p-0 !w-[160px] text-[14px] text-[#121212] !font-poppins",
     render: (_: unknown, record: HiringApplicationRow) => (
       <p
         onClick={(e) => {
           e.stopPropagation();
           onViewApplication?.(record);
         }}
-        className="px-6 !py-3 !font-semibold text-gray-900 underline !font-poppins cursor-pointer whitespace-nowrap"
+        className="px-6 !py-3 text-[14px] !font-medium text-[#121212] underline !font-poppins cursor-pointer whitespace-nowrap"
       >
         View application
       </p>
