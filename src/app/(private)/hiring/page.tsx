@@ -43,10 +43,13 @@ const toYesNo = (value: unknown) => {
   return "-";
 };
 
+const normalizeEmail = (value: unknown) =>
+  typeof value === "string" && value.trim() ? value.trim().toLowerCase() : "";
+
 const mapAppToHiringRow = (app: any): HiringApplicationRow => ({
   id: app.application_id,
   applicant_name: app.full_name,
-  email: app.email,
+  email: normalizeEmail(app?.email),
   submission_date: moment(app.created_on).format("Do MMM, YYYY"),
   submission_timestamp: new Date(app.created_on).getTime(),
 });
@@ -396,7 +399,7 @@ export default function HiringPage() {
         appliedFor: appliedForData,
         basicInfo: {
           fullName: resData?.full_name || "-",
-          email: resData?.email || "-",
+          email: normalizeEmail(resData?.email) || "-",
           phoneNo: resData?.phone ? `${resData.phone.country_code} ${resData.phone.number}` : "-",
           dob: resData?.date_of_birth || "-",
           country: resData?.address?.country || "-",

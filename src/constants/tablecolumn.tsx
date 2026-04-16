@@ -514,7 +514,7 @@ export const getHiringColumns = (
     sorter: false,
     className: "p-6 w-[240px] text-base text-[#121212] !font-poppins !font-medium",
     render: (_: unknown, record: HiringApplicationRow) => (
-      <span className="text-base text-[#121212] !font-poppins !font-medium">
+      <span className="text-base text-[#121212] !font-poppins !font-medium !normal-case">
         {record?.email?.toLowerCase?.() || "-"}
       </span>
     ),
