@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
-import { GET_API } from "@/api/request";
+import { GET_API, PUT_API } from "@/api/request";
 import { Spin } from "antd";
 import { formatString } from "@/utils/stringFunctions";
 import { useQueryState } from "nuqs";
@@ -36,11 +36,14 @@ const Section = ({
 
 const LearnerProfileDetails = () => {
   const [learnerId, setLearnerId] = useQueryState("learner_id");
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [hideFooter, setHideFooter] = useState(true);
   const [learnerDetails, setLearnerDetails] = useState<LearnerDetails | null>(
     null
   );
+  const [isAcceptLoading, setIsAcceptLoading] = useState(false);
+  const [isRejectLoading, setIsRejectLoading] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["learner-details", learnerId],
@@ -64,6 +67,41 @@ const LearnerProfileDetails = () => {
   const handleModalClose = () => {
     setLearnerId(null);
     setIsOpen(false);
+  };
+
+  const updateVerificationStatus = async (status: string) => {
+    if (!learnerId) return;
+
+    await PUT_API(
+      endpoints.onboarding.updateOnboardingStatus(learnerId, "learner", status),
+      {}
+    );
+    handleModalClose();
+    queryClient.invalidateQueries({
+      queryKey: ["learners"],
+    });
+  };
+
+  const handleAccept = () => {
+    setIsAcceptLoading(true);
+    updateVerificationStatus("verification_completed")
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsAcceptLoading(false);
+      });
+  };
+
+  const handleReject = () => {
+    setIsRejectLoading(true);
+    updateVerificationStatus("verification_rejected")
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsRejectLoading(false);
+      });
   };
 
   const formatArray = (arr?: string[]) =>
@@ -300,7 +338,12 @@ const LearnerProfileDetails = () => {
       customClassName="max-h-[90vh] !rounded-3xl overflow-y-auto no-scrollbar"
       isOpen={isOpen}
       onClose={handleModalClose}
+      onAccept={handleAccept}
+      onReject={handleReject}
       hideFooter={hideFooter}
+      actionLoading={isAcceptLoading || isRejectLoading}
+      acceptLoading={isAcceptLoading}
+      rejectLoading={isRejectLoading}
     >
       {isLoading || !learnerDetails ? (
         <div className="h-[65vh] w-full flex items-center justify-center">
