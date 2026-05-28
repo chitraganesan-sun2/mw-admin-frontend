@@ -1,0 +1,25 @@
+# =============================================================================
+# CALLER WORKFLOW — copy this into EVERY repo where you want the bot.
+# Path: .github/workflows/pr-checklist.yml
+#
+# Hub is greyfeathers-dev/shared-workflows (private, account-level access).
+# IMPORTANT: the repo you put this in must also be owned by greyfeathers-dev,
+# since a private reusable workflow is only callable by same-owner repos.
+# =============================================================================
+
+name: PR Checklist Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  checklist:
+    uses: greyfeathers-dev/shared-workflows/.github/workflows/checklist-review.yml@main
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      NOTION_TOKEN:      ${{ secrets.NOTION_TOKEN }}
