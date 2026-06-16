@@ -7,6 +7,7 @@ import {
   ResourceIcon,
   SignOutIcon,
   DonationIcon,
+  SafetyIcon,
 } from "@/assets/icons";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -66,6 +67,11 @@ const Sidebar = () => {
       href: "/hiring",
       text: "Hiring",
       icon: <HiringIcon />,
+    },
+    {
+      href: "/safety",
+      text: "Safety",
+      icon: <SafetyIcon />,
     },
   ];
 

@@ -21,3 +21,4 @@ export { default as MailIcon } from "./MailIcon";
 export { default as HiringIcon } from "./HiringIcon";
 export { default as DonationIcon } from "./DonationIcon";
 export { default as SearchIcon } from "./SearchIcon";
+export { default as SafetyIcon } from "./SafetyIcon";
