@@ -1,10 +1,13 @@
-import moment from "moment";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import noImage from "@/assets/images/no-image.webp";
 
+dayjs.extend(customParseFormat);
+
 const formatDate = (date: string) =>
-  moment(date, "DD-MM-YYYY", true).isValid()
+  dayjs(date, "DD-MM-YYYY", true).isValid()
     ? date
-    : moment(date).format("DD-MM-YYYY");
+    : dayjs(date).format("DD-MM-YYYY");
 
 const formatContactNumber = (contact?: { country_code?: string; number?: string }) =>
   contact?.country_code && contact?.number

@@ -10,7 +10,10 @@ import { formatString } from "@/utils/stringFunctions";
 import { CaretRightOutlined } from "@ant-design/icons";
 import { Collapse } from "antd";
 import { formatVolunteerData } from "./format";
-import moment from "moment";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 const { Panel } = Collapse;
 import noImage from "@/assets/images/no-image.webp";
 
@@ -71,13 +74,13 @@ const VolunteerProfileDetails = () => {
     }
     
     // Try to parse the date with DD-MM-YYYY format first
-    const parsedDate = moment(dateOfBirth, "DD-MM-YYYY", true);
+    const parsedDate = dayjs(dateOfBirth, "DD-MM-YYYY", true);
     if (parsedDate.isValid()) {
       return parsedDate.format("DD-MMM-YYYY");
     }
     
     // Fallback to general parsing
-    const fallbackDate = moment(dateOfBirth);
+    const fallbackDate = dayjs(dateOfBirth);
     return fallbackDate.isValid() ? fallbackDate.format("DD-MMM-YYYY") : "-";
   })();
 

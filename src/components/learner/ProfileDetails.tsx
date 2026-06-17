@@ -10,7 +10,10 @@ import { formatString } from "@/utils/stringFunctions";
 import { useQueryState } from "nuqs";
 import Image from "next/image";
 import { formatLearnerData } from "./format";
-import moment from "moment";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 const Section = ({
   title,
@@ -117,11 +120,11 @@ const LearnerProfileDetails = () => {
     {
       title: "Date of Birth",
       value: learnerDetails?.learner_personal_info?.learner_date_of_birth
-        ? moment(
-            learnerDetails?.learner_personal_info?.learner_date_of_birth
+        ? dayjs(
+            learnerDetails?.learner_personal_info?.learner_date_of_birth, "DD-MM-YYYY"
           ).isValid()
-          ? moment(
-              learnerDetails?.learner_personal_info?.learner_date_of_birth
+          ? dayjs(
+              learnerDetails?.learner_personal_info?.learner_date_of_birth, "DD-MM-YYYY"
             ).format("DD-MMM-YYYY")
           : learnerDetails?.learner_personal_info?.learner_date_of_birth
         : "-",

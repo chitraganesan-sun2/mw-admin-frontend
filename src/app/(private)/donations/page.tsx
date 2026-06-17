@@ -10,7 +10,12 @@ import DonationDetailsModal, { DonationDetails } from "@/components/donations/Do
 import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
-import moment from "moment";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+
+dayjs.extend(customParseFormat);
+dayjs.extend(advancedFormat);
 import { SearchIcon } from "@/assets/icons";
 
 type DonationSortField = "donation_date" | "amount" | null;
@@ -75,7 +80,7 @@ export default function DonationsPage() {
       const donationDateRaw =
         it?.date || it?.donation_date || it?.transaction_time || it?.created_on || it?.createdAt || "";
       const normalizedDate = donationDateRaw
-        ? moment(donationDateRaw, ["Do MMM, YYYY", moment.ISO_8601]).format("YYYY-MM-DD")
+        ? dayjs(donationDateRaw).format("YYYY-MM-DD")
         : "";
       const amountNum =
         typeof it?.final_amount === "number"
@@ -111,7 +116,7 @@ export default function DonationsPage() {
       const dateStr =
         d?.created_at ?? d?.createdAt ?? d?.date ?? d?.donation_date ?? row.donation_date;
       const normalizedDate = dateStr
-        ? moment(dateStr, ["Do MMM, YYYY", moment.ISO_8601]).toISOString()
+        ? dayjs(dateStr).toISOString()
         : row.donation_date
           ? new Date(row.donation_date).toISOString()
           : new Date().toISOString();

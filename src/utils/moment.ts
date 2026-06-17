@@ -1,10 +1,13 @@
-import moment from "moment";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 export const calculateAge = (dob: string) => {
-    const formattedDob = moment(dob, "DD-MM-YYYY", true).isValid() 
+    const formattedDob = dayjs(dob, "DD-MM-YYYY", true).isValid() 
         ? dob 
-        : moment(dob).format("DD-MM-YYYY");
+        : dayjs(dob).format("DD-MM-YYYY");
     
-    const age = moment().diff(moment(formattedDob, "DD-MM-YYYY"), 'years');
+    const age = dayjs().diff(dayjs(formattedDob, "DD-MM-YYYY"), 'year');
     return age < 1 ? 0 : age;
 };
