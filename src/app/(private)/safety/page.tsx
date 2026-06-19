@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback, useRef } from "react";
 
 /**
  * Safety Module Page
@@ -11,6 +11,13 @@ import React, { useState } from "react";
  *
  * In production, set NEXT_PUBLIC_SAFETY_DASHBOARD_URL to the deployed URL
  * of the detection pipeline's admin frontend.
+ *
+ * Security notes:
+ * - `allow-same-origin` is required because the embedded dashboard uses
+ *   localStorage for auth tokens. This is safe because the dashboard runs
+ *   on a DIFFERENT origin than the admin panel — it can only access its own
+ *   storage, not the parent's cookies/storage.
+ * - CSP frame-src header in next.config.js restricts which origins can be framed.
  */
 
 const SAFETY_DASHBOARD_URL =
@@ -19,6 +26,16 @@ const SAFETY_DASHBOARD_URL =
 export default function SafetyPage() {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const handleRetry = useCallback(() => {
+    setHasError(false);
+    setIsLoading(true);
+    // Force iframe reload by resetting src
+    if (iframeRef.current) {
+      iframeRef.current.src = `${SAFETY_DASHBOARD_URL}?embed=true&t=${Date.now()}`;
+    }
+  }, []);
 
   if (!SAFETY_DASHBOARD_URL) {
     return (
@@ -47,7 +64,7 @@ export default function SafetyPage() {
 
   return (
     <div className="w-full h-full relative">
-      {isLoading && (
+      {isLoading && !hasError && (
         <div className="absolute inset-0 flex items-center justify-center h-[90vh] bg-white z-10">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
@@ -73,14 +90,16 @@ export default function SafetyPage() {
             />
           </svg>
           <p className="text-lg font-medium">Failed to Load Dashboard</p>
-          <p className="text-sm text-gray-500">
-            The safety dashboard at <code className="bg-gray-100 px-1 rounded text-gray-700">{SAFETY_DASHBOARD_URL}</code> could not be loaded.
+          <p className="text-sm text-gray-500 text-center max-w-md">
+            Could not connect to the safety dashboard. This may be caused by a
+            network issue, incorrect URL, or the dashboard service being
+            unavailable.
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            Target: <code className="bg-gray-100 px-1 rounded text-gray-600">{SAFETY_DASHBOARD_URL}</code>
           </p>
           <button
-            onClick={() => {
-              setHasError(false);
-              setIsLoading(true);
-            }}
+            onClick={handleRetry}
             className="mt-3 px-4 py-2 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 transition-colors"
           >
             Retry
@@ -89,12 +108,13 @@ export default function SafetyPage() {
       )}
 
       <iframe
+        ref={iframeRef}
         src={`${SAFETY_DASHBOARD_URL}?embed=true`}
         className={`w-full h-[90vh] border-0 ${hasError ? "hidden" : ""}`}
         title="Safety Detection Dashboard"
         allow="clipboard-write"
-        sandbox="allow-scripts allow-forms allow-popups allow-downloads"
-        referrerPolicy="no-referrer"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads"
+        referrerPolicy="strict-origin-when-cross-origin"
         onLoad={() => setIsLoading(false)}
         onError={() => {
           setHasError(true);
