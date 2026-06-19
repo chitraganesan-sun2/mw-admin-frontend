@@ -39,7 +39,11 @@ const parseDate = (raw: string): dayjs.Dayjs => {
     const parsed = dayjs(raw, fmt, true);
     if (parsed.isValid()) return parsed;
   }
-  return d; // Return invalid dayjs (caller handles empty string case)
+  // Log warning in development for debugging unparseable dates
+  if (process.env.NODE_ENV === "development") {
+    console.warn(`[parseDate] Unable to parse date: "${raw}". No format matched.`);
+  }
+  return d; // Return invalid dayjs — callers guard with empty-string fallback
 };
 
 import { SearchIcon } from "@/assets/icons";
@@ -105,8 +109,9 @@ export default function DonationsPage() {
     return items.map((it: any, index: number) => {
       const donationDateRaw =
         it?.date || it?.donation_date || it?.transaction_time || it?.created_on || it?.createdAt || "";
-      const normalizedDate = donationDateRaw
-        ? parseDate(donationDateRaw).format("YYYY-MM-DD")
+      const parsedDate = donationDateRaw ? parseDate(donationDateRaw) : null;
+      const normalizedDate = parsedDate?.isValid()
+        ? parsedDate.format("YYYY-MM-DD")
         : "";
       const amountNum =
         typeof it?.final_amount === "number"
@@ -141,8 +146,9 @@ export default function DonationsPage() {
       const amount = d?.final_amount ?? d?.amount ?? row.amount ?? 0;
       const dateStr =
         d?.created_at ?? d?.createdAt ?? d?.date ?? d?.donation_date ?? row.donation_date;
-      const normalizedDate = dateStr
-        ? parseDate(dateStr).toISOString()
+      const parsedDetailDate = dateStr ? parseDate(dateStr) : null;
+      const normalizedDate = parsedDetailDate?.isValid()
+        ? parsedDetailDate.toISOString()
         : row.donation_date
           ? new Date(row.donation_date).toISOString()
           : new Date().toISOString();
