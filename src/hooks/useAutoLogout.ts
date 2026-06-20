@@ -10,14 +10,14 @@ const useAutoLogout = (router: any) => {
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const clearSession = useCallback(() => {
-    Cookies.remove("token");
-    Cookies.remove("role");
-    Cookies.remove("onboarded_status");
-    Cookies.remove("learner_id");
-    Cookies.remove("volunteer_id");
-    Cookies.remove("lastActivity");
+    Cookies.remove("token", { path: "/" });
+    Cookies.remove("role", { path: "/" });
+    Cookies.remove("onboarded_status", { path: "/" });
+    Cookies.remove("learner_id", { path: "/" });
+    Cookies.remove("volunteer_id", { path: "/" });
+    Cookies.remove("lastActivity", { path: "/" });
 
-    router.push("/login");
+    router.push("/");
   }, [router]);
 
   const resetTimer = useCallback(() => {
@@ -25,7 +25,7 @@ const useAutoLogout = (router: any) => {
 
     debounceRef.current = setTimeout(() => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      Cookies.set("lastActivity", Date.now().toString(), { expires: COOKIE_EXPIRY_DAYS });
+      Cookies.set("lastActivity", Date.now().toString(), { expires: COOKIE_EXPIRY_DAYS, path: "/" });
       timerRef.current = setTimeout(clearSession, INACTIVITY_TIMEOUT);
     }, DEBOUNCE_DELAY);
 
