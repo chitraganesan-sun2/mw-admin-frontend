@@ -4,7 +4,12 @@ import ExpandableText from "@/components/common/Modals/ExpandableText";
 import { Button } from "antd";
 import { DeleteIcon } from "@/assets/icons";
 import { FaSort } from "react-icons/fa";
-import moment from "moment";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+
+dayjs.extend(customParseFormat);
+dayjs.extend(advancedFormat);
 
 export interface DonationRow {
   id: string;
@@ -58,7 +63,7 @@ export const getDonationColumns = (
       if (!record.donation_date) return "-";
       return (
         <span className="text-base font-medium text-[#121212] !font-poppins !normal-case">
-          {moment(record.donation_date).format("Do MMM, YYYY").toLowerCase()}
+          {dayjs(record.donation_date).format("Do MMM, YYYY").toLowerCase()}
         </span>
       );
     },
@@ -423,7 +428,7 @@ export const getReportColumns = (
       "!w-[10%] p-6 text-sm text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
     render: (_: unknown, record: Report) => {
       if (!record.report_time) return "-";
-      return moment(record.report_time).format("DD-MMM-YYYY").toLowerCase();
+      return dayjs(record.report_time).format("DD-MMM-YYYY").toLowerCase();
     },
   },
   {

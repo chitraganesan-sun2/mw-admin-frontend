@@ -15,7 +15,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
-import moment from "moment";
+import dayjs from "dayjs";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+
+dayjs.extend(advancedFormat);
 import { SearchIcon } from "@/assets/icons";
 
 const ROLE_MAPPINGS: Record<string, { title: string; description: string; responsibilities: string[] }> = {
@@ -50,7 +53,7 @@ const mapAppToHiringRow = (app: any): HiringApplicationRow => ({
   id: app.application_id,
   applicant_name: app.full_name,
   email: normalizeEmail(app?.email),
-  submission_date: moment(app.created_on).format("Do MMM, YYYY"),
+  submission_date: dayjs(app.created_on).format("Do MMM, YYYY"),
   submission_timestamp: new Date(app.created_on).getTime(),
 });
 

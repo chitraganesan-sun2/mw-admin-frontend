@@ -10,7 +10,42 @@ import DonationDetailsModal, { DonationDetails } from "@/components/donations/Do
 import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
-import moment from "moment";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+
+dayjs.extend(customParseFormat);
+dayjs.extend(advancedFormat);
+
+/** Try multiple common date formats for backward compatibility with legacy data */
+const SUPPORTED_DATE_FORMATS = [
+  "YYYY-MM-DDTHH:mm:ss.SSSSSSZ",  // ISO with microseconds + offset
+  "YYYY-MM-DDTHH:mm:ss.SSSZ",     // ISO with milliseconds + offset
+  "YYYY-MM-DDTHH:mm:ssZ",         // ISO without fractional seconds
+  "YYYY-MM-DD HH:mm:ss.SSSSSS",   // Python datetime str (no T, no Z)
+  "YYYY-MM-DD HH:mm:ss",          // Simple datetime
+  "YYYY-MM-DD",                    // Date only
+  "Do MMM, YYYY",                  // Legacy format (e.g., "1st Jan, 2025")
+  "DD MMM YYYY",                   // "01 Jan 2025"
+  "DD-MM-YYYY",                    // "01-01-2025"
+];
+
+const parseDate = (raw: string): dayjs.Dayjs => {
+  // dayjs() default parser handles ISO 8601 well
+  const d = dayjs(raw);
+  if (d.isValid()) return d;
+  // Fallback: try explicit formats for non-standard legacy strings
+  for (const fmt of SUPPORTED_DATE_FORMATS) {
+    const parsed = dayjs(raw, fmt, true);
+    if (parsed.isValid()) return parsed;
+  }
+  // Log warning in development for debugging unparseable dates
+  if (process.env.NODE_ENV === "development") {
+    console.warn(`[parseDate] Unable to parse date: "${raw}". No format matched.`);
+  }
+  return d; // Return invalid dayjs — callers guard with empty-string fallback
+};
+
 import { SearchIcon } from "@/assets/icons";
 
 type DonationSortField = "donation_date" | "amount" | null;
@@ -74,8 +109,9 @@ export default function DonationsPage() {
     return items.map((it: any, index: number) => {
       const donationDateRaw =
         it?.date || it?.donation_date || it?.transaction_time || it?.created_on || it?.createdAt || "";
-      const normalizedDate = donationDateRaw
-        ? moment(donationDateRaw, ["Do MMM, YYYY", moment.ISO_8601]).format("YYYY-MM-DD")
+      const parsedDate = donationDateRaw ? parseDate(donationDateRaw) : null;
+      const normalizedDate = parsedDate?.isValid()
+        ? parsedDate.format("YYYY-MM-DD")
         : "";
       const amountNum =
         typeof it?.final_amount === "number"
@@ -110,8 +146,9 @@ export default function DonationsPage() {
       const amount = d?.final_amount ?? d?.amount ?? row.amount ?? 0;
       const dateStr =
         d?.created_at ?? d?.createdAt ?? d?.date ?? d?.donation_date ?? row.donation_date;
-      const normalizedDate = dateStr
-        ? moment(dateStr, ["Do MMM, YYYY", moment.ISO_8601]).toISOString()
+      const parsedDetailDate = dateStr ? parseDate(dateStr) : null;
+      const normalizedDate = parsedDetailDate?.isValid()
+        ? parsedDetailDate.toISOString()
         : row.donation_date
           ? new Date(row.donation_date).toISOString()
           : new Date().toISOString();

@@ -1,16 +1,19 @@
-import moment from "moment";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 const formatDate = (date: string) => {
     if (!date) return "-";
     
     // First try to parse with DD-MM-YYYY format
-    const parsedDate = moment(date, "DD-MM-YYYY", true);
+    const parsedDate = dayjs(date, "DD-MM-YYYY", true);
     if (parsedDate.isValid()) {
         return parsedDate.format("DD-MM-YYYY");
     }
     
     // If that fails, try parsing with other common formats
-    const fallbackDate = moment(date);
+    const fallbackDate = dayjs(date);
     if (fallbackDate.isValid()) {
         return fallbackDate.format("DD-MM-YYYY");
     }
