@@ -10,6 +10,8 @@ import { Toaster } from "react-hot-toast";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      staleTime: 5 * 60 * 1000,   // 5 minutes — prevents redundant refetches on navigation
+      gcTime: 10 * 60 * 1000,     // 10 minutes — cache retained longer before GC
       retry: false,
       refetchOnWindowFocus: false,
     },
@@ -29,7 +31,9 @@ export default function QueryProvider({
       <NuqsAdapter>
         {children}
         <Toaster />
-        <ReactQueryDevtools initialIsOpen={true} buttonPosition="bottom-left" />
+        {process.env.NODE_ENV === 'development' && (
+          <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+        )}
       </NuqsAdapter>
     </QueryClientProvider>
   );
