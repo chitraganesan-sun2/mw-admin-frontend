@@ -134,7 +134,7 @@ const VolunteerProfileDetails = () => {
       rootClassName: "col-span-2",
     },
     {
-      title: "Skills I have",
+      title: "Skills You Can Share with Learners",
       value:
         data?.volunteer_skills
           ?.map((skill: any) => skill?.skill_name)
