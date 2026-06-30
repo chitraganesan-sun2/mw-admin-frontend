@@ -61,4 +61,16 @@ export const endpoints: EndpointProps = {
     list: "admin/donation/list",
     getReceipt: (donation_id: string) => `admin/donation/${donation_id}`,
   },
+  tutorialLinks: {
+    getAll: "admin/tutorial-links",
+    create: "admin/tutorial-links",
+    update: (link_id: string) => `admin/tutorial-links/${link_id}`,
+    delete: (link_id: string) => `admin/tutorial-links/${link_id}`,
+  },
+  listOfValues: {
+    getAll: (type: string) => `admin/list-of-values/${type}`,
+    create: (type: string) => `admin/list-of-values/${type}`,
+    update: (type: string, id: string) => `admin/list-of-values/${type}/${id}`,
+    delete: (type: string, id: string) => `admin/list-of-values/${type}/${id}`,
+  },
 };
