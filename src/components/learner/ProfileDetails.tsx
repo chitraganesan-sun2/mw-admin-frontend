@@ -193,7 +193,7 @@ const LearnerProfileDetails = () => {
           value: formatArray(learnerDetails?.learner_goals?.expected_goals),
         },
         {
-          title: "Skills and expertise to learn",
+          title: "Skills and Expertise to Learn from Volunteers",
           value: formatSkillArray(
             learnerDetails?.learner_goals?.skills_to_learn
           ),
