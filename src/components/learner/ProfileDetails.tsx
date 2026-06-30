@@ -143,22 +143,22 @@ const LearnerProfileDetails = () => {
 
   const sections = [
     {
-      title: "Parent/Guardian Details",
+      title: "Guardian Details",
       details: [
         {
-          title: "Parent/Guardian Name",
+          title: "Guardian Name",
           value: getValue(learnerDetails?.parent_name),
         },
         {
-          title: "Parent/Guardian Email",
+          title: "Guardian Email",
           value: getValue(learnerDetails?.parent_email),
         },
         {
-          title: "Parent/Guardian Phone Number",
+          title: "Guardian Phone Number",
           value: getValue(learnerDetails?.parent_phone_number),
         },
         {
-          title: "Parent/Guardian Relationship",
+          title: "Guardian Relationship",
           value: getFormattedValue(learnerDetails?.parent_relationship),
         },
       ],

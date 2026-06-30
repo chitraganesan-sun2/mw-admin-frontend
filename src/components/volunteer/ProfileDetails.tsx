@@ -150,12 +150,12 @@ const VolunteerProfileDetails = () => {
   ];
   const parentDetails = [
     {
-      title: "Parent/Guardian Name",
+      title: "Guardian Name",
       value: volunteerDetails?.parent_name,
       rootClassName: "col-span-1",
     },
     {
-      title: "Parent/Guardian Email",
+      title: "Guardian Email",
       value: volunteerDetails?.parent_email,
       rootClassName: "col-span-1",
     },
@@ -469,7 +469,7 @@ const VolunteerProfileDetails = () => {
           {renderAboutMeVideo()}
           <div>
             <p className="text-xl font-medium border-t mt-5 pt-5 mb-4">
-              Parent/Guardian Details
+              Guardian Details
             </p>
             <div className="grid grid-cols-2 gap-4">
               {parentDetails.map((item, index) => (
