@@ -60,6 +60,18 @@ type EndpointProps = {
     list: string;
     getReceipt: (donation_id: string) => string;
   };
+  tutorialLinks: {
+    getAll: string;
+    create: string;
+    update: (link_id: string) => string;
+    delete: (link_id: string) => string;
+  };
+  listOfValues: {
+    getAll: (type: string) => string;
+    create: (type: string) => string;
+    update: (type: string, id: string) => string;
+    delete: (type: string, id: string) => string;
+  };
 };
 
 type CommonPath = "skills" | "languages" | "subjects" | "media" | "categories";
