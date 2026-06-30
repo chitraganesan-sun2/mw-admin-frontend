@@ -139,6 +139,19 @@ export const getVolunteerColumns = (
       "px-6 !py-3 w-[100px] !lowercase text-sm text-gray-900 !font-poppins",
   },
   {
+    title: "Registered",
+    dataIndex: "created_on",
+    key: "created_on",
+    sorter: true,
+    className:
+      "px-6 !py-3 w-[120px] text-sm text-gray-900 !font-poppins whitespace-nowrap",
+    render: (_: unknown, record: Volunteer) => {
+      const date = (record as any)?.created_on;
+      if (!date) return "-";
+      return dayjs(date).format("DD MMM YYYY");
+    },
+  },
+  {
     title: (
       <div
         onClick={handleOnboardedStatusFilter}
@@ -280,6 +293,19 @@ export const getLearnerColumns = (
         {record?.email?.toLowerCase() || "-"}
       </span>
     ),
+  },
+  {
+    title: "Registered",
+    dataIndex: "created_on",
+    key: "created_on",
+    sorter: true,
+    className:
+      "p-6 w-[120px] text-sm text-gray-900 !font-poppins whitespace-nowrap",
+    render: (_: unknown, record: Learner) => {
+      const date = (record as any)?.created_on;
+      if (!date) return "-";
+      return dayjs(date).format("DD MMM YYYY");
+    },
   },
   {
     title: (
