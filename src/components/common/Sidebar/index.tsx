@@ -73,6 +73,16 @@ const Sidebar = () => {
       text: "Safety",
       icon: <SafetyIcon />,
     },
+    {
+      href: "/tutorial-links",
+      text: "Tutorials",
+      icon: <ResourceIcon />,
+    },
+    {
+      href: "/list-of-values",
+      text: "List of Values",
+      icon: <ResourceIcon />,
+    },
   ];
 
   const handleSignOut = () => {
