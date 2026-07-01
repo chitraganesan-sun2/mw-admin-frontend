@@ -91,8 +91,8 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="bg-white w-full h-screen flex flex-col items-center justify-between p-6">
-      <div>
+    <div className="bg-white w-full h-screen flex flex-col items-center justify-between p-6 overflow-y-auto">
+      <div className="w-full">
         <Logo />
         <div className="flex flex-col items-center gap-[2.2rem] w-full mt-20">
           {linksData.map((link) => (
