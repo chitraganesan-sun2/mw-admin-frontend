@@ -243,42 +243,37 @@ export default function LearnersPage() {
       {/* Download Button */}
       <div className="flex justify-end mb-4">
         <button
-          onClick={async () => {
-            try {
-              const res = await GET_API(`${endpoints.volunteer.getAllVolunteers}?page=1&size=1000`);
-              const raw = res?.data;
-              const allData = raw?.items || (Array.isArray(raw) ? raw : []);
-              if (allData.length === 0) { alert("No data to download"); return; }
-              
-              // Get all keys from the data
-              const allKeys = new Set<string>();
-              allData.forEach((item: any) => {
-                Object.keys(item).forEach(k => {
-                  if (k !== "_id" && k !== "encrypted_data") allKeys.add(k);
-                });
+          onClick={() => {
+            const allData = volunteers?.items || [];
+            if (allData.length === 0) { alert("No data available"); return; }
+            
+            const allKeys = new Set<string>();
+            allData.forEach((item: any) => {
+              Object.keys(item).forEach((k: string) => {
+                if (k !== "_id" && k !== "encrypted_data") allKeys.add(k);
               });
-              const headers = Array.from(allKeys);
-              
-              const escapeCSV = (val: any) => {
-                if (val === null || val === undefined) return "";
-                const str = typeof val === "object" ? JSON.stringify(val) : String(val);
-                return str.includes(",") || str.includes('"') || str.includes('\n')
-                  ? `"${str.replace(/"/g, '""')}"` : str;
-              };
-              
-              const csv = [
-                headers.join(","),
-                ...allData.map((item: any) => headers.map(h => escapeCSV(item[h])).join(","))
-              ].join("\n");
-              
-              const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = `volunteers_full_${new Date().toISOString().slice(0, 10)}.csv`;
-              a.click();
-              URL.revokeObjectURL(url);
-            } catch (e) { alert("Failed to download data"); console.error(e); }
+            });
+            const headers = Array.from(allKeys);
+            
+            const escapeCSV = (val: any) => {
+              if (val === null || val === undefined) return "";
+              const str = typeof val === "object" ? JSON.stringify(val) : String(val);
+              return str.includes(",") || str.includes('"') || str.includes('\n')
+                ? `"${str.replace(/"/g, '""')}"` : str;
+            };
+            
+            const csv = [
+              headers.join(","),
+              ...allData.map((item: any) => headers.map((h: string) => escapeCSV(item[h])).join(","))
+            ].join("\n");
+            
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `volunteers_full_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
           }}
           className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-colors"
         >
