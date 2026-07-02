@@ -1,6 +1,9 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
+import { useComponentStore } from "@/store/useComponenetStore";
+import { usePathname } from "next/navigation";
+import { getHeaderIcon } from "@/layouts/helper";
 
 /**
  * Safety Module Page
@@ -27,6 +30,15 @@ export default function SafetyPage() {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { setHeaderOptions } = useComponentStore();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setHeaderOptions({
+      title: "Safety Monitoring",
+      titleIcon: getHeaderIcon(pathname),
+    });
+  }, [setHeaderOptions, pathname]);
 
   const handleRetry = useCallback(() => {
     setHasError(false);
