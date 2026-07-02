@@ -212,6 +212,29 @@ export default function LearnersPage() {
         isLoading={isDeleteAlertLoading}
       />
       <LearnerProfileDetails />
+      {/* Download Button */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => {
+            const csv = [
+              ["Name", "Age", "Location", "Email", "Status"].join(","),
+              ...learnerData.map((l: any) =>
+                [l.name, l.age, l.location, l.email, l.onboarded_status].join(",")
+              ),
+            ].join("\n");
+            const blob = new Blob([csv], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `learners_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-colors"
+        >
+          Download CSV
+        </button>
+      </div>
       <Table
         key="learners"
         data={learnerData}

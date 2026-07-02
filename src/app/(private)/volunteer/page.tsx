@@ -240,6 +240,29 @@ export default function LearnersPage() {
         isOpen={isFilterOn}
         onClose={() => setIsFilterOn(false)}
       />
+      {/* Download Button */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => {
+            const csv = [
+              ["Name", "Age", "Location", "Email", "Status"].join(","),
+              ...volunteerData.map((v: any) =>
+                [v.name, v.age, v.location, v.email, v.onboarded_status].join(",")
+              ),
+            ].join("\n");
+            const blob = new Blob([csv], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `volunteers_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-colors"
+        >
+          Download CSV
+        </button>
+      </div>
       {/* <GroupFilters
         tabButtons={tabs}
         currentTab={currentTab}
