@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GET_API, POST_API, PUT_API, DELETE_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import { Button, Input, Select, Table, Modal, Form, Popconfirm, Tabs, Tag } from "antd";
 import { DeleteIcon } from "@/assets/icons";
+import { useComponentStore } from "@/store/useComponenetStore";
+import { usePathname } from "next/navigation";
+import { getHeaderIcon } from "@/layouts/helper";
 
 const COLLECTION_TYPES = [
   { key: "skills", label: "Skills" },
@@ -28,6 +31,15 @@ const ID_MAP: Record<string, string> = {
 export default function ListOfValuesPage() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("skills");
+  const { setHeaderOptions } = useComponentStore();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setHeaderOptions({
+      title: "List of Values",
+      titleIcon: getHeaderIcon(pathname),
+    });
+  }, [setHeaderOptions, pathname]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [form] = Form.useForm();

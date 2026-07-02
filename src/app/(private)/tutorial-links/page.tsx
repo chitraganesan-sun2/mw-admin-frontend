@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GET_API, POST_API, PUT_API, DELETE_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import { Button, Input, Select, Table, Modal, Form, Popconfirm, Tag } from "antd";
 import { DeleteIcon } from "@/assets/icons";
+import { useComponentStore } from "@/store/useComponenetStore";
+import { usePathname } from "next/navigation";
+import { getHeaderIcon } from "@/layouts/helper";
 
 interface TutorialLink {
   link_id: string;
@@ -18,6 +21,15 @@ interface TutorialLink {
 export default function TutorialLinksPage() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { setHeaderOptions } = useComponentStore();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setHeaderOptions({
+      title: "Tutorial Links",
+      titleIcon: getHeaderIcon(pathname),
+    });
+  }, [setHeaderOptions, pathname]);
   const [editingLink, setEditingLink] = useState<TutorialLink | null>(null);
   const [form] = Form.useForm();
 
