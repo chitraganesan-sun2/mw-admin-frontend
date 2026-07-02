@@ -246,7 +246,8 @@ export default function LearnersPage() {
           onClick={async () => {
             try {
               const res = await GET_API(`${endpoints.volunteer.getAllVolunteers}?page=1&size=1000`);
-              const allData = res?.data?.items || [];
+              const raw = res?.data;
+              const allData = raw?.items || (Array.isArray(raw) ? raw : []);
               if (allData.length === 0) { alert("No data to download"); return; }
               
               // Get all keys from the data
