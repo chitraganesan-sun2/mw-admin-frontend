@@ -244,36 +244,13 @@ export default function LearnersPage() {
       <div className="flex justify-end mb-4">
         <button
           onClick={() => {
-            const allData = volunteers?.items || [];
-            if (allData.length === 0) { alert("No data available"); return; }
-            
-            const allKeys = new Set<string>();
-            allData.forEach((item: any) => {
-              Object.keys(item).forEach((k: string) => {
-                if (k !== "_id" && k !== "encrypted_data") allKeys.add(k);
-              });
-            });
-            const headers = Array.from(allKeys);
-            
-            const escapeCSV = (val: any) => {
-              if (val === null || val === undefined) return "";
-              const str = typeof val === "object" ? JSON.stringify(val) : String(val);
-              return str.includes(",") || str.includes('"') || str.includes('\n')
-                ? `"${str.replace(/"/g, '""')}"` : str;
-            };
-            
-            const csv = [
-              headers.join(","),
-              ...allData.map((item: any) => headers.map((h: string) => escapeCSV(item[h])).join(","))
-            ].join("\n");
-            
-            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-            const url = URL.createObjectURL(blob);
+            const token = document.cookie.split(";").find(c => c.trim().startsWith("access_token="))?.split("=")[1] || localStorage.getItem("access_token") || "";
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+            const url = `${baseUrl}/admin/export/volunteers/csv`;
             const a = document.createElement("a");
-            a.href = url;
-            a.download = `volunteers_full_${new Date().toISOString().slice(0, 10)}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
+            a.href = url + `?token=${token}`;
+            a.download = "volunteers_export.csv";
+            window.open(url, "_blank");
           }}
           className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-colors"
         >
