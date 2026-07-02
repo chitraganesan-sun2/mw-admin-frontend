@@ -68,8 +68,8 @@ export const endpoints: EndpointProps = {
     delete: (link_id: string) => `admin/tutorial-links/${link_id}`,
   },
   listOfValues: {
-    getAll: (type: string) => `admin/list-of-values/${type}/`,
-    create: (type: string) => `admin/list-of-values/${type}/`,
+    getAll: (type: string) => `admin/list-of-values/${type}`,
+    create: (type: string) => `admin/list-of-values/${type}`,
     update: (type: string, id: string) => `admin/list-of-values/${type}/${id}`,
     delete: (type: string, id: string) => `admin/list-of-values/${type}/${id}`,
   },
