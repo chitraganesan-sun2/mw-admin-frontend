@@ -5,8 +5,8 @@ export const endpoints: EndpointProps = {
     login: "admin/auth/sign_in",
   },
   onboarding: {
-    updateOnboardingStatus: (id: string, type: UserType, status: string) =>
-      `admin/onboarding/update_verification_status/${type}/${id}/${status}`,
+    updateOnboardingStatus: (id: string, type: UserType, status: string, reason?: string) =>
+      `admin/onboarding/update_verification_status/${type}/${id}/${status}${reason ? `?reason=${encodeURIComponent(reason)}` : ""}`,
   },
   common: (path: CommonPath) => `common/${path}/`,
   volunteer: {

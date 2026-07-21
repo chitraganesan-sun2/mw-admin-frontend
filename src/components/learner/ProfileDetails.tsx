@@ -47,6 +47,7 @@ const LearnerProfileDetails = () => {
   );
   const [isAcceptLoading, setIsAcceptLoading] = useState(false);
   const [isRejectLoading, setIsRejectLoading] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["learner-details", learnerId],
@@ -70,13 +71,14 @@ const LearnerProfileDetails = () => {
   const handleModalClose = () => {
     setLearnerId(null);
     setIsOpen(false);
+    setRejectionReason("");
   };
 
-  const updateVerificationStatus = async (status: string) => {
+  const updateVerificationStatus = async (status: string, reason?: string) => {
     if (!learnerId) return;
 
     await PUT_API(
-      endpoints.onboarding.updateOnboardingStatus(learnerId, "learner", status),
+      endpoints.onboarding.updateOnboardingStatus(learnerId, "learner", status, reason),
       {}
     );
     handleModalClose();
@@ -98,7 +100,7 @@ const LearnerProfileDetails = () => {
 
   const handleReject = () => {
     setIsRejectLoading(true);
-    updateVerificationStatus("verification_rejected")
+    updateVerificationStatus("verification_rejected", rejectionReason.trim() || undefined)
       .catch((error) => {
         console.log(error);
       })
@@ -388,6 +390,20 @@ const LearnerProfileDetails = () => {
                 columns={columns}
               />
             ) : null
+          )}
+
+          {!hideFooter && (
+            <div>
+              <p className="text-xl font-medium border-t mt-5 pt-5 mb-4">
+                Rejection Reason (optional)
+              </p>
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Let the applicant know why their application wasn't approved — this is included in the rejection email if provided."
+                className="w-full min-h-[80px] rounded-lg border border-gray-200 p-3 text-sm text-gray-dark focus:outline-none focus:ring-1 focus:ring-gray-400"
+              />
+            </div>
           )}
         </div>
       )}

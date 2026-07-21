@@ -6,7 +6,8 @@ type EndpointProps = {
     updateOnboardingStatus: (
       id: string,
       type: UserType,
-      status: string
+      status: string,
+      reason?: string
     ) => string;
   };
   common: (path: CommonPath) => string;

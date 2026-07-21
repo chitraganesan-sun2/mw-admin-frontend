@@ -30,6 +30,7 @@ const VolunteerProfileDetails = () => {
 
   const [isAcceptLoading, setIsAcceptLoading] = useState(false);
   const [isRejectLoading, setIsRejectLoading] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
   const aboutMeVideoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -362,6 +363,7 @@ const VolunteerProfileDetails = () => {
     }
     setVolunteerId(null);
     setIsOpen(false);
+    setRejectionReason("");
   };
 
   const handleAccept = () => {
@@ -394,7 +396,8 @@ const VolunteerProfileDetails = () => {
       endpoints.onboarding.updateOnboardingStatus(
         volunteerId as string,
         "volunteer",
-        "verification_rejected"
+        "verification_rejected",
+        rejectionReason.trim() || undefined
       ),
       {}
     )
@@ -558,6 +561,19 @@ const VolunteerProfileDetails = () => {
               ))}
             </div>
           </div>
+          {!hideFooter && (
+            <div>
+              <p className="text-xl font-medium border-t mt-5 pt-5 mb-4">
+                Rejection Reason (optional)
+              </p>
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Let the applicant know why their application wasn't approved — this is included in the rejection email if provided."
+                className="w-full min-h-[80px] rounded-lg border border-gray-200 p-3 text-sm text-gray-dark focus:outline-none focus:ring-1 focus:ring-gray-400"
+              />
+            </div>
+          )}
           {/* Removed duplicate bottom About Me links */}
         </div>
       )}
