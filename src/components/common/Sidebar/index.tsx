@@ -86,8 +86,13 @@ const Sidebar = () => {
   ];
 
   const handleSignOut = () => {
-    Cookies.remove("token");
-    router.replace("/login");
+    Cookies.remove("token", { path: "/" });
+    Cookies.remove("role", { path: "/" });
+    Cookies.remove("onboarded_status", { path: "/" });
+    Cookies.remove("learner_id", { path: "/" });
+    Cookies.remove("volunteer_id", { path: "/" });
+    Cookies.remove("lastActivity", { path: "/" });
+    router.replace("/");
   };
 
   return (
