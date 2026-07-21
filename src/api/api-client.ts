@@ -57,10 +57,18 @@ axiosInstance.interceptors.response.use(
       switch (error.response.status) {
         case 401:
           apiError.message = "Unauthorized access";
-          // Handle token expiration
-          // Cookies.remove("access_token");
-          // window.location.href = "/";
-          // You might want to redirect to login here
+          // Session expired/invalid — force a clean re-login instead of
+          // leaving the admin console silently broken. Guard against
+          // redirect loops by skipping it if already on the login page.
+          if (typeof window !== "undefined" && window.location.pathname !== "/") {
+            Cookies.remove("token", { path: "/" });
+            Cookies.remove("role", { path: "/" });
+            Cookies.remove("onboarded_status", { path: "/" });
+            Cookies.remove("learner_id", { path: "/" });
+            Cookies.remove("volunteer_id", { path: "/" });
+            Cookies.remove("lastActivity", { path: "/" });
+            window.location.href = "/";
+          }
           break;
         case 403:
           apiError.message = "Access forbidden";
@@ -93,11 +101,7 @@ export const request = async (
     const response = await axiosInstance(options);
     return response;
   } catch (error) {
-    // Log error for debugging in development
-    // if (typeof window !== "undefined") {
-    //   window.location.href = "/";
-    // }
-    // console.error("API Request Error:", error);
+    // 401 redirect/cleanup is handled by the response interceptor above.
     return Promise.reject(error);
   }
 };
