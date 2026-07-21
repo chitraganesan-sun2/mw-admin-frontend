@@ -14,6 +14,7 @@ import { calculateAge } from "@/utils/moment";
 import { formatString } from "@/utils/stringFunctions";
 import LearnerProfileDetails from "@/components/learner/ProfileDetails";
 import AlertModal from "@/components/common/Modals/AlertModal";
+import { downloadCsv } from "@/utils/downloadCsv";
 
 interface PaginationParams {
   page: number | string;
@@ -215,12 +216,7 @@ export default function LearnersPage() {
       {/* Download Button */}
       <div className="flex justify-end mb-4">
         <button
-          onClick={() => {
-            const token = document.cookie.split(";").find(c => c.trim().startsWith("access_token="))?.split("=")[1] || localStorage.getItem("access_token") || "";
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
-            const url = `${baseUrl}/admin/export/learners/csv`;
-            window.open(url, "_blank");
-          }}
+          onClick={() => downloadCsv("admin/export/learners/csv", "learners_export.csv")}
           className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-colors"
         >
           Download All Data (CSV)
