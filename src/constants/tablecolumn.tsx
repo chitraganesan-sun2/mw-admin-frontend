@@ -142,6 +142,7 @@ export const getVolunteerColumns = (
     title: "Registered",
     dataIndex: "created_on",
     key: "created_on",
+    field: "created_on",
     sorter: true,
     className:
       "px-6 !py-3 w-[120px] text-sm text-gray-900 !font-poppins whitespace-nowrap",
@@ -298,6 +299,7 @@ export const getLearnerColumns = (
     title: "Registered",
     dataIndex: "created_on",
     key: "created_on",
+    field: "created_on",
     sorter: true,
     className:
       "p-6 w-[120px] text-sm text-gray-900 !font-poppins whitespace-nowrap",

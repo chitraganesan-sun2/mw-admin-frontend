@@ -43,6 +43,7 @@ export default function LearnersPage() {
     useQueryState("onboarded_status");
   const [nameOrder, setNameOrder] = useQueryState("name_order");
   const [ageOrder, setAgeOrder] = useQueryState("age_order");
+  const [createdOnOrder, setCreatedOnOrder] = useQueryState("created_on_order");
 
   const handleSeeMoreDetails = (id: string) => {
     setLearnerId(id);
@@ -88,10 +89,12 @@ export default function LearnersPage() {
     onboarded_status = "",
     name_order = "",
     age_order = "",
+    created_on_order = "",
   }: PaginationParams & {
     onboarded_status?: string;
     name_order?: string;
     age_order?: string;
+    created_on_order?: string;
   }) => {
     try {
       let url = `${endpoints.learner.getAllLearners}?page=${page}&size=${size}`;
@@ -103,6 +106,9 @@ export default function LearnersPage() {
       }
       if (age_order) {
         url += `&age_order=${age_order}`;
+      }
+      if (created_on_order) {
+        url += `&created_on_order=${created_on_order}`;
       }
       const response: any = await GET_API(url);
       return {
@@ -124,7 +130,7 @@ export default function LearnersPage() {
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ["learners", page, size, onboardedStatusFilter, nameOrder, ageOrder],
+    queryKey: ["learners", page, size, onboardedStatusFilter, nameOrder, ageOrder, createdOnOrder],
     queryFn: () =>
       getAlllearners({
         page,
@@ -132,6 +138,7 @@ export default function LearnersPage() {
         onboarded_status: onboardedStatusFilter as string,
         name_order: nameOrder as string,
         age_order: ageOrder as string,
+        created_on_order: createdOnOrder as string,
       }),
   });
 
@@ -147,6 +154,7 @@ export default function LearnersPage() {
         location: formatString(learner?.country) || "-",
         email: learner?.email?.toLowerCase() || "-",
         onboarded_status: learner?.onboarded_status,
+        created_on: learner?.created_on,
       }));
       setLearnerData(transformedData);
       setTotal(learners?.total);
@@ -158,25 +166,34 @@ export default function LearnersPage() {
     setPage(pagination.current);
 
     const sortInfo = Array.isArray(sorter) ? sorter[0] : sorter;
-    
+
     if (sortInfo && sortInfo.order) {
       const order = sortInfo.order === "ascend" ? "asc" : sortInfo.order === "descend" ? "desc" : null;
       const field = sortInfo.field || sortInfo.columnKey;
-      
+
       if (field === "name") {
         setNameOrder(order || null);
         if (order) {
           setAgeOrder(null);
+          setCreatedOnOrder(null);
         }
       } else if (field === "age") {
         setAgeOrder(order || null);
         if (order) {
           setNameOrder(null);
+          setCreatedOnOrder(null);
+        }
+      } else if (field === "created_on") {
+        setCreatedOnOrder(order || null);
+        if (order) {
+          setNameOrder(null);
+          setAgeOrder(null);
         }
       }
     } else {
       setNameOrder(null);
       setAgeOrder(null);
+      setCreatedOnOrder(null);
     }
   };
 

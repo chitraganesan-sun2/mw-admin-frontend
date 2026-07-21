@@ -56,6 +56,7 @@ export default function LearnersPage() {
     useQueryState("onboarded_status");
   const [nameOrder, setNameOrder] = useQueryState("name_order");
   const [ageOrder, setAgeOrder] = useQueryState("age_order");
+  const [createdOnOrder, setCreatedOnOrder] = useQueryState("created_on_order");
   const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
@@ -103,10 +104,12 @@ export default function LearnersPage() {
     onboarded_status = "",
     name_order = "",
     age_order = "",
+    created_on_order = "",
   }: PaginationParams & {
     onboarded_status?: string;
     name_order?: string;
     age_order?: string;
+    created_on_order?: string;
   }) => {
     let url = `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`;
 
@@ -125,6 +128,11 @@ export default function LearnersPage() {
       url += `&age_order=${age_order}`;
     }
 
+    // Add created_on_order if it exists
+    if (created_on_order) {
+      url += `&created_on_order=${created_on_order}`;
+    }
+
     const response: any = await GET_API(url);
 
     // Return the data as is, since the API should handle pagination
@@ -140,7 +148,7 @@ export default function LearnersPage() {
     isFetching,
     refetch,
   } = useQuery({
-    queryKey: ["volunteers", page, size, onboardedStatusFilter, nameOrder, ageOrder],
+    queryKey: ["volunteers", page, size, onboardedStatusFilter, nameOrder, ageOrder, createdOnOrder],
     queryFn: () =>
       getAllVolunteers({
         page,
@@ -148,12 +156,11 @@ export default function LearnersPage() {
         onboarded_status: onboardedStatusFilter as string,
         name_order: nameOrder as string,
         age_order: ageOrder as string,
+        created_on_order: createdOnOrder as string,
       }),
   });
 
   useEffect(() => {
-    console.log("Volunteers Query Result:", volunteers);
-    console.log("Volunteers Items:", volunteers?.items);
     if (volunteers?.items) {
       const transformedData = volunteers.items.map((volunteer: any) => ({
         volunteer_id: volunteer.volunteer_id,
@@ -165,8 +172,8 @@ export default function LearnersPage() {
         location: formatString(volunteer?.country) || "-",
         onboarded_status: volunteer.onboarded_status,
         email: volunteer?.email?.toLowerCase() || "-",
+        created_on: volunteer?.created_on,
       }));
-      console.log("Transformed Data:", transformedData);
       setVolunteerData(transformedData);
       setTotal(volunteers.total);
     }
@@ -186,17 +193,25 @@ export default function LearnersPage() {
         setNameOrder(order || null);
         if (order) {
           setAgeOrder(null);
+          setCreatedOnOrder(null);
         }
       } else if (field === "age") {
         setAgeOrder(order || null);
         if (order) {
           setNameOrder(null);
+          setCreatedOnOrder(null);
+        }
+      } else if (field === "created_on") {
+        setCreatedOnOrder(order || null);
+        if (order) {
+          setNameOrder(null);
+          setAgeOrder(null);
         }
       }
     } else {
-
       setNameOrder(null);
       setAgeOrder(null);
+      setCreatedOnOrder(null);
     }
   };
 
