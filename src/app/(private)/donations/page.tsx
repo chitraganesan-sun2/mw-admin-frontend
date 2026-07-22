@@ -65,12 +65,28 @@ export default function DonationsPage() {
   const [sortField, setSortField] = useState<DonationSortField>(null);
   const [sortOrder, setSortOrder] = useState<DonationSortOrder>(null);
 
-  const getDonations = async ({ page, size, query }: { page: number; size: number; query?: string }) => {
+  const getDonations = async ({
+    page,
+    size,
+    query,
+    sortField: sf,
+    sortOrder: so,
+  }: {
+    page: number;
+    size: number;
+    query?: string;
+    sortField?: DonationSortField;
+    sortOrder?: DonationSortOrder;
+  }) => {
     const params = new URLSearchParams({
       page: String(page),
       page_size: String(size),
     });
     if (query) params.append("search_query", query);
+    if (sf && so) {
+      params.append("sort_field", sf);
+      params.append("sort_order", so);
+    }
     const url = `${endpoints.donations.list}?${params.toString()}`;
     const response: any = await GET_API(url);
     const payload = response?.data ?? response ?? {};
@@ -95,8 +111,15 @@ export default function DonationsPage() {
   };
 
   const { data: donationsData, isFetching, isLoading } = useQuery({
-    queryKey: ["donations", page, pageSize, search],
-    queryFn: () => getDonations({ page, size: pageSize, query: search || undefined })
+    queryKey: ["donations", page, pageSize, search, sortField, sortOrder],
+    queryFn: () =>
+      getDonations({
+        page,
+        size: pageSize,
+        query: search || undefined,
+        sortField,
+        sortOrder,
+      }),
   });
 
   const data: DonationRow[] = useMemo(() => {
@@ -228,23 +251,6 @@ export default function DonationsPage() {
     });
   }, [pathname, setHeaderOptions]);
 
-  const visibleData = useMemo(() => {
-    if (!sortField || !sortOrder) return data;
-    const sorted = [...data];
-    if (sortField === "donation_date") {
-      sorted.sort((a, b) => {
-        const diff = new Date(a.donation_date).getTime() - new Date(b.donation_date).getTime();
-        return sortOrder === "ascend" ? diff : -diff;
-      });
-    } else if (sortField === "amount") {
-      sorted.sort((a, b) => {
-        const diff = a.amount - b.amount;
-        return sortOrder === "ascend" ? diff : -diff;
-      });
-    }
-    return sorted;
-  }, [data, sortField, sortOrder]);
-
   const columns = useMemo(() => {
     const baseColumns: any[] = getDonationColumns(handleViewMore);
     return baseColumns.map((column: any) => {
@@ -269,21 +275,20 @@ export default function DonationsPage() {
   }, [handleViewMore, sortField, sortOrder]);
 
   const handleTableChange = (pagination: any, _filters?: any, sorter?: any) => {
-    setPage(pagination.current);
-    setPageSize(pagination.pageSize);
-
     const currentSorter = Array.isArray(sorter) ? sorter[0] : sorter;
-    const field = currentSorter?.field as DonationSortField;
+    const field = ((currentSorter?.order ?? null) ? currentSorter?.field : null) as DonationSortField;
     const order = (currentSorter?.order ?? null) as DonationSortOrder;
 
-    if ((field === "donation_date" || field === "amount") && order) {
-      setSortField(field);
-      setSortOrder(order);
-      return;
+    // Sorting now happens server-side across the full dataset (not just the current
+    // page), so changing sort resets back to page 1 to avoid landing out of range.
+    if (field !== sortField || order !== sortOrder) {
+      setPage(1);
+    } else {
+      setPage(pagination.current);
     }
-
-    setSortField(null);
-    setSortOrder(null);
+    setPageSize(pagination.pageSize);
+    setSortField(field);
+    setSortOrder(field ? order : null);
   };
 
   return (
@@ -317,7 +322,7 @@ export default function DonationsPage() {
       ) : (
         <Table
           key="donations"
-          data={visibleData}
+          data={data}
           columns={columns}
           loading={isLoading || isFetching}
           rootClassName="[&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal [&_thead_th.ant-table-column-sort]:!bg-[#FAFAFA] [&_tbody_tr:hover>td]:!bg-[#FAFAFA] [&_tbody_td.ant-table-column-sort]:!bg-transparent [&_tbody_tr:hover>td.ant-table-column-sort]:!bg-[#FAFAFA] [&_.ant-table-column-sorter]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up.active]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down.active]:!text-[#9CA3AF]"
