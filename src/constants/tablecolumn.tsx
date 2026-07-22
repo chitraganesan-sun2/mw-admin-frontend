@@ -241,12 +241,14 @@ export const getVolunteerColumns = (
     className: "!p-0 !w-[200px] text-sm text-gray-900 !font-poppins",
     render: (_: any, record: any) => (
       <div className="flex space-x-4 justify-center w-full">
-        <div
+        <button
+          type="button"
+          aria-label="Delete volunteer"
           onClick={() => handleDeleteVolunteer?.(record.volunteer_id)}
-          className="cursor-pointer"
+          className="cursor-pointer bg-transparent border-0 p-0"
         >
           <DeleteIcon />
-        </div>
+        </button>
       </div>
     ),
     width: 200,
@@ -398,12 +400,14 @@ export const getLearnerColumns = (
     className: "!p-0 !w-[200px] text-sm text-gray-900 !font-poppins",
     render: (_: any, record: any) => (
       <div className="flex space-x-4 justify-center w-full">
-        <div
+        <button
+          type="button"
+          aria-label="Delete learner"
           onClick={() => handleDeleteLearner?.(record.learner_id)}
-          className="cursor-pointer"
+          className="cursor-pointer bg-transparent border-0 p-0"
         >
           <DeleteIcon />
-        </div>
+        </button>
       </div>
     ),
     width: 200,

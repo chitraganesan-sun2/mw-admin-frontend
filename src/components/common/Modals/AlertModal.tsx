@@ -53,9 +53,9 @@ const AlertModal = ({
       <div className="flex flex-col gap-3 !font-poppins">
         <div className="flex items-center justify-between px-5 pt-3">
           <h2 className={`text-2xl font-medium ${getTitleColor()}`}>{title}</h2>
-          <span className="cursor-pointer" onClick={onClose}>
+          <button type="button" aria-label="Close" className="cursor-pointer bg-transparent border-0 p-0" onClick={onClose}>
             <FeedModalCloseIcon />
-          </span>
+          </button>
         </div>
         <p className="text-sm text-gray-light font-medium px-5">
           {description}

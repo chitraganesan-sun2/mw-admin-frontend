@@ -155,20 +155,24 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="flex items-center gap-4">
-                            <div
+                            <button
+                              type="button"
+                              aria-label="Delete post"
                               onClick={() =>
                                 handleTriggerDeleteEvent(post.post_id)
                               }
-                              className="cursor-pointer"
+                              className="cursor-pointer bg-transparent border-0 p-0"
                             >
                               <DeleteCloseIcon />
-                            </div>
-                            <div
+                            </button>
+                            <button
+                              type="button"
+                              aria-label="Open post"
                               onClick={() => onClick(post.post_id)}
-                              className="cursor-pointer hidden md:block"
+                              className="cursor-pointer hidden md:block bg-transparent border-0 p-0"
                             >
                               <MenuDot />
-                            </div>
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -181,12 +185,13 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
                     <p className="text-xs md:text-sm font-normal">
                       {post.description}
                       {post.description.length > 150 && (
-                        <span
+                        <button
+                          type="button"
                           onClick={() => onClick(post.post_id)}
-                          className="cursor-pointer text-primary font-medium text-[#ffac71]"
+                          className="cursor-pointer text-primary font-medium text-[#ffac71] bg-transparent border-0 p-0 inline"
                         >
                           See More
-                        </span>
+                        </button>
                       )}
                     </p>
                   </div>
@@ -214,13 +219,15 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
                           {post?.total_likes}
                         </div>
                         {/* Comment button section */}
-                        <div
+                        <button
+                          type="button"
+                          aria-label="View comments"
                           onClick={() => handleCommentClick(post.post_id)}
-                          className="flex items-center gap-1 cursor-pointer"
+                          className="flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0"
                         >
                           <CommentIcon />
                           {post.total_comments}
-                        </div>
+                        </button>
                       </div>
                     </div>
                   </div>

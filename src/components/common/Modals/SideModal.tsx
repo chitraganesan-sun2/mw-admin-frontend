@@ -45,9 +45,9 @@ const SideModal: React.FC<SideModalProps> = ({
                 <div className="flex flex-col h-full">
                     <div className="flex items-center justify-between gap-4 mb-3 px-5">
                         <h1 className="text-xl font-medium">{title}</h1>
-                        <span onClick={onClose} className="cursor-pointer">
+                        <button type="button" aria-label="Close" onClick={onClose} className="cursor-pointer bg-transparent border-0 p-0">
                             <ModalCloseIcon />
-                        </span>
+                        </button>
                     </div>
                     <Divider />
                     <div className="flex-1 overflow-y-auto pb-2">{children}</div>

@@ -41,9 +41,9 @@ const CenterModal: React.FC<CenterModalProps> = ({
       >
         <div className="flex items-center justify-between px-7 py-5">
           <p className="text-xl font-medium">{title}</p>
-          <span className="cursor-pointer " onClick={onClose}>
+          <button type="button" aria-label="Close" className="cursor-pointer bg-transparent border-0 p-0" onClick={onClose}>
             <ModalCloseIcon />
-          </span>
+          </button>
         </div>
         <Divider />
         <div className="px-7 py-5">{children}</div>
