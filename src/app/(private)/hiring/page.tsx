@@ -57,15 +57,6 @@ const mapAppToHiringRow = (app: any): HiringApplicationRow => ({
   submission_timestamp: new Date(app.created_on).getTime(),
 });
 
-const matchesHiringSearch = (row: HiringApplicationRow, q: string) => {
-  const needle = q.toLowerCase();
-  return (
-    row.applicant_name?.toLowerCase().includes(needle) ||
-    row.email?.toLowerCase().includes(needle) ||
-    row.submission_date?.toLowerCase().includes(needle)
-  );
-};
-
 export default function HiringPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
@@ -73,6 +64,12 @@ export default function HiringPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
@@ -274,7 +271,6 @@ export default function HiringPage() {
     });
     const trimmed = (searchQuery ?? "").trim();
     if (trimmed) {
-      params.append("search", trimmed);
       params.append("search_query", trimmed);
     }
     const url = `${endpoints.hiring.getAllApplications}?${params.toString()}`;
@@ -298,68 +294,22 @@ export default function HiringPage() {
     return { items, total };
   };
 
-  /** Join-us list API does not filter by search like donations; load all pages and filter client-side when searching. */
-  const fetchEveryApplicationPage = async () => {
-    const batchSize = 100;
-    const all: any[] = [];
-    let p = 1;
-    while (true) {
-      const { items, total } = await getAllApplications({
-        page: p,
-        size: batchSize,
-        searchQuery: undefined,
-      });
-      if (!items?.length) break;
-      all.push(...items);
-      if (typeof total === "number" && total > 0 && all.length >= total) break;
-      if (items.length < batchSize) break;
-      p += 1;
-      if (p > 500) break;
-    }
-    return all;
-  };
-
-  const trimmedSearch = search.trim();
-  const isSearchActive = trimmedSearch.length > 0;
-
-  const { data: listData, isFetching: listFetching, isLoading: listLoading } = useQuery({
-    queryKey: ["applications", "paginated", page, pageSize],
+  const { data: listData, isFetching, isLoading } = useQuery({
+    queryKey: ["applications", "paginated", page, pageSize, debouncedSearch],
     queryFn: () =>
       getAllApplications({
         page,
         size: pageSize,
-        searchQuery: undefined,
+        searchQuery: debouncedSearch,
       }),
-    enabled: !isSearchActive,
   });
-
-  const { data: searchData, isFetching: searchFetching, isLoading: searchLoading } = useQuery({
-    queryKey: ["applications", "globalSearch", trimmedSearch],
-    queryFn: async () => {
-      const raw = await fetchEveryApplicationPage();
-      const rows = raw.map(mapAppToHiringRow);
-      const filtered = rows.filter((row) => matchesHiringSearch(row, trimmedSearch));
-      return { filtered, total: filtered.length };
-    },
-    enabled: isSearchActive,
-  });
-
-  const isLoading = isSearchActive ? searchLoading : listLoading;
-  const isFetching = isSearchActive ? searchFetching : listFetching;
 
   const pagedData: HiringApplicationRow[] = useMemo(() => {
-    if (isSearchActive) {
-      const filtered = searchData?.filtered ?? [];
-      const start = (page - 1) * pageSize;
-      return filtered.slice(start, start + pageSize);
-    }
     if (!listData?.items) return [];
     return listData.items.map(mapAppToHiringRow);
-  }, [isSearchActive, searchData, listData, page, pageSize]);
+  }, [listData]);
 
-  const totalCount = isSearchActive
-    ? searchData?.total ?? 0
-    : listData?.total ?? 0;
+  const totalCount = listData?.total ?? 0;
 
   const handleTableChange = (paginationConfig: any) => {
     setPage(paginationConfig.current ?? 1);
