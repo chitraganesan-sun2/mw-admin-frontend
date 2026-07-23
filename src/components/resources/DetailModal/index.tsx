@@ -9,13 +9,12 @@ import ViewModal from "@/components/common/Modals/ViewModal";
 import { useQueryState } from "nuqs";
 import Button from "@/components/common/Button";
 import { IoCheckmark, IoClose } from "react-icons/io5";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteResource, getSingleResource } from "@/api/resources";
 import { showToast } from "@/components/common/Toast";
 import { usePathname } from "next/navigation";
 import { getReportStatus, rejectReport, resolveReport } from "@/api/reports";
 import LottieLoader from "@/components/common/Loader/Lottie";
-import { queryClient } from "@/api/query-client";
 import { useMemo, useState } from "react";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
@@ -33,6 +32,7 @@ type DetailModalProps = {
 const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
   const pathname = usePathname();
   const isReportsPage = pathname.includes("reports");
+  const queryClient = useQueryClient();
 
   const [resourceId] = useQueryState("id");
   const [reportId] = useQueryState("reportId");

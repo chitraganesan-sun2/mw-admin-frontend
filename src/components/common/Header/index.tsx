@@ -1,4 +1,5 @@
 import { useQueryState } from "nuqs";
+import { useEffect, useState } from "react";
 import Button from "@/components/common/Button";
 import { cn, formatString } from "@/utils/merge-class";
 import { useComponentStore } from "@/store/useComponenetStore";
@@ -7,6 +8,25 @@ import Input from "../Input";
 const CommonHeader: React.FC = () => {
   const { headerOptions } = useComponentStore();
   const [searchQuery, setSearchQuery] = useQueryState("query");
+
+  // Keep the input responsive to every keystroke locally, but debounce writes to the
+  // URL-backed query param - every downstream page reads `query` as a useQuery key,
+  // so an un-debounced write re-fetches from the server on every keystroke.
+  const [inputValue, setInputValue] = useState(searchQuery ?? "");
+
+  useEffect(() => {
+    setInputValue(searchQuery ?? "");
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (inputValue !== (searchQuery ?? "")) {
+        setSearchQuery(inputValue || null);
+      }
+    }, 300);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputValue]);
   const {
     actionButtonOnClick,
     actionButtonClassName,
@@ -44,11 +64,11 @@ const CommonHeader: React.FC = () => {
         )}
       >
         { showSearch && <Input
-          value={searchQuery ?? ""}
+          value={inputValue}
           inputType="search"
           name="search"
           inputClassName="!bg-white !rounded-3xl gap-1 items-center"
-          onChange={(value: string) => setSearchQuery(value || null)}
+          onChange={(value: string) => setInputValue(value)}
           placeholder="Search"
         /> }
         {showButton && (

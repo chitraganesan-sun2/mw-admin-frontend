@@ -118,11 +118,13 @@ const Broadcast = () => {
   const { data: locationData, isFetching: isFetchingLocation } = useQuery({
     queryKey: ["location_data"],
     queryFn: () => getLocation(),
+    staleTime: 24 * 60 * 60 * 1000, // countries essentially never change
   });
 
   const { data: languageData, isFetching: isFetchingLanguage } = useQuery({
     queryKey: ["language_data"],
     queryFn: () => getLanguage(),
+    staleTime: 24 * 60 * 60 * 1000, // languages essentially never change
   });
 
   const handleSelectVolunteers = () => {

@@ -31,7 +31,10 @@ const AsyncSelect = ({
             }
         },
         enabled: !!endpoint && !!responseAsLabel && !!responseAsValue,
-        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+        // These endpoints are list-of-values-style reference data (skills, subjects,
+        // categories, etc.) that changes rarely - the previous 5 minutes matched the
+        // app-wide default exactly, i.e. no override at all in practice.
+        staleTime: 15 * 60 * 1000,
     });
 
     const handleChange = (value: any) => {

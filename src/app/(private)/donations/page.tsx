@@ -58,6 +58,7 @@ export default function DonationsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [details, setDetails] = useState<DonationDetails | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
@@ -110,13 +111,18 @@ export default function DonationsPage() {
     return { items, total };
   };
 
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
   const { data: donationsData, isFetching, isLoading } = useQuery({
-    queryKey: ["donations", page, pageSize, search, sortField, sortOrder],
+    queryKey: ["donations", page, pageSize, debouncedSearch, sortField, sortOrder],
     queryFn: () =>
       getDonations({
         page,
         size: pageSize,
-        query: search || undefined,
+        query: debouncedSearch || undefined,
         sortField,
         sortOrder,
       }),
