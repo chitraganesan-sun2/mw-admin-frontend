@@ -14,18 +14,24 @@ const COLLECTION_TYPES = [
   { key: "skills", label: "Skills" },
   { key: "subjects", label: "Subjects" },
   { key: "languages", label: "Languages" },
+  { key: "preferred_learner_age_group", label: "Preferred Learner Age Groups" },
+  { key: "support_preference", label: "Support Preferences" },
 ];
 
 const NAME_MAP: Record<string, string> = {
   skills: "skill_name",
   subjects: "subject_name",
   languages: "language_name",
+  preferred_learner_age_group: "preferred_learner_age_group_name",
+  support_preference: "support_preference_name",
 };
 
 const ID_MAP: Record<string, string> = {
   skills: "skill_id",
   subjects: "subject_id",
   languages: "language_id",
+  preferred_learner_age_group: "preferred_learner_age_group_id",
+  support_preference: "support_preference_id",
 };
 
 export default function ListOfValuesPage() {
