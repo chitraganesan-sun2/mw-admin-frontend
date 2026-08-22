@@ -73,6 +73,10 @@ type EndpointProps = {
     update: (type: string, id: string) => string;
     delete: (type: string, id: string) => string;
   };
+  match: {
+    trigger: string;
+    getAll: string;
+  };
 };
 
 type CommonPath = "skills" | "languages" | "subjects" | "media" | "categories";

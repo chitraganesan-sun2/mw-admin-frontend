@@ -83,6 +83,11 @@ const Sidebar = () => {
       text: "List of Values",
       icon: <ResourceIcon />,
     },
+    {
+      href: "/matching",
+      text: "Matching",
+      icon: <VolunteerIcon />,
+    },
   ];
 
   const handleSignOut = () => {
