@@ -18,6 +18,17 @@ interface TutorialLink {
   description?: string;
 }
 
+// learner_demo / volunteer_demo drive the tutorial-video link on the learner/volunteer
+// approval emails (controllers/v1/tutorial_links.py: get_demo_link on the backend) -
+// video/doc/guide remain the general-purpose dashboard tutorial list.
+const CATEGORY_LABELS: Record<string, string> = {
+  video: "Video",
+  doc: "Document",
+  guide: "Guide",
+  learner_demo: "Learner Demo Video",
+  volunteer_demo: "Volunteer Demo Video",
+};
+
 export default function TutorialLinksPage() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -89,8 +100,20 @@ export default function TutorialLinksPage() {
       dataIndex: "category",
       key: "category",
       render: (cat: string) => (
-        <Tag color={cat === "video" ? "blue" : cat === "doc" ? "green" : "orange"}>
-          {cat}
+        <Tag
+          color={
+            cat === "video"
+              ? "blue"
+              : cat === "doc"
+                ? "green"
+                : cat === "learner_demo"
+                  ? "purple"
+                  : cat === "volunteer_demo"
+                    ? "magenta"
+                    : "orange"
+          }
+        >
+          {CATEGORY_LABELS[cat] || cat}
         </Tag>
       ),
     },
@@ -159,6 +182,8 @@ export default function TutorialLinksPage() {
               { label: "Video", value: "video" },
               { label: "Document", value: "doc" },
               { label: "Guide", value: "guide" },
+              { label: "Learner Demo Video", value: "learner_demo" },
+              { label: "Volunteer Demo Video", value: "volunteer_demo" },
             ]} />
           </Form.Item>
           <Form.Item name="description" label="Description (optional)">

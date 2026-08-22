@@ -45,13 +45,17 @@ interface LearnerDetails {
     };
 
     learner_goals: {
-        expected_goals: string[];
-        skills_to_learn: {
+        academic_skills_to_learn: {
             skill_id: string;
             skill_name: string;
         }[];
+        arts_life_skills_to_learn: {
+            skill_id: string;
+            skill_name: string;
+        }[];
+        academic_goals_description: string;
+        arts_life_goals_description: string;
         preferred_volunteer_qualities: string;
-        skill_level: string;
     };
 
     learner_special_needs: {

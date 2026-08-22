@@ -200,7 +200,7 @@ export const getVolunteerColumns = (
                 }`}
               ></div>
               {record.onboarded_status === "verification_pending"
-                ? "Pending"
+                ? "Approval Pending"
                 : record.onboarded_status === "verification_completed"
                   ? "Completed"
                   : record.onboarded_status === "verification_rejected"
@@ -360,7 +360,7 @@ export const getLearnerColumns = (
                 }`}
               ></div>
               {record.onboarded_status === "verification_pending"
-                ? "Pending"
+                ? "Approval Pending"
                 : record.onboarded_status === "verification_completed"
                   ? "Completed"
                   : record.onboarded_status === "verification_rejected"
