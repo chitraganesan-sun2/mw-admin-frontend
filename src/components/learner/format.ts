@@ -86,10 +86,11 @@ export const formatLearnerData = (data: any): LearnerDetails => {
     },
 
     learner_goals: {
-      expected_goals: learner_goals?.expected_goals || [],
-      skills_to_learn: learner_goals?.skills_to_learn || [],
+      academic_skills_to_learn: learner_goals?.academic_skills_to_learn || [],
+      arts_life_skills_to_learn: learner_goals?.arts_life_skills_to_learn || [],
+      academic_goals_description: learner_goals?.academic_goals_description || "-",
+      arts_life_goals_description: learner_goals?.arts_life_goals_description || "-",
       preferred_volunteer_qualities: learner_goals?.preferred_volunteer_qualities || "-",
-      skill_level: learner_goals?.skill_level || "-",
     },
 
     learner_special_needs: {

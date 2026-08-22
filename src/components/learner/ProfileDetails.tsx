@@ -166,9 +166,9 @@ const LearnerProfileDetails = () => {
       ],
     },
     {
-      title: "Education",
+      title: "Education and Hobbies",
       details: [
-        { title: "Current School", value: learnerDetails?.current_school },
+        { title: "Name of the Academy", value: learnerDetails?.current_school },
         { title: "IEP or 504 Plan", value: learnerDetails?.iep_plan_key },
         {
           title: "Academic Strengths",
@@ -183,25 +183,31 @@ const LearnerProfileDetails = () => {
       ],
     },
     {
-      title: "Learner Goals",
+      title: "Skills to Learn from Volunteers",
       columns: 1,
       details: [
         {
-          title: "Skill Level",
-          value: getFormattedValue(learnerDetails?.learner_goals?.skill_level),
-        },
-        {
-          title: "Expected Goals",
-          value: formatArray(learnerDetails?.learner_goals?.expected_goals),
-        },
-        {
-          title: "Skills and Expertise to Learn from Volunteers",
+          title: "Academic Skills",
           value: formatSkillArray(
-            learnerDetails?.learner_goals?.skills_to_learn
+            learnerDetails?.learner_goals?.academic_skills_to_learn
           ),
         },
         {
-          title: "Preferred Volunteer Qualities",
+          title: "Academic Goals Description",
+          value: getFormattedValue(learnerDetails?.learner_goals?.academic_goals_description),
+        },
+        {
+          title: "Arts & Life Skills",
+          value: formatSkillArray(
+            learnerDetails?.learner_goals?.arts_life_skills_to_learn
+          ),
+        },
+        {
+          title: "Arts, Life Skills & Goals Description",
+          value: getFormattedValue(learnerDetails?.learner_goals?.arts_life_goals_description),
+        },
+        {
+          title: "Goals & Preferred Volunteer Qualities",
           value: getValue(
             learnerDetails?.learner_goals?.preferred_volunteer_qualities
           ),
