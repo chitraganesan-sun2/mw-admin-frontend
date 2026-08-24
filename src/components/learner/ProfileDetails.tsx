@@ -169,16 +169,26 @@ const LearnerProfileDetails = () => {
       title: "Education and Hobbies",
       details: [
         { title: "Name of the Academy", value: learnerDetails?.current_school },
-        { title: "IEP or 504 Plan", value: learnerDetails?.iep_plan_key },
+        { title: "Grade or Education Level", value: learnerDetails?.grade_or_education_level },
+        { title: "Program or IEP or 504 Plan", value: learnerDetails?.program_iep_504_plan },
+        {
+          title: "Cultural/Religious Considerations",
+          value: learnerDetails?.cultural_religious_considerations,
+        },
         {
           title: "Academic Strengths",
           rootClassName: "col-span-2",
           value: formatArray(learnerDetails?.academic_strengths),
         },
         {
-          title: "Academic Challenges",
+          title: "Extracurriculars/ Non-Academic Skills",
           rootClassName: "col-span-2",
-          value: formatArray(learnerDetails?.academic_challenges),
+          value: getValue(learnerDetails?.extracurricular_activities),
+        },
+        {
+          title: "Favorite Free-Time Activities",
+          rootClassName: "col-span-2",
+          value: getValue(learnerDetails?.favorite_free_time_activities),
         },
       ],
     },
@@ -211,6 +221,10 @@ const LearnerProfileDetails = () => {
           value: getValue(
             learnerDetails?.learner_goals?.preferred_volunteer_qualities
           ),
+        },
+        {
+          title: "Other Comments or Notes",
+          value: getValue(learnerDetails?.learner_goals?.other_comments_or_notes),
         },
       ],
     },
@@ -247,52 +261,29 @@ const LearnerProfileDetails = () => {
           value: getValue(learnerDetails?.learner_special_needs?.description),
         },
         {
+          title: "Behavioral Concerns",
+          value: getValue(learnerDetails?.learner_special_needs?.behavioral_concerns),
+        },
+        {
+          title: "Behavior Support Strategies",
+          rootClassName: "col-span-2",
+          value: formatArray(
+            learnerDetails?.learner_special_needs?.behavior_support_strategies
+          ),
+        },
+        {
+          title: "Social Interaction Styles",
+          rootClassName: "col-span-2",
+          value: formatArray(
+            learnerDetails?.learner_special_needs?.social_interaction_styles
+          ),
+        },
+        {
           title: "Areas of Support Needed",
           rootClassName: "col-span-2",
           value: formatArray(
             learnerDetails?.learner_special_needs?.areas_of_support_needed
           ),
-        },
-      ],
-    },
-    {
-      title: "Current Interests",
-      columns: 1,
-      details: [
-        {
-          title: "Extra-Curricular Activities",
-          value: getValue(
-            learnerDetails?.current_interests?.extra_curricular_activities
-          ),
-        },
-        {
-          title: "Favorite Activities",
-          value: getValue(
-            learnerDetails?.current_interests?.favorite_activities
-          ),
-        },
-      ],
-    },
-    {
-      title: "Social Skills",
-      details: [
-        {
-          title: "Social Interaction Styles",
-          value: formatArray(
-            learnerDetails?.social_skills?.social_interaction_styles
-          ),
-        },
-        {
-          title: "Behavioral Concerns",
-          rootClassName: "col-span-2",
-          value: formatArray(
-            learnerDetails?.social_skills?.behavioral_concerns
-          ),
-        },
-        {
-          title: "Techniques to Calm",
-          rootClassName: "col-span-2",
-          value: formatArray(learnerDetails?.social_skills?.techniques_to_calm),
         },
       ],
     },
@@ -314,29 +305,6 @@ const LearnerProfileDetails = () => {
         {
           title: "Acknowledgement of Terms & Conditions",
           value: learnerDetails?.terms_and_conditions_accepted ? "Yes" : "No",
-        },
-      ],
-    },
-    {
-      title: "Additional Info",
-      details: [
-        {
-          title: "Cultural/Religious Considerations",
-          value: getValue(
-            learnerDetails?.additional_info?.cultural_consideration
-          ),
-        },
-        {
-          title: "Other Comments or Notes",
-          value: getValue(
-            learnerDetails?.additional_info?.other_concerns_or_requests
-          ),
-        },
-        {
-          title: "What Motivates you to Learn",
-          value: getValue(
-            learnerDetails?.additional_info?.what_motivates_to_learn
-          ),
         },
       ],
     },
