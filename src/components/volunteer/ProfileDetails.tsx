@@ -20,6 +20,14 @@ import noImage from "@/assets/images/no-image.webp";
 const getValue = (val: any) => val || "-";
 const getFormattedValue = (val?: string) => formatString(val || "") || "-";
 
+// The two support_preference options that require a follow-up free-text explanation - must
+// match the LOV option text exactly (mirrors mw-frontend's constants/volunteer.ts, sourced from
+// melody-wings-backend/migrations/seed_preferred_learner_age_group_and_support_preference.py).
+const SUPPORT_PREFERENCE_OPTIONS_REQUIRING_DETAILS = [
+  "I have some preferences or limitations",
+  "I am not sure and would like guidance",
+];
+
 const VolunteerProfileDetails = () => {
   const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
   const queryClient = useQueryClient();
@@ -127,6 +135,14 @@ const VolunteerProfileDetails = () => {
       value: volunteerDetails?.volunteer_experience,
     },
     {
+      title: "Preferred Learner Age Group",
+      value: volunteerDetails?.preferred_learner_age_group,
+    },
+    {
+      title: "Favorite Free Time Activities",
+      value: volunteerDetails?.volunteer_favorite_activities,
+    },
+    {
       title: "Languages I speak",
       value:
         data?.volunteer_languages
@@ -135,11 +151,48 @@ const VolunteerProfileDetails = () => {
       rootClassName: "col-span-2",
     },
     {
+      title: "Subjects I Teach",
+      value:
+        volunteerDetails?.volunteer_subjects
+          ?.map((subject) => subject?.subject_name)
+          ?.join(" | ") || "-",
+      rootClassName: "col-span-2",
+    },
+    {
+      title: "More about their academic skills",
+      value: volunteerDetails?.volunteer_academic_skills_notes,
+      rootClassName: "col-span-2",
+    },
+    {
       title: "Skills You Can Share with Learners",
       value:
         data?.volunteer_skills
           ?.map((skill: any) => skill?.skill_name)
           ?.join(" | ") || "-",
+      rootClassName: "col-span-2",
+    },
+    {
+      title: "More about their arts/life skills",
+      value: volunteerDetails?.volunteer_arts_life_skills_notes,
+      rootClassName: "col-span-2",
+    },
+    {
+      title: "Support Preference",
+      value: volunteerDetails?.support_preference,
+      rootClassName: "col-span-2",
+    },
+    ...(SUPPORT_PREFERENCE_OPTIONS_REQUIRING_DETAILS.includes(volunteerDetails?.support_preference || "")
+      ? [
+          {
+            title: "Support Preference Details",
+            value: volunteerDetails?.support_preference_details,
+            rootClassName: "col-span-2",
+          },
+        ]
+      : []),
+    {
+      title: "Teaching Traits, Preferences & Limitations",
+      value: volunteerDetails?.volunteer_teaching_traits,
       rootClassName: "col-span-2",
     },
     // Removed long-form volunteer description as per requirement
@@ -158,6 +211,11 @@ const VolunteerProfileDetails = () => {
     {
       title: "Guardian Email",
       value: volunteerDetails?.parent_email,
+      rootClassName: "col-span-1",
+    },
+    {
+      title: "Guardian Phone Number",
+      value: volunteerDetails?.parent_phone_number,
       rootClassName: "col-span-1",
     },
   ];
