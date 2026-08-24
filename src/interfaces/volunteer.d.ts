@@ -12,14 +12,23 @@ interface VolunteerDetails {
 
     education: string;
     higher_education: string;
-    high_school_status: string;
 
     volunteer_experience: string;
     volunteer_work_experience: string;
     volunteer_experience_details: any;
 
+    volunteer_subjects: { subject_id: string; subject_name: string }[];
+    volunteer_academic_skills_notes: string;
+    volunteer_arts_life_skills_notes: string;
+    volunteer_favorite_activities: string;
+    preferred_learner_age_group: string;
+    support_preference: string;
+    support_preference_details: string;
+    volunteer_teaching_traits: string;
+
     parent_name: string;
     parent_email: string;
+    parent_phone_number: string;
 
     onboarded_status: string;
     volunteer_id: string;

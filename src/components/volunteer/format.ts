@@ -52,13 +52,22 @@ export const formatVolunteerData = (data: any): VolunteerDetails => {
 
         education: data?.volunteer_education || "-",
         higher_education: data?.volunteer_higher_education || "-",
-        high_school_status: data?.volunteer_high_school_status || "-",
         volunteer_experience: data?.volunteer_experience || "-",
         volunteer_work_experience: data?.volunteer_work_experience || "-",
         volunteer_experience_details: legal_and_safety_info?.volunteer_experience_details || {},
 
+        volunteer_subjects: data?.volunteer_subjects || [],
+        volunteer_academic_skills_notes: data?.volunteer_academic_skills_notes || "-",
+        volunteer_arts_life_skills_notes: data?.volunteer_arts_life_skills_notes || "-",
+        volunteer_favorite_activities: data?.volunteer_favorite_activities || "-",
+        preferred_learner_age_group: data?.preferred_learner_age_group || "-",
+        support_preference: data?.support_preference || "-",
+        support_preference_details: data?.support_preference_details || "-",
+        volunteer_teaching_traits: data?.volunteer_teaching_traits || "-",
+
         parent_name: data?.volunteer_parent_name || "-",
         parent_email: data?.volunteer_parent_email || "-",
+        parent_phone_number: `${data?.volunteer_parent_contact_number?.country_code || ""} ${data?.volunteer_parent_contact_number?.number || ""}`.trim(),
 
         volunteer_id: data?.volunteer_id || "-",
         onboarded_status: data?.onboarded_status || "-",
