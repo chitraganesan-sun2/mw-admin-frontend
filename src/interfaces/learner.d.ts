@@ -17,9 +17,12 @@ interface LearnerDetails {
     primary_language: string;
 
     current_school: string;
-    iep_plan_key: string;
+    grade_or_education_level: string;
+    program_iep_504_plan: string;
+    cultural_religious_considerations: string;
+    extracurricular_activities: string;
+    favorite_free_time_activities: string;
     academic_strengths: string[];
-    academic_challenges: string[];
 
     parent_name: string;
     parent_email: string;
@@ -33,17 +36,6 @@ interface LearnerDetails {
     privacy_policy_accepted: boolean;
     terms_and_conditions_accepted: boolean;
 
-    additional_info: {
-        cultural_consideration: string;
-        other_concerns_or_requests: string;
-        what_motivates_to_learn: string;
-    };
-
-    current_interests: {
-        extra_curricular_activities: string[];
-        favorite_activities: string[];
-    };
-
     learner_goals: {
         academic_skills_to_learn: {
             skill_id: string;
@@ -56,6 +48,7 @@ interface LearnerDetails {
         academic_goals_description: string;
         arts_life_goals_description: string;
         preferred_volunteer_qualities: string;
+        other_comments_or_notes: string;
     };
 
     learner_special_needs: {
@@ -65,12 +58,9 @@ interface LearnerDetails {
         communication_style: string;
         description: string;
         areas_of_support_needed: string[];
-    };
-
-    social_skills: {
+        behavioral_concerns: string;
+        behavior_support_strategies: string[];
         social_interaction_styles: string[];
-        behavioral_concerns: string[];
-        techniques_to_calm: string[];
     };
 
     total_attended_hours: number;

@@ -16,6 +16,13 @@ const formatContactNumber = (contact?: { country_code?: string; number?: string 
 
 const formatName = (first?: string, last?: string) => `${first ?? ""} ${last ?? ""}`.trim() || "-";
 
+// Onboarding restructure (2026-08) moved/renamed several learner fields (see
+// docs/learner-volunteer-onboarding-migration-plan.md) but the Migrate phase hasn't backfilled
+// old records yet - pre-restructure learners only have data in the old field, new ones only in
+// the new field. Prefer the new value, fall back to the old one so both display correctly.
+const asText = (value: unknown): string | undefined =>
+  Array.isArray(value) ? (value.length ? value.join(", ") : undefined) : (value as string) || undefined;
+
 export const formatLearnerData = (data: any): LearnerDetails => {
   const {
     onboarded_status,
@@ -58,9 +65,21 @@ export const formatLearnerData = (data: any): LearnerDetails => {
     primary_language: learner_personal_info?.learner_primary_language || "-",
 
     current_school: education?.current_school || "-",
-    iep_plan_key: education?.iep_plan_key || "-",
+    grade_or_education_level: education?.grade_or_education_level || "-",
+    program_iep_504_plan: education?.program_iep_504_plan || education?.iep_plan_key || "-",
+    cultural_religious_considerations:
+      education?.cultural_religious_considerations ||
+      additional_info?.cultural_consideration ||
+      "-",
+    extracurricular_activities:
+      education?.extracurricular_activities ||
+      asText(current_interests?.extra_curricular_activities) ||
+      "-",
+    favorite_free_time_activities:
+      education?.favorite_free_time_activities ||
+      asText(current_interests?.favorite_activities) ||
+      "-",
     academic_strengths: education?.academic_strengths || [],
-    academic_challenges: education?.academic_challenges || [],
 
     parent_name: formatName(parent_info?.parent_first_name, parent_info?.parent_last_name),
     parent_email: parent_info?.parent_email || "-",
@@ -74,23 +93,18 @@ export const formatLearnerData = (data: any): LearnerDetails => {
     privacy_policy_accepted,
     terms_and_conditions_accepted,
 
-    additional_info: {
-      cultural_consideration: additional_info?.cultural_consideration || "-",
-      other_concerns_or_requests: additional_info?.other_concerns_or_requests || "-",
-      what_motivates_to_learn: additional_info?.what_motivates_to_learn || "-",
-    },
-
-    current_interests: {
-      extra_curricular_activities: current_interests?.extra_curricular_activities || [],
-      favorite_activities: current_interests?.favorite_activities || [],
-    },
-
     learner_goals: {
       academic_skills_to_learn: learner_goals?.academic_skills_to_learn || [],
       arts_life_skills_to_learn: learner_goals?.arts_life_skills_to_learn || [],
       academic_goals_description: learner_goals?.academic_goals_description || "-",
       arts_life_goals_description: learner_goals?.arts_life_goals_description || "-",
       preferred_volunteer_qualities: learner_goals?.preferred_volunteer_qualities || "-",
+      other_comments_or_notes:
+        learner_goals?.other_comments_or_notes ||
+        [additional_info?.other_concerns_or_requests, additional_info?.what_motivates_to_learn]
+          .filter(Boolean)
+          .join("; ") ||
+        "-",
     },
 
     learner_special_needs: {
@@ -100,12 +114,15 @@ export const formatLearnerData = (data: any): LearnerDetails => {
       communication_style: learner_special_needs?.communication_style || "-",
       description: learner_special_needs?.description || "-",
       areas_of_support_needed: learner_special_needs?.areas_of_support_needed || [],
-    },
-
-    social_skills: {
+      behavioral_concerns:
+        learner_special_needs?.behavioral_concerns ||
+        asText(social_skills?.behavioral_concerns) ||
+        "-",
+      behavior_support_strategies:
+        (learner_special_needs?.behavior_support_strategies?.length
+          ? learner_special_needs.behavior_support_strategies
+          : social_skills?.techniques_to_calm) || [],
       social_interaction_styles: social_skills?.social_interaction_styles || [],
-      behavioral_concerns: social_skills?.behavioral_concerns || [],
-      techniques_to_calm: social_skills?.techniques_to_calm || [],
     },
 
     total_attended_hours,
