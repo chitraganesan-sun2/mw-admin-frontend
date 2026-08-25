@@ -29,7 +29,7 @@ export default function MatchingPage() {
   const { data: learnerOptions = [] } = useQuery({
     queryKey: ["matching-learners-picker"],
     queryFn: async () => {
-      const res: any = await GET_API(`${endpoints.learner.getAllLearners}?page=1&size=200`);
+      const res: any = await GET_API(`${endpoints.learner.getAllLearners}?page=1&size=100`);
       return (res?.data?.items || []).map((l: any) => ({
         value: l.learner_id,
         label: l.learner_full_name || l.learner_id,
@@ -40,7 +40,7 @@ export default function MatchingPage() {
   const { data: volunteerOptions = [] } = useQuery({
     queryKey: ["matching-volunteers-picker"],
     queryFn: async () => {
-      const res: any = await GET_API(`${endpoints.volunteer.getAllVolunteers}?page=1&size=200`);
+      const res: any = await GET_API(`${endpoints.volunteer.getAllVolunteers}?page=1&size=100`);
       return (res?.data?.items || []).map((v: any) => ({
         value: v.volunteer_id,
         label:
