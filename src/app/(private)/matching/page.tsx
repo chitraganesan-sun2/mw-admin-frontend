@@ -133,6 +133,28 @@ export default function MatchingPage() {
       ),
     },
     {
+      title: "Session Status",
+      dataIndex: "session_status",
+      key: "session_status",
+      render: (sessionStatus: string | null) => {
+        if (!sessionStatus) {
+          return <Tag color="default">No Session Yet</Tag>;
+        }
+        const colorByStatus: Record<string, string> = {
+          accepted: "green",
+          completed: "blue",
+          pending: "gold",
+          rejected: "red",
+          cancelled: "red",
+        };
+        return (
+          <Tag color={colorByStatus[sessionStatus] || "default"}>
+            {sessionStatus.charAt(0).toUpperCase() + sessionStatus.slice(1)}
+          </Tag>
+        );
+      },
+    },
+    {
       title: "Triggered By",
       dataIndex: "triggered_by",
       key: "triggered_by",
