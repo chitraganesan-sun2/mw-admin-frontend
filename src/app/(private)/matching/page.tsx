@@ -32,10 +32,12 @@ export default function MatchingPage() {
       const res: any = await GET_API(
         `${endpoints.learner.getAllLearners}?page=1&size=100&onboarded_status=verification_completed`
       );
-      return (res?.data?.items || []).map((l: any) => ({
-        value: l.learner_id,
-        label: l.learner_full_name || l.learner_id,
-      }));
+      return (res?.data?.items || [])
+        .filter((l: any) => l.onboarded_status === "verification_completed")
+        .map((l: any) => ({
+          value: l.learner_id,
+          label: l.learner_full_name || l.learner_id,
+        }));
     },
   });
 
@@ -45,13 +47,15 @@ export default function MatchingPage() {
       const res: any = await GET_API(
         `${endpoints.volunteer.getAllVolunteers}?page=1&size=100&onboarded_status=verification_completed`
       );
-      return (res?.data?.items || []).map((v: any) => ({
-        value: v.volunteer_id,
-        label:
-          v.volunteer_first_name && v.volunteer_last_name
-            ? `${v.volunteer_first_name} ${v.volunteer_last_name}`
-            : v.volunteer_id,
-      }));
+      return (res?.data?.items || [])
+        .filter((v: any) => v.onboarded_status === "verification_completed")
+        .map((v: any) => ({
+          value: v.volunteer_id,
+          label:
+            v.volunteer_first_name && v.volunteer_last_name
+              ? `${v.volunteer_first_name} ${v.volunteer_last_name}`
+              : v.volunteer_id,
+        }));
     },
   });
 
