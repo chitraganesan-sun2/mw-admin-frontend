@@ -73,4 +73,8 @@ export const endpoints: EndpointProps = {
     update: (type: string, id: string) => `admin/list-of-values/${type}/${id}`,
     delete: (type: string, id: string) => `admin/list-of-values/${type}/${id}`,
   },
+  match: {
+    trigger: "admin/match/trigger",
+    getAll: "admin/match",
+  },
 };
