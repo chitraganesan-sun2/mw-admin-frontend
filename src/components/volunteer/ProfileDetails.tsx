@@ -125,7 +125,10 @@ const VolunteerProfileDetails = () => {
       value: volunteerDetails?.higher_education,
       rootClassName: "capitalize",
     },
-    { title: "Education", value: volunteerDetails?.education },
+    {
+      title: "Grade / Education Level and Area of Specialization",
+      value: volunteerDetails?.education,
+    },
     {
       title: "Work Experience",
       value: volunteerDetails?.volunteer_work_experience,
