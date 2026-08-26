@@ -48,11 +48,11 @@ export default function DonationDetailsModal({
   const status = data?.status;
   const statusColor =
     status === "succeeded"
-      ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+      ? "bg-success-light text-success border-success/20"
       : status === "pending"
-        ? "bg-amber-100 text-amber-700 border-amber-200"
+        ? "bg-warning-light text-warning border-warning/20"
         : status === "failed"
-          ? "bg-rose-100 text-rose-700 border-rose-200"
+          ? "bg-error-light text-error border-error/20"
           : "bg-gray-100 text-gray-700 border-gray-200";
 
   const Skeleton = () => (
@@ -106,9 +106,9 @@ export default function DonationDetailsModal({
               </span>
             )}
           </div>
-          <span className="cursor-pointer" onClick={onClose}>
+          <button type="button" aria-label="Close" className="cursor-pointer bg-transparent border-0 p-0" onClick={onClose}>
             <FeedModalCloseIcon />
-          </span>
+          </button>
         </div>
         <div className="h-px bg-[#EEEEEE]" />
 

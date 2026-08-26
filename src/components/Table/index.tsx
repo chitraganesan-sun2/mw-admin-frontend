@@ -41,8 +41,8 @@ const Table: React.FC<TableProps> = ({
         columns={columns}
         loading={loading}
         pagination={{
-          ...pagination,
           showQuickJumper: false,
+          ...pagination,
         }}
         onChange={onChange}
         onRow={onRow}

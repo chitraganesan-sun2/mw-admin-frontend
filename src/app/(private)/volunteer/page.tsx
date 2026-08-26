@@ -12,7 +12,6 @@ import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import ProfileDetailsModal from "@/components/volunteer/ProfileDetails";
 import { calculateAge } from "@/utils/moment";
-import GroupFilters from "@/components/common/Filters";
 import VolunteerFilterModal from "@/components/volunteer/VolunteerFilterModal";
 import { formatString } from "@/utils/stringFunctions";
 import AlertModal from "@/components/common/Modals/AlertModal";
@@ -31,21 +30,6 @@ interface TableVolunteer {
   details: string;
   requested_status: string;
 }
-
-const tabs = [
-  {
-    key: "all-volunteers",
-    title: "All Volunteers",
-  },
-  {
-    key: "pending-volunteer-request",
-    title: "Pending Volunteer Request",
-  },
-  {
-    key: "approved-volunteers",
-    title: "Approved Volunteers",
-  },
-];
 
 export default function LearnersPage() {
   const [volunteerData, setVolunteerData] = useState<TableVolunteer[]>([]);
@@ -265,14 +249,6 @@ export default function LearnersPage() {
           Download All Data (CSV)
         </button>
       </div>
-      {/* <GroupFilters
-        tabButtons={tabs}
-        currentTab={currentTab}
-        handleTabClick={(tab) => setCurrentTab(tab)}
-        showFilters={true}
-        handleFilterClick={() => setIsFilterOn(true)}
-        showSearch={true}
-      /> */}
       <Table
         key="volunteers"
         data={volunteerData}

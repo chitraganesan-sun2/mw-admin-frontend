@@ -1,6 +1,7 @@
 "use client";
 
 import Table from "@/components/Table";
+import Input from "@/components/common/Input";
 import { getDonationColumns, DonationRow } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
@@ -45,8 +46,6 @@ const parseDate = (raw: string): dayjs.Dayjs => {
   }
   return d; // Return invalid dayjs — callers guard with empty-string fallback
 };
-
-import { SearchIcon } from "@/assets/icons";
 
 type DonationSortField = "donation_date" | "amount" | null;
 type DonationSortOrder = "ascend" | "descend" | null;
@@ -307,21 +306,17 @@ export default function DonationsPage() {
         isLoading={detailsLoading}
       />
       <div className="w-full mb-6">
-        <div className="relative w-full">
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-            {/* search icon */}
-            <SearchIcon />
-          </span>
-          <input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Search"
-            className="w-full h-10 rounded-[100px] border border-[#E0E0E0] bg-white pl-12 pr-4 text-base text-[#121212] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E0E0E0]"
-          />
-        </div>
+        <Input
+          inputType="search"
+          name="search"
+          value={search}
+          onChange={(value: string) => {
+            setSearch(value);
+            setPage(1);
+          }}
+          placeholder="Search"
+          inputClassName="!bg-white !rounded-3xl"
+        />
       </div>
       {!isLoading && !isFetching && data.length === 0 ? (
         <div className="w-full py-10 text-center text-[#6B7280]">No records available</div>

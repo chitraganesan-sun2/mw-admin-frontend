@@ -21,6 +21,7 @@ const config: Config = {
           secondary: "var(--background-secondary-color)",
       },
       colors: {
+        primary: "#09BAEE",
         background: "#F4F7FB",
         dark: "#1E1E1E",
         stroke: "#E0E0E0",

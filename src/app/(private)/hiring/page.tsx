@@ -19,7 +19,7 @@ import dayjs from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 
 dayjs.extend(advancedFormat);
-import { SearchIcon } from "@/assets/icons";
+import Input from "@/components/common/Input";
 
 const ROLE_MAPPINGS: Record<string, { title: string; description: string; responsibilities: string[] }> = {
   social_media_intern: {
@@ -535,18 +535,17 @@ export default function HiringPage() {
       />
       <div className="w-full mb-4 flex items-center justify-between gap-4">
         <h2 className="text-[20px] font-medium text-[#121212] !font-poppins">Applications</h2>
-        <div className="relative w-full max-w-[280px]">
-          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#9CA3AF]">
-            <SearchIcon />
-          </span>
-          <input
+        <div className="w-full max-w-[280px]">
+          <Input
+            inputType="search"
+            name="search"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
+            onChange={(value: string) => {
+              setSearch(value);
               setPage(1);
             }}
             placeholder="Search"
-            className="w-full h-10 rounded-[100px] border border-[#E0E0E0] bg-white pl-10 pr-4 text-[16px] font-normal text-[#121212] placeholder:text-[#9CA3AF] focus:outline-none"
+            inputClassName="!bg-white !rounded-3xl"
           />
         </div>
       </div>
