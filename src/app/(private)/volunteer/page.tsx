@@ -12,7 +12,6 @@ import { useQueryState } from "nuqs";
 import { useEffect, useState } from "react";
 import ProfileDetailsModal from "@/components/volunteer/ProfileDetails";
 import { calculateAge } from "@/utils/moment";
-import VolunteerFilterModal from "@/components/volunteer/VolunteerFilterModal";
 import { formatString } from "@/utils/stringFunctions";
 import AlertModal from "@/components/common/Modals/AlertModal";
 import { downloadCsv } from "@/utils/downloadCsv";
@@ -44,7 +43,6 @@ export default function LearnersPage() {
   const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
-  const [isFilterOn, setIsFilterOn] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [isDeleteAlertLoading, setIsDeleteAlertLoading] = useState(false);
   const [volunteerToDelete, setVolunteerToDelete] = useState<string | null>(
@@ -235,11 +233,6 @@ export default function LearnersPage() {
         isLoading={isDeleteAlertLoading}
       />
       <ProfileDetailsModal />
-      <VolunteerFilterModal
-        isFilterApplying={false}
-        isOpen={isFilterOn}
-        onClose={() => setIsFilterOn(false)}
-      />
       {/* Download Button */}
       <div className="flex justify-end mb-4">
         <button

@@ -400,7 +400,7 @@ const VolunteerProfileDetails = () => {
     },
     {
       title: "Do you consent to the use of cookies?",
-      value: volunteerDetails?.photo_or_video_consent,
+      value: volunteerDetails?.cookie_consent_accepted,
     },
     {
       title: "Do you acknowledge the privacy policies?",

@@ -2,7 +2,6 @@
 
 import { GET_API } from "@/api/request";
 import GroupFilters from "@/components/common/Filters";
-import ResourceFilterModal from "@/components/resources/FilterModal";
 import Table from "@/components/Table";
 import { getReportColumns } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
@@ -45,7 +44,6 @@ export default function ReportsPage() {
     page: 1,
     size: 10,
   });
-  const [isFilterOn, setIsFilterOn] = useState(false);
   const [debouncedTab, setDebouncedTab] = useState(currentTab);
 
   // Debounce effect for tab switching
@@ -124,18 +122,10 @@ export default function ReportsPage() {
         />
       )}
 
-      <ResourceFilterModal
-        isFilterApplying={false}
-        isOpen={isFilterOn}
-        onClose={() => setIsFilterOn(false)}
-      />
-
       <GroupFilters
         tabButtons={tabs}
         currentTab={currentTab}
         handleTabClick={setCurrentTab}
-        showFilters={true}
-        handleFilterClick={() => setIsFilterOn(true)}
         showSearch={true}
       />
 
