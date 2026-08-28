@@ -15,6 +15,7 @@ import { formatString } from "@/utils/stringFunctions";
 import LearnerProfileDetails from "@/components/learner/ProfileDetails";
 import AlertModal from "@/components/common/Modals/AlertModal";
 import { downloadCsv } from "@/utils/downloadCsv";
+import { showToast } from "@/components/common/Toast";
 
 interface PaginationParams {
   page: number | string;
@@ -117,7 +118,7 @@ export default function LearnersPage() {
         total: response.data.total,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return {
         items: [],
         total: 0,
@@ -198,14 +199,16 @@ export default function LearnersPage() {
   };
 
   const handleDeleteEvent = async () => {
-    DELETE_API(endpoints.learner.deleteLearner(learnerToDelete || "")).then(
-      (res) => {
-        console.log(res, "res");
-        setIsDeleteAlertOpen(false);
-        setIsDeleteAlertLoading(false);
-        refetch();
-      }
-    );
+    try {
+      await DELETE_API(endpoints.learner.deleteLearner(learnerToDelete || ""));
+      showToast({ message: "Learner deleted" });
+      refetch();
+    } catch (err: any) {
+      showToast({ message: err?.data?.detail || "Failed to delete learner", type: "error" });
+    } finally {
+      setIsDeleteAlertOpen(false);
+      setIsDeleteAlertLoading(false);
+    }
   };
 
   const { setHeaderOptions } = useComponentStore();

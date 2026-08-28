@@ -15,6 +15,7 @@ import { calculateAge } from "@/utils/moment";
 import { formatString } from "@/utils/stringFunctions";
 import AlertModal from "@/components/common/Modals/AlertModal";
 import { downloadCsv } from "@/utils/downloadCsv";
+import { showToast } from "@/components/common/Toast";
 
 interface PaginationParams {
   page: number | string;
@@ -198,14 +199,16 @@ export default function LearnersPage() {
   };
 
   const handleDeleteEvent = async () => {
-    DELETE_API(
-      endpoints.volunteer.deleteVolunteer(volunteerToDelete || "")
-    ).then((res) => {
-      console.log(res, "res");
+    try {
+      await DELETE_API(endpoints.volunteer.deleteVolunteer(volunteerToDelete || ""));
+      showToast({ message: "Volunteer deleted" });
+      refetch();
+    } catch (err: any) {
+      showToast({ message: err?.data?.detail || "Failed to delete volunteer", type: "error" });
+    } finally {
       setIsDeleteAlertOpen(false);
       setIsDeleteAlertLoading(false);
-      refetch();
-    });
+    }
   };
 
   const columns = getVolunteerColumns(

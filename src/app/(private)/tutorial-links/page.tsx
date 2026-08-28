@@ -9,6 +9,11 @@ import { DeleteIcon } from "@/assets/icons";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
+import { showToast } from "@/components/common/Toast";
+import { safeHref } from "@/utils/safeHref";
+
+const mutationError = (fallback: string) => (err: any) =>
+  showToast({ message: err?.data?.detail || err?.message || fallback, type: "error" });
 
 interface TutorialLink {
   link_id: string;
@@ -55,7 +60,9 @@ export default function TutorialLinksPage() {
       queryClient.invalidateQueries({ queryKey: ["tutorial-links"] });
       setIsModalOpen(false);
       form.resetFields();
+      showToast({ message: "Tutorial link created" });
     },
+    onError: mutationError("Failed to create tutorial link"),
   });
 
   const updateMutation = useMutation({
@@ -66,12 +73,18 @@ export default function TutorialLinksPage() {
       setIsModalOpen(false);
       setEditingLink(null);
       form.resetFields();
+      showToast({ message: "Tutorial link updated" });
     },
+    onError: mutationError("Failed to update tutorial link"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => DELETE_API(endpoints.tutorialLinks.delete(id)),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tutorial-links"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tutorial-links"] });
+      showToast({ message: "Tutorial link deleted" });
+    },
+    onError: mutationError("Failed to delete tutorial link"),
   });
 
   const handleSubmit = (values: any) => {
@@ -121,11 +134,16 @@ export default function TutorialLinksPage() {
       title: "URL",
       dataIndex: "url",
       key: "url",
-      render: (url: string) => (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline truncate max-w-[200px] block">
-          {url}
-        </a>
-      ),
+      render: (url: string) => {
+        const href = safeHref(url);
+        return href ? (
+          <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline truncate max-w-[200px] block">
+            {url}
+          </a>
+        ) : (
+          <span className="text-gray-500 truncate max-w-[200px] block" title={url}>{url}</span>
+        );
+      },
     },
     {
       title: "Description",
@@ -174,7 +192,14 @@ export default function TutorialLinksPage() {
           <Form.Item name="title" label="Title" rules={[{ required: true, message: "Title is required" }]}>
             <Input placeholder="e.g. How to schedule a session" />
           </Form.Item>
-          <Form.Item name="url" label="URL" rules={[{ required: true, message: "URL is required" }]}>
+          <Form.Item
+            name="url"
+            label="URL"
+            rules={[
+              { required: true, message: "URL is required" },
+              { type: "url", message: "Enter a valid http(s) URL" },
+            ]}
+          >
             <Input placeholder="https://..." />
           </Form.Item>
           <Form.Item name="category" label="Category" rules={[{ required: true }]} initialValue="video">

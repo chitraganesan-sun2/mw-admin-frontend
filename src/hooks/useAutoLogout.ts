@@ -25,7 +25,12 @@ const useAutoLogout = (router: any) => {
 
     debounceRef.current = setTimeout(() => {
       if (timerRef.current) clearTimeout(timerRef.current);
-      Cookies.set("lastActivity", Date.now().toString(), { expires: COOKIE_EXPIRY_DAYS, path: "/" });
+      Cookies.set("lastActivity", Date.now().toString(), {
+        expires: COOKIE_EXPIRY_DAYS,
+        path: "/",
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+      });
       timerRef.current = setTimeout(clearSession, INACTIVITY_TIMEOUT);
     }, DEBOUNCE_DELAY);
 

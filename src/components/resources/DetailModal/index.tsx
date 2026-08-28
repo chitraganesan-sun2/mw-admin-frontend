@@ -17,11 +17,7 @@ import { getReportStatus, rejectReport, resolveReport } from "@/api/reports";
 import LottieLoader from "@/components/common/Loader/Lottie";
 import { useMemo, useState } from "react";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
-
-const curatedLinks = [
-  { title: "Guitar Tuning Guide", link: "https://example.com/guitar-tuning" },
-  { title: "Finger Placement Tips", link: "https://example.com/guitar-tuning" },
-];
+import { safeHref } from "@/utils/safeHref";
 
 type DetailModalProps = {
   isOpen: boolean;
@@ -52,9 +48,6 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
     queryFn: () => (reportId ? getReportStatus(reportId) : null),
     enabled: !!reportId,
   });
-
-  console.log(ReportStatus);
-  
 
   const invalidateQueries = () => {
     if (isReportsPage) {
@@ -97,14 +90,21 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
     ));
 
   const renderCuratedLinks = () =>
-    resource?.curated_links?.map((item: any, index: number) => (
+    resource?.curated_links?.map((item: any, index: number) => {
+      const href = safeHref(item?.url);
+      return (
         <p key={index}>
-            {index + 1}. {item?.title} -{" "}
-            <Link href={item?.url} target="_blank" rel="noopener noreferrer" className="text-primary underline">
-                {item?.url}
+          {index + 1}. {item?.title} -{" "}
+          {href ? (
+            <Link href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+              {item?.url}
             </Link>
+          ) : (
+            <span className="text-gray-light break-all">{item?.url}</span>
+          )}
         </p>
-    ));
+      );
+    });
 
   if (!resourceId) return null;
 

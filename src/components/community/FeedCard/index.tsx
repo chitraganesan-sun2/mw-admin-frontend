@@ -20,6 +20,7 @@ import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { useInView } from "react-intersection-observer";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import AlertModal from "@/components/common/Modals/AlertModal";
+import { showToast } from "@/components/common/Toast";
 
 interface FeedCardProps {
   onClick: (postId: string) => void;
@@ -75,13 +76,16 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
 
   const hanldeDeleteEvent = async () => {
     setIsDeleteAlertLoading(true);
-    await DELETE_API(endpoints.post.deletePost(currentDeletePostId || "")).then(() => {
-      queryClient.invalidateQueries({
-        queryKey: ["get-posts"],
-      });
-    });
-    setIsDeleteAlertOpen(false);
-    setIsDeleteAlertLoading(false);
+    try {
+      await DELETE_API(endpoints.post.deletePost(currentDeletePostId || ""));
+      queryClient.invalidateQueries({ queryKey: ["get-posts"] });
+      showToast({ message: "Post deleted" });
+    } catch (err: any) {
+      showToast({ message: err?.data?.detail || "Failed to delete post", type: "error" });
+    } finally {
+      setIsDeleteAlertOpen(false);
+      setIsDeleteAlertLoading(false);
+    }
   };
 
   const handleTriggerDeleteEvent = (postId: string) => {
@@ -183,8 +187,8 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
                 <div className="mt-0 md:mt-3 lg:mt-0 lg:!pl-[50px]">
                   <div className="px-3 md:px-0">
                     <p className="text-xs md:text-sm font-normal">
-                      {post.description}
-                      {post.description.length > 150 && (
+                      {post?.description ?? ""}
+                      {(post?.description?.length ?? 0) > 150 && (
                         <button
                           type="button"
                           onClick={() => onClick(post.post_id)}

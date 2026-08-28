@@ -27,8 +27,18 @@ const Login = () => {
 
     setLoading(true);
     POST_API(endpoints.auth.login, payload)
-      .then((res) => {
-        Cookies.set("token", res?.data?.jwt, { expires: 1, path: "/" });
+      .then((res: any) => {
+        const jwt = res?.data?.jwt;
+        if (res?.status !== 200 || !jwt) {
+          setLoading(false);
+          return showToast({ message: "Login failed - unexpected server response", type: "error" });
+        }
+        Cookies.set("token", jwt, {
+          expires: 1,
+          path: "/",
+          sameSite: "strict",
+          secure: process.env.NODE_ENV === "production",
+        });
         setloginFormData({});
         router.replace("/volunteer");
       })

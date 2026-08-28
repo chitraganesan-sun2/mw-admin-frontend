@@ -56,9 +56,12 @@ axiosInstance.interceptors.response.use(
       // Server responded with error status
       switch (error.response.status) {
         case 401:
-          apiError.message = "Unauthorized access";
-          // Session expired/invalid — force a clean re-login instead of
-          // leaving the admin console silently broken. Guard against
+        case 403:
+          apiError.message =
+            error.response.status === 403 ? "Access forbidden" : "Unauthorized access";
+          // Session expired/invalid, or the token isn't an admin token — force a
+          // clean re-login instead of leaving the admin console silently broken
+          // (every subsequent call would just fail the same way). Guard against
           // redirect loops by skipping it if already on the login page.
           if (typeof window !== "undefined" && window.location.pathname !== "/") {
             Cookies.remove("token", { path: "/" });
@@ -69,9 +72,6 @@ axiosInstance.interceptors.response.use(
             Cookies.remove("lastActivity", { path: "/" });
             window.location.href = "/";
           }
-          break;
-        case 403:
-          apiError.message = "Access forbidden";
           break;
         case 404:
           apiError.message = "Resource not found";

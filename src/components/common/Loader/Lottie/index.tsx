@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import Lottie from "react-lottie-player";
 import LoadingAnimation from "@/assets/json/animations/loader.json";
-import Cookies from "js-cookie";
 
 type Props = {
     isLoading: boolean;
@@ -11,8 +10,6 @@ type Props = {
 };
 
 const LottieLoader: React.FC<Props> = ({ isLoading, customClassName, zIndex }) => {
-    const role = Cookies.get("role");
-
     useEffect(() => {
         if (isLoading) {
             document.body.style.overflow = "hidden";

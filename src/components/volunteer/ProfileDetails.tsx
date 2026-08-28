@@ -93,12 +93,6 @@ const VolunteerProfileDetails = () => {
     return fallbackDate.isValid() ? fallbackDate.format("DD-MMM-YYYY") : "-";
   })();
 
-  console.log(
-    volunteerDetails?.date_of_birth,
-    "volunteerDetails date of birth",
-    volunteerDateOfBirth
-  );
-
   const profileDetails = [
     {
       title: "Name",
@@ -444,7 +438,7 @@ const VolunteerProfileDetails = () => {
         });
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
       })
       .finally(() => {
         setIsAcceptLoading(false);
@@ -469,7 +463,7 @@ const VolunteerProfileDetails = () => {
         });
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
       })
       .finally(() => {
         setIsRejectLoading(false);

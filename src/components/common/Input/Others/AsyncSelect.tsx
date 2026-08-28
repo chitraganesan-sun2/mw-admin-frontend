@@ -150,7 +150,6 @@ const AsyncSelect = ({
 
     // Add createOption handler
     const handleCreate = (inputValue: string) => {
-        console.log("Input: ", inputValue);
 
         if (creatable && "onCreate" in props) {
             const [key1 = "label", key2 = "value"]: string[] = Object.keys(data[0]);

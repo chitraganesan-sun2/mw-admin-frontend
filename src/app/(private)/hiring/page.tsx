@@ -323,8 +323,6 @@ export default function HiringPage() {
       const response: any = await GET_API(endpoints.hiring.getApplication(row.id));
       const resData = response.data;
 
-      console.log("API DETAILS RESPONSE:", resData);
-
       const roleCode = resData?.selected_position || "";
       let appliedForData;
 

@@ -17,13 +17,11 @@ type EndpointProps = {
     sendEmailWithAttachment: string;
   };
   volunteer: {
-    allVolunteers: string;
     getAllVolunteers: string;
     getVolunteerDetails: (volunteerId: string) => string;
     deleteVolunteer: (volunteerId: string) => string;
   };
   learner: {
-    allLearners: string;
     getAllLearners: string;
     getLearnerDetails: (learnerId: string) => string;
     deleteLearner: (learnerId: string) => string;

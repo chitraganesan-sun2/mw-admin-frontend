@@ -6,9 +6,12 @@ const isTokenValid = (token: string | undefined): boolean => {
     if (!token) return false;
 
     try {
-        const decodedToken: { exp?: number } = jwtDecode(token);
+        const decodedToken: { exp?: number; role?: string } = jwtDecode(token);
         const currentTime = Math.floor(Date.now() / 1000);
         if (decodedToken.exp && decodedToken.exp < currentTime) return false;
+        // This console is admin-only. A non-admin JWT (a learner/volunteer token
+        // minted by the public app — same signing secret) must not load the shell.
+        if (decodedToken.role !== "admin") return false;
         return true;
     } catch {
         return false;

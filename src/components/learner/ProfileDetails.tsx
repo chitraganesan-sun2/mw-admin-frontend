@@ -91,7 +91,7 @@ const LearnerProfileDetails = () => {
     setIsAcceptLoading(true);
     updateVerificationStatus("verification_completed")
       .catch((error) => {
-        console.log(error);
+        console.error(error);
       })
       .finally(() => {
         setIsAcceptLoading(false);
@@ -102,7 +102,7 @@ const LearnerProfileDetails = () => {
     setIsRejectLoading(true);
     updateVerificationStatus("verification_rejected", rejectionReason.trim() || undefined)
       .catch((error) => {
-        console.log(error);
+        console.error(error);
       })
       .finally(() => {
         setIsRejectLoading(false);

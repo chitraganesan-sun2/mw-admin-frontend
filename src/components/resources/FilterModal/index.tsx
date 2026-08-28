@@ -67,7 +67,7 @@ export default function ResourceFilterModal({ isOpen, isFilterApplying, onClose 
     };
 
     const handleSave = () => {
-        console.log("Data: ", filterData);
+        // filter payload applied
 
         setStartDate(convertToDate(filterData?.available_days?.[0]));
         setEndDate(convertToDate(filterData?.available_days?.[1]));

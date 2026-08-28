@@ -9,6 +9,10 @@ import { DeleteIcon } from "@/assets/icons";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
+import { showToast } from "@/components/common/Toast";
+
+const mutationError = (fallback: string) => (err: any) =>
+  showToast({ message: err?.data?.detail || err?.message || fallback, type: "error" });
 
 const COLLECTION_TYPES = [
   { key: "skills", label: "Skills" },
@@ -62,7 +66,9 @@ export default function ListOfValuesPage() {
       queryClient.invalidateQueries({ queryKey: ["lov", activeTab] });
       setIsModalOpen(false);
       form.resetFields();
+      showToast({ message: "Value created" });
     },
+    onError: mutationError("Failed to create value"),
   });
 
   const updateMutation = useMutation({
@@ -73,12 +79,18 @@ export default function ListOfValuesPage() {
       setIsModalOpen(false);
       setEditingItem(null);
       form.resetFields();
+      showToast({ message: "Value updated" });
     },
+    onError: mutationError("Failed to update value"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => DELETE_API(endpoints.listOfValues.delete(activeTab, id)),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["lov", activeTab] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lov", activeTab] });
+      showToast({ message: "Value deleted" });
+    },
+    onError: mutationError("Failed to delete value"),
   });
 
   const handleSubmit = (values: any) => {

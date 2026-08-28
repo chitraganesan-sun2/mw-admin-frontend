@@ -17,19 +17,6 @@ import toast from "react-hot-toast";
 import TextEditor from "@/components/RichTextEditor";
 import Loader from "@/components/common/Loader";
 
-const locationOptions = [
-  { label: "All", value: "all" },
-  { label: "Location 1", value: "location1" },
-  { label: "Location 2", value: "location2" },
-  { label: "Location 3", value: "location3" },
-];
-
-const languageOptions = [
-  { label: "English", value: "english" },
-  { label: "Hindi", value: "hindi" },
-  { label: "Marathi", value: "marathi" },
-];
-
 const Broadcast = () => {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
@@ -111,7 +98,7 @@ const Broadcast = () => {
         setIsNoData(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -206,7 +193,6 @@ const Broadcast = () => {
 
   const handleSendEmail = () => {
     if (!validate()) return;
-    console.log(message, "message here");
     setIsLoading(true);
     const allEmails = [...volunteers, ...learners].join(",");
 
@@ -230,8 +216,9 @@ const Broadcast = () => {
           handleReset();
           toast.success("Email sent successfully");
         })
-        .catch((err) => {
+        .catch((err: any) => {
           setIsLoading(false);
+          toast.error(err?.data?.detail || err?.message || "Failed to send email");
         });
     } else {
       // without attachment
@@ -245,8 +232,9 @@ const Broadcast = () => {
           setIsLoading(false);
           toast.success("Email sent successfully");
         })
-        .catch((err) => {
+        .catch((err: any) => {
           setIsLoading(false);
+          toast.error(err?.data?.detail || err?.message || "Failed to send email");
         });
     }
   };
