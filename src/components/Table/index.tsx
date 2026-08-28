@@ -12,7 +12,23 @@ interface TableProps {
   handleSeePost?: (id: string) => void;
   handleDelete?: (id: string) => void;
   rootClassName?: string;
+  rowKey?: string | ((record: any) => string);
 }
+
+// Different admin pages feed this table rows keyed by different id fields
+// (volunteer_id, learner_id, report_id, ...). Fall through the common ones so
+// antd always gets a stable, unique key and React stops warning.
+const KEY_FIELDS = [
+  "id", "key", "volunteer_id", "learner_id", "report_id", "reportId",
+  "application_id", "donation_id", "link_id", "match_id", "comment_id",
+  "post_id", "resource_id", "category_id", "docId",
+];
+const resolveRowKey = (record: any): string => {
+  for (const f of KEY_FIELDS) {
+    if (record?.[f] != null) return String(record[f]);
+  }
+  return JSON.stringify(record);
+};
 
 const Table: React.FC<TableProps> = ({
   data,
@@ -22,6 +38,7 @@ const Table: React.FC<TableProps> = ({
   columns,
   onRow,
   rootClassName,
+  rowKey,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -46,7 +63,7 @@ const Table: React.FC<TableProps> = ({
         }}
         onChange={onChange}
         onRow={onRow}
-        rowKey="id"
+        rowKey={rowKey ?? resolveRowKey}
         showSorterTooltip={false}
         sticky
         scroll={{ x: "max-content" }}

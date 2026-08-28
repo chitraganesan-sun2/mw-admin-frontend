@@ -1,6 +1,10 @@
 import React, { useEffect } from "react";
-import Lottie from "react-lottie-player";
+import dynamic from "next/dynamic";
 import LoadingAnimation from "@/assets/json/animations/loader.json";
+
+// react-lottie-player pulls in lottie-web, which touches `document` at module
+// load — that throws during SSR. Load it client-only.
+const Lottie = dynamic(() => import("react-lottie-player"), { ssr: false });
 
 type Props = {
     isLoading: boolean;
