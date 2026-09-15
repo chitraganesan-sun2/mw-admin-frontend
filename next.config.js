@@ -20,7 +20,10 @@ const csp = [
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://res.cloudinary.com",
     "font-src 'self' data:",
-    `connect-src 'self'${apiOrigin ? " " + apiOrigin : ""}${safetyOrigin ? " " + safetyOrigin : ""}`,
+    // Sentry's ingest domain - without this, every crash-report event is
+    // silently blocked by the browser before it ever reaches Sentry (caught the
+    // hard way on melody-wings-frontend's own Sentry rollout).
+    `connect-src 'self' https://o4509625850658816.ingest.us.sentry.io${apiOrigin ? " " + apiOrigin : ""}${safetyOrigin ? " " + safetyOrigin : ""}`,
     `frame-src ${safetyOrigin || "'none'"}`,
     "frame-ancestors 'none'",
     "base-uri 'self'",
