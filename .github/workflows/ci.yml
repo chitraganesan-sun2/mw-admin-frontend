@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # `next build` is the real gate: it generates next-env.d.ts (gitignored)
+      # and type-checks. There's no ESLint config in this repo yet (`next lint`
+      # errors out with nothing to run), so build is the only check for now -
+      # matching melody-wings-frontend's own note on the same gap.
+      - name: Build
+        run: npx next build
