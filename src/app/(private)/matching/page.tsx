@@ -19,6 +19,26 @@ export default function MatchingPage() {
   const [side, setSide] = useState<TriggerSide>("learner");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  // The picker used to fetch a flat page=1&size=100 and filter client-side, so a
+  // learner/volunteer past the first 100 verified users could never be found.
+  // Now debounced server-side search, matching the pattern already used on the
+  // hiring page - search_query is filtered server-side over the full list.
+  const [pickerSearch, setPickerSearch] = useState("");
+  const [debouncedPickerSearch, setDebouncedPickerSearch] = useState("");
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedPickerSearch(pickerSearch.trim()), 300);
+    return () => clearTimeout(timeout);
+  }, [pickerSearch]);
+
+  useEffect(() => {
+    // Clear any in-flight search text when switching who we're matching on
+    // behalf of, so leftover text from one list doesn't look like a filter on
+    // the other.
+    setPickerSearch("");
+    setDebouncedPickerSearch("");
+  }, [side]);
+
   useEffect(() => {
     setHeaderOptions({
       title: "Matching",
@@ -26,12 +46,16 @@ export default function MatchingPage() {
     });
   }, [setHeaderOptions, pathname]);
 
-  const { data: learnerOptions = [] } = useQuery({
-    queryKey: ["matching-learners-picker"],
+  const { data: learnerOptions = [], isFetching: isLearnerOptionsLoading } = useQuery({
+    queryKey: ["matching-learners-picker", debouncedPickerSearch],
     queryFn: async () => {
-      const res: any = await GET_API(
-        `${endpoints.learner.getAllLearners}?page=1&size=100&onboarded_status=verification_completed`
-      );
+      const params = new URLSearchParams({
+        page: "1",
+        size: "50",
+        onboarded_status: "verification_completed",
+      });
+      if (debouncedPickerSearch) params.append("search_query", debouncedPickerSearch);
+      const res: any = await GET_API(`${endpoints.learner.getAllLearners}?${params.toString()}`);
       return (res?.data?.items || [])
         .filter((l: any) => l.onboarded_status === "verification_completed")
         .map((l: any) => ({
@@ -39,14 +63,19 @@ export default function MatchingPage() {
           label: l.learner_full_name || l.learner_id,
         }));
     },
+    enabled: side === "learner",
   });
 
-  const { data: volunteerOptions = [] } = useQuery({
-    queryKey: ["matching-volunteers-picker"],
+  const { data: volunteerOptions = [], isFetching: isVolunteerOptionsLoading } = useQuery({
+    queryKey: ["matching-volunteers-picker", debouncedPickerSearch],
     queryFn: async () => {
-      const res: any = await GET_API(
-        `${endpoints.volunteer.getAllVolunteers}?page=1&size=100&onboarded_status=verification_completed`
-      );
+      const params = new URLSearchParams({
+        page: "1",
+        size: "50",
+        onboarded_status: "verification_completed",
+      });
+      if (debouncedPickerSearch) params.append("search_query", debouncedPickerSearch);
+      const res: any = await GET_API(`${endpoints.volunteer.getAllVolunteers}?${params.toString()}`);
       return (res?.data?.items || [])
         .filter((v: any) => v.onboarded_status === "verification_completed")
         .map((v: any) => ({
@@ -57,15 +86,28 @@ export default function MatchingPage() {
               : v.volunteer_id,
         }));
     },
+    enabled: side === "volunteer",
   });
 
+  const [matchesPage, setMatchesPage] = useState(1);
+  const [matchesPageSize, setMatchesPageSize] = useState(15);
+
   const {
-    data: matches = [],
+    data: matchesData,
     isLoading: isMatchesLoading,
   } = useQuery({
-    queryKey: ["matches"],
-    queryFn: async () => (await GET_API(endpoints.match.getAll))?.data?.items || [],
+    queryKey: ["matches", matchesPage, matchesPageSize],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: String(matchesPage),
+        size: String(matchesPageSize),
+      });
+      const res: any = await GET_API(`${endpoints.match.getAll}?${params.toString()}`);
+      return { items: res?.data?.items || [], total: res?.data?.total ?? 0 };
+    },
   });
+  const matches = matchesData?.items || [];
+  const matchesTotal = matchesData?.total ?? 0;
 
   const triggerMutation = useMutation({
     mutationFn: (payload: { learner_id?: string; volunteer_id?: string }) =>
@@ -194,12 +236,16 @@ export default function MatchingPage() {
             allowClear
             value={selectedId}
             onChange={setSelectedId}
+            onSearch={setPickerSearch}
+            // Results are already filtered server-side (search_query) - a
+            // local filterOption on top would incorrectly hide server matches
+            // whose label doesn't literally contain what's typed so far
+            // (e.g. searching by email while the label shows a name).
+            filterOption={false}
+            loading={side === "learner" ? isLearnerOptionsLoading : isVolunteerOptionsLoading}
             style={{ width: "100%" }}
             placeholder={side === "learner" ? "Search learners..." : "Search volunteers..."}
             options={side === "learner" ? learnerOptions : volunteerOptions}
-            filterOption={(input, option) =>
-              (option?.label ?? "").toString().toLowerCase().includes(input.toLowerCase())
-            }
           />
         </div>
         <Button
@@ -217,7 +263,17 @@ export default function MatchingPage() {
         columns={columns}
         rowKey="match_id"
         loading={isMatchesLoading}
-        pagination={{ pageSize: 15 }}
+        pagination={{
+          current: matchesPage,
+          pageSize: matchesPageSize,
+          total: matchesTotal,
+          showSizeChanger: true,
+          showQuickJumper: true,
+        }}
+        onChange={(paginationConfig) => {
+          setMatchesPage(paginationConfig.current ?? 1);
+          setMatchesPageSize(paginationConfig.pageSize ?? 15);
+        }}
       />
     </div>
   );
