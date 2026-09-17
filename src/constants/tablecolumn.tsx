@@ -86,15 +86,16 @@ export const getDonationColumns = (
     key: "actions",
     className: "!p-0 !w-[140px] text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: DonationRow) => (
-      <p
+      <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           onViewMore?.(record);
         }}
-        className="px-6 !py-3 text-base font-medium text-[#121212] underline !font-poppins cursor-pointer whitespace-nowrap"
+        className="bg-transparent border-0 px-6 !py-3 text-base font-medium text-[#121212] underline !font-poppins cursor-pointer whitespace-nowrap"
       >
         View more
-      </p>
+      </button>
     ),
     width: 140,
   },
@@ -154,14 +155,14 @@ export const getVolunteerColumns = (
   },
   {
     title: (
-      <div
+      <button
+        type="button"
         onClick={handleOnboardedStatusFilter}
-        style={{ cursor: "pointer" }}
-        className="w-full h-full flex items-center pr-5 gap-2 justify-between"
+        className="bg-transparent border-0 w-full h-full flex items-center pr-5 gap-2 justify-between cursor-pointer"
       >
         Requested Status
         <FaSort className="text-gray-400 " />
-      </div>
+      </button>
     ),
     dataIndex: "onboarded_status",
     key: "onboarded_status",
@@ -225,12 +226,13 @@ export const getVolunteerColumns = (
         {record.onboarded_status === "details_pending" ? (
           <span>-</span>
         ) : (
-          <p
+          <button
+            type="button"
             onClick={() => handleSeeMoreDetails?.(record?.volunteer_id)}
-            className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
+            className="bg-transparent border-0 p-0 !font-semibold text-gray-900 underline !font-poppins cursor-pointer"
           >
             See more details
-          </p>
+          </button>
         )}
       </div>
     ),
@@ -313,14 +315,14 @@ export const getLearnerColumns = (
   },
   {
     title: (
-      <div
+      <button
+        type="button"
         onClick={handleOnboardedStatusFilter}
-        style={{ cursor: "pointer" }}
-        className="w-full h-full flex pr-5 items-center gap-2 justify-between"
+        className="bg-transparent border-0 w-full h-full flex pr-5 items-center gap-2 justify-between cursor-pointer"
       >
         Requested Status
         <FaSort className="text-gray-400" />
-      </div>
+      </button>
     ),
     dataIndex: "onboarded_status",
     key: "onboarded_status",
@@ -384,12 +386,13 @@ export const getLearnerColumns = (
         {record.onboarded_status === "details_pending" ? (
           <span>-</span>
         ) : (
-          <p
+          <button
+            type="button"
             onClick={() => handleSeeMoreDetails?.(record?.learner_id)}
-            className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
+            className="bg-transparent border-0 p-0 !font-semibold text-gray-900 underline !font-poppins cursor-pointer"
           >
             See more details
-          </p>
+          </button>
         )}
       </div>
     ),
@@ -505,12 +508,13 @@ export const getReportColumns = (
     className: "!w-[10%]",
     render: (_: unknown, record: Report) => (
       <div className="flex items-center gap-2">
-        <p
+        <button
+          type="button"
           onClick={() => handleSeePost?.(record.docId, record.reportId)}
-          className="!font-semibold text-gray-900 underline !font-poppins cursor-pointer"
+          className="bg-transparent border-0 p-0 !font-semibold text-gray-900 underline !font-poppins cursor-pointer"
         >
           See post
-        </p>
+        </button>
       </div>
     ),
   },
@@ -571,15 +575,16 @@ export const getHiringColumns = (
     key: "actions",
     className: "!p-0 !w-[160px] text-[14px] text-[#121212] !font-poppins",
     render: (_: unknown, record: HiringApplicationRow) => (
-      <p
+      <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           onViewApplication?.(record);
         }}
-        className="px-6 !py-3 text-[14px] !font-medium text-[#121212] underline !font-poppins cursor-pointer whitespace-nowrap"
+        className="bg-transparent border-0 px-6 !py-3 text-[14px] !font-medium text-[#121212] underline !font-poppins cursor-pointer whitespace-nowrap"
       >
         View application
-      </p>
+      </button>
     ),
     width: 160,
   },

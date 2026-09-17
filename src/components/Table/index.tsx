@@ -46,6 +46,28 @@ const Table: React.FC<TableProps> = ({
     setIsVisible(true);
   }, []);
 
+  // A row made clickable via onRow's onClick was otherwise unreachable by
+  // keyboard - antd doesn't add tabIndex/role/key-activation on its own. Fixed
+  // once here so every current and future caller of this shared Table gets it
+  // for free, instead of each page having to remember to add it.
+  const keyboardAccessibleOnRow = onRow
+    ? (record: any, index?: number) => {
+        const rowProps = onRow(record, index) || {};
+        if (typeof rowProps.onClick !== "function") return rowProps;
+        return {
+          ...rowProps,
+          tabIndex: 0,
+          role: "button",
+          onKeyDown: (e: React.KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              rowProps.onClick(e);
+            }
+          },
+        };
+      }
+    : undefined;
+
   return (
     <div
       className={`w-full  h-full !font-poppins transition-opacity duration-500 ease-in-out overflow-hidden ${
@@ -62,7 +84,7 @@ const Table: React.FC<TableProps> = ({
           ...pagination,
         }}
         onChange={onChange}
-        onRow={onRow}
+        onRow={keyboardAccessibleOnRow}
         rowKey={rowKey ?? resolveRowKey}
         showSorterTooltip={false}
         sticky
