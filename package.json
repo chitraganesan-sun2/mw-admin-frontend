@@ -19,7 +19,7 @@
     "@types/js-cookie": "^3.0.6",
     "antd": "^5.22.5",
     "apexcharts": "^4.5.0",
-    "axios": "^1.7.9",
+    "axios": "1.20.0",
     "clsx": "^2.1.1",
     "dayjs": "1.11.13",
     "js-cookie": "^3.0.8",
