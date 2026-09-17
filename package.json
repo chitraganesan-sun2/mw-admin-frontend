@@ -37,7 +37,7 @@
     "react-quill-new": "^3.4.6",
     "react-select": "^5.9.0",
     "react-slick": "^0.30.3",
-    "sharp": "^0.33.5",
+    "sharp": "0.35.4",
     "slick-carousel": "^1.8.1",
     "tailwind-merge": "^2.5.5",
     "zod": "^3.24.1",
