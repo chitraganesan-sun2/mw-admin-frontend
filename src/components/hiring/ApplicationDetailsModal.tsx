@@ -68,9 +68,9 @@ export default function ApplicationDetailsModal({
       <div className="flex flex-col h-full !font-poppins bg-white">
         <div className="flex items-center justify-between px-7 py-5">
           <p className="text-xl font-medium text-gray-900">Application Form</p>
-          <span className="cursor-pointer" onClick={onClose}>
+          <button type="button" className="bg-transparent border-0 cursor-pointer" onClick={onClose} aria-label="Close">
             <FeedModalCloseIcon />
-          </span>
+          </button>
         </div>
         <Divider />
 

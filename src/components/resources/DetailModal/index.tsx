@@ -123,9 +123,9 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
             <div className="relative h-[260px] rounded-t-xl">
               <Image src={resource?.resource_image?.image_url || "/placeholder.png"} fill className="object-cover" alt="Resource" />
               <div className="flex items-center gap-4 w-fit absolute top-4 right-4">
-                <span onClick={onClose} className="block cursor-pointer">
+                <button type="button" onClick={onClose} aria-label="Close" className="bg-transparent border-0 block cursor-pointer">
                   <ModalCloseIcon />
-                </span>
+                </button>
               </div>
             </div>
             <div className="flex flex-col gap-4 px-8 py-4 overflow-y-auto">

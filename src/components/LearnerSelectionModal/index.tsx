@@ -98,9 +98,9 @@ const SelectionModal = ({
             <div className="flex items-center gap-2 bg-[#e0e0e0] w-fit rounded-full px-2 py-1 text-black">
               {items?.length} Available
             </div>
-            <span className="cursor-pointer" onClick={handleClose}>
+            <button type="button" className="bg-transparent border-0 cursor-pointer" onClick={handleClose} aria-label="Close">
               <ModalCloseIcon />
-            </span>
+            </button>
           </div>
         </div>
         <div>

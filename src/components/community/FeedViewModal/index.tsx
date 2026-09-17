@@ -31,24 +31,28 @@ import { toUserTimeZone } from "@/utils/timeFunctions";
 const CustomNextArrow = (props: any) => {
   const { onClick } = props;
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
+      aria-label="Next image"
       className="bg-white !z-50 absolute right-3 top-1/2 transform -translate-y-1/2 text-primary border border-primary p-2 rounded-full shadow-md cursor-pointer"
     >
       <FaChevronRight className="text-xs md:text-lg" />
-    </div>
+    </button>
   );
 };
 
 const CustomPrevArrow = (props: any) => {
   const { onClick } = props;
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
+      aria-label="Previous image"
       className="bg-white !z-50 absolute left-3 top-1/2 transform -translate-y-1/2 text-primary border border-primary p-2 rounded-full shadow-md cursor-pointer"
     >
       <FaChevronLeft className="text-xs md:text-lg" />
-    </div>
+    </button>
   );
 };
 
