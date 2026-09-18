@@ -14,7 +14,6 @@ export const getHeaderTitle = (pathname: string) => {
   return path;
 };
 
-//TODO: Need Redandunt work here
 export const getHeaderIcon = (pathname: string) => {
   switch (getHeaderTitle(pathname)) {
     case "dashboard":
