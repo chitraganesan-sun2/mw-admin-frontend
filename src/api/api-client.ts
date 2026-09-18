@@ -6,6 +6,7 @@ import axios, {
   AxiosResponse,
 } from "axios";
 import Cookies from "js-cookie";
+import { showToast } from "@/components/common/Toast";
 
 // Define custom error interface
 interface ApiError {
@@ -56,9 +57,7 @@ axiosInstance.interceptors.response.use(
       // Server responded with error status
       switch (error.response.status) {
         case 401:
-        case 403:
-          apiError.message =
-            error.response.status === 403 ? "Access forbidden" : "Unauthorized access";
+          apiError.message = "Unauthorized access";
           // Session expired/invalid, or the token isn't an admin token — force a
           // clean re-login instead of leaving the admin console silently broken
           // (every subsequent call would just fail the same way). Guard against
@@ -72,6 +71,12 @@ axiosInstance.interceptors.response.use(
             Cookies.remove("lastActivity", { path: "/" });
             window.location.href = "/";
           }
+          break;
+        case 403:
+          // Unlike 401, the admin's session is still valid here - they're just
+          // not allowed to do this one thing. Surface it, don't force a logout.
+          apiError.message = "Access forbidden";
+          showToast({ type: "error", message: "You don't have permission to do that." });
           break;
         case 404:
           apiError.message = "Resource not found";
