@@ -14,6 +14,7 @@ import { endpoints } from "@/api/constants";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import advancedFormat from "dayjs/plugin/advancedFormat";
+import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
@@ -115,7 +116,7 @@ export default function DonationsPage() {
     return () => clearTimeout(timeout);
   }, [search]);
 
-  const { data: donationsData, isFetching, isLoading } = useQuery({
+  const { data: donationsData, isFetching, isLoading, isError } = useQuery({
     queryKey: ["donations", page, pageSize, debouncedSearch, sortField, sortOrder],
     queryFn: () =>
       getDonations({
@@ -318,7 +319,9 @@ export default function DonationsPage() {
           inputClassName="!bg-white !rounded-3xl"
         />
       </div>
-      {!isLoading && !isFetching && data.length === 0 ? (
+      {isError ? (
+        <ErrorMsg />
+      ) : !isLoading && !isFetching && data.length === 0 ? (
         <div className="w-full py-10 text-center text-[#6B7280]">No records available</div>
       ) : (
         <Table

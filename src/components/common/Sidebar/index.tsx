@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import Logo from "@/components/common/Logo";
 import SectionCard from "./SectionCard";
 import {
@@ -22,11 +23,6 @@ const Sidebar = () => {
   }, []);
 
   const linksData = [
-    // {
-    //   href: "/dashboard",
-    //   text: "Dashboard",
-    //   icon: <DashBoardIcon />,
-    // },
     {
       href: "/volunteer",
       text: "Volunteer",
@@ -62,7 +58,6 @@ const Sidebar = () => {
       text: "Broadcast",
       icon: <MailIcon />,
     },
-    // Hiring hidden on mobile and desktop
     {
       href: "/hiring",
       text: "Hiring",
@@ -103,7 +98,9 @@ const Sidebar = () => {
   return (
     <div className="bg-white w-full h-screen flex flex-col items-center justify-between p-6 overflow-y-auto">
       <div className="w-full">
-        <Logo />
+        <Link href="/">
+          <Logo />
+        </Link>
         <div className="flex flex-col items-center gap-[2.2rem] w-full mt-20">
           {linksData.map((link) => (
             <SectionCard key={link.href} {...link} />

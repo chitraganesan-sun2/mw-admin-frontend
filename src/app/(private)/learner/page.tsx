@@ -16,6 +16,7 @@ import LearnerProfileDetails from "@/components/learner/ProfileDetails";
 import AlertModal from "@/components/common/Modals/AlertModal";
 import { downloadCsv } from "@/utils/downloadCsv";
 import { showToast } from "@/components/common/Toast";
+import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 interface PaginationParams {
   page: number | string;
@@ -118,17 +119,18 @@ export default function LearnersPage() {
         total: response.data.total,
       };
     } catch (error) {
+      // Re-throw so react-query's isError reflects reality - this used to swallow the
+      // error and return an empty page instead, making a failed fetch indistinguishable
+      // from "there are genuinely zero learners."
       console.error(error);
-      return {
-        items: [],
-        total: 0,
-      };
+      throw error;
     }
   };
 
   const {
     data: learners,
     isFetching,
+    isError,
     refetch,
   } = useQuery({
     queryKey: ["learners", page, size, onboardedStatusFilter, nameOrder, ageOrder, createdOnOrder],
@@ -242,22 +244,26 @@ export default function LearnersPage() {
           Download All Data (CSV)
         </button>
       </div>
-      <Table
-        key="learners"
-        data={learnerData}
-        columns={columns}
-        loading={isFetching}
-        pagination={{
-          current: page,
-          pageSize: size,
-          total: total,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
-        onChange={handleTableChange}
-        handleSeeMoreDetails={handleSeeMoreDetails}
-        handleDelete={handleDeleteLearner}
-      />
+      {isError ? (
+        <ErrorMsg />
+      ) : (
+        <Table
+          key="learners"
+          data={learnerData}
+          columns={columns}
+          loading={isFetching}
+          pagination={{
+            current: page,
+            pageSize: size,
+            total: total,
+            showSizeChanger: true,
+            showQuickJumper: true,
+          }}
+          onChange={handleTableChange}
+          handleSeeMoreDetails={handleSeeMoreDetails}
+          handleDelete={handleDeleteLearner}
+        />
+      )}
     </div>
   );
 }

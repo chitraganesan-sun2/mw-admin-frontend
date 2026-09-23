@@ -55,12 +55,13 @@ const Card = ({
             text={resource?.resource_category?.category_name || ""}
           />
         </div>
-        <p
+        <button
+          type="button"
           onClick={onClick}
-          className="font-medium text-black cursor-pointer flex flex-row gap-2"
+          className="font-medium text-black cursor-pointer flex flex-row gap-2 appearance-none border-0 bg-transparent p-0 text-left"
         >
           {resource?.resource_title}
-        </p>
+        </button>
         <div className="flex flex-col gap-1">
           <p className="text-[0.75rem] font-medium text-gray-light">
             Difficulty Level
@@ -68,28 +69,32 @@ const Card = ({
 
           <p className="font-medium text-black text-sm capitalize flex gap-4 justify-between">
             {resource?.difficulty_level}
-            <span
+            <button
+              type="button"
               onClick={onClick}
-              className="text-[0.75rem] font-medium text-primary underline cursor-pointer md:hidden"
+              className="text-[0.75rem] font-medium text-primary underline cursor-pointer md:hidden appearance-none border-0 bg-transparent p-0"
             >
               See more
-            </span>
+            </button>
           </p>
         </div>
         <div className="flex justify-between items-center">
-          <span
+          <button
+            type="button"
             onClick={onClick}
-            className="text-[0.75rem] font-medium text-primary underline cursor-pointer hidden md:block"
+            className="text-[0.75rem] font-medium text-primary underline cursor-pointer hidden md:block appearance-none border-0 bg-transparent p-0"
           >
             See more
-          </span>
+          </button>
           {handleReportClick && (
-            <span
+            <button
+              type="button"
+              aria-label="Report"
               onClick={() => handleReportClick(resource?.resource_id)}
-              className="cursor-pointer hidden md:block"
+              className="cursor-pointer hidden md:block appearance-none border-0 bg-transparent p-0 leading-none"
             >
               <FlagIcon />
-            </span>
+            </button>
           )}
         </div>
       </div>

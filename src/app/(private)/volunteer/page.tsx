@@ -16,6 +16,7 @@ import { formatString } from "@/utils/stringFunctions";
 import AlertModal from "@/components/common/Modals/AlertModal";
 import { downloadCsv } from "@/utils/downloadCsv";
 import { showToast } from "@/components/common/Toast";
+import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 interface PaginationParams {
   page: number | string;
@@ -129,6 +130,7 @@ export default function LearnersPage() {
   const {
     data: volunteers,
     isFetching,
+    isError,
     refetch,
   } = useQuery({
     queryKey: ["volunteers", page, size, onboardedStatusFilter, nameOrder, ageOrder, createdOnOrder],
@@ -245,22 +247,26 @@ export default function LearnersPage() {
           Download All Data (CSV)
         </button>
       </div>
-      <Table
-        key="volunteers"
-        data={volunteerData}
-        columns={columns}
-        loading={isFetching}
-        pagination={{
-          current: page,
-          pageSize: size,
-          total: total,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
-        onChange={handleTableChange}
-        handleSeeMoreDetails={handleSeeMoreDetails}
-        handleDelete={handleDeleteVolunteer}
-      />
+      {isError ? (
+        <ErrorMsg />
+      ) : (
+        <Table
+          key="volunteers"
+          data={volunteerData}
+          columns={columns}
+          loading={isFetching}
+          pagination={{
+            current: page,
+            pageSize: size,
+            total: total,
+            showSizeChanger: true,
+            showQuickJumper: true,
+          }}
+          onChange={handleTableChange}
+          handleSeeMoreDetails={handleSeeMoreDetails}
+          handleDelete={handleDeleteVolunteer}
+        />
+      )}
     </div>
   );
 }

@@ -12,6 +12,7 @@ import Image from "next/image";
 import { formatLearnerData } from "./format";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { showToast } from "@/components/common/Toast";
 
 dayjs.extend(customParseFormat);
 
@@ -92,6 +93,7 @@ const LearnerProfileDetails = () => {
     updateVerificationStatus("verification_completed")
       .catch((error) => {
         console.error(error);
+        showToast({ message: error?.data?.detail || "Failed to approve learner", type: "error" });
       })
       .finally(() => {
         setIsAcceptLoading(false);
@@ -103,6 +105,7 @@ const LearnerProfileDetails = () => {
     updateVerificationStatus("verification_rejected", rejectionReason.trim() || undefined)
       .catch((error) => {
         console.error(error);
+        showToast({ message: error?.data?.detail || "Failed to reject learner", type: "error" });
       })
       .finally(() => {
         setIsRejectLoading(false);

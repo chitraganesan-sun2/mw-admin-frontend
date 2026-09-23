@@ -11,12 +11,13 @@ const ExpandableText = ({ text, maxLength = 100, actionLabel = "" }: { text: str
                     {text.length > maxLength ? text.slice(0, maxLength - 20) : text}
                 </span>
                 {text.length > maxLength && (
-                    <span
+                    <button
+                        type="button"
                         onClick={() => setIsModalOpen(true)}
-                        className="cursor-pointer"
+                        className="cursor-pointer appearance-none border-0 bg-transparent p-0 inline"
                     >&nbsp;...
                         <span className="ml-1 !text-sm font-medium text-blue-500 underline">{actionLabel}</span>
-                    </span>
+                    </button>
                 )}
             </p>
             <Modal

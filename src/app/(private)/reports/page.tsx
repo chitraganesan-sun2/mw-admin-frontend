@@ -15,6 +15,7 @@ import ResourceModal from "@/components/resources/DetailModal";
 import { toUserTimeZone } from "@/utils/timeFunctions";
 import { formatString } from "@/utils/stringFunctions";
 import { getReportsByType } from "@/api/reports";
+import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 interface PaginationParams {
   page: number;
@@ -81,7 +82,7 @@ export default function ReportsPage() {
     return { data: [], total: 0 };
   }, [debouncedTab, pagination]);
 
-  const { data, isFetching, refetch } = useQuery({
+  const { data, isFetching, isError, refetch } = useQuery({
     queryKey: ["reports", debouncedTab, pagination.page, pagination.size],
     queryFn: getAllReports,
     placeholderData: (previousData) => previousData, 
@@ -129,22 +130,26 @@ export default function ReportsPage() {
         showSearch={true}
       />
 
-      <Table
-        key={`table-${currentTab}`}
-        rootClassName="!opcacity-100"
-        data={data?.data || []}
-        columns={columns}
-        loading={isFetching}
-        pagination={{
-          current: pagination.page,
-          pageSize: pagination.size,
-          total: data?.total || 0,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
-        onChange={handleTableChange}
-        handleSeePost={handleViewAction}
-      />
+      {isError ? (
+        <ErrorMsg />
+      ) : (
+        <Table
+          key={`table-${currentTab}`}
+          rootClassName="!opcacity-100"
+          data={data?.data || []}
+          columns={columns}
+          loading={isFetching}
+          pagination={{
+            current: pagination.page,
+            pageSize: pagination.size,
+            total: data?.total || 0,
+            showSizeChanger: true,
+            showQuickJumper: true,
+          }}
+          onChange={handleTableChange}
+          handleSeePost={handleViewAction}
+        />
+      )}
     </div>
   );
 }

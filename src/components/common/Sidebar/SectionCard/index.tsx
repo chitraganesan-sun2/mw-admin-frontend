@@ -20,7 +20,10 @@ const SectionCard = ({
   onClick,
 }: SectionCardProps) => {
   const pathname = usePathname();
-  const isActive = pathname.includes(href);
+  // Exact/prefix match, not a bare substring check - `.includes(href)` would treat e.g.
+  // "/report" as a match for pathname "/reports" (or any future route that happens to
+  // contain another route's name as a substring).
+  const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <div className="w-full flex items-center justify-center ">

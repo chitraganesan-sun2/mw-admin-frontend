@@ -138,7 +138,11 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
     return response.data;
   };
 
-  const { data: commentsData, isLoading: commentsLoading } = useQuery({
+  const {
+    data: commentsData,
+    isLoading: commentsLoading,
+    isError: commentsError,
+  } = useQuery({
     queryKey: ["get-post-comments", id],
     queryFn: getPostComments,
     enabled: !!id,
@@ -287,10 +291,14 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                   )}
                   <Button btnVariant="error" icon={<IoTrash size={18} />} title="Remove Post" onClick={() => handleTriggerDeleteEvent(post?.post_id)} />
                 </div>
-                <FeedModalCloseIcon
-                  className="cursor-pointer"
+                <button
+                  type="button"
+                  aria-label="Close"
                   onClick={handleCloseModal}
-                />
+                  className="appearance-none border-0 bg-transparent p-0 leading-none"
+                >
+                  <FeedModalCloseIcon className="cursor-pointer" />
+                </button>
               </div>
               <Divider />
               <div className="px-7 flex flex-col flex-1 overflow-hidden mt-3">
@@ -341,6 +349,12 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                     {commentsLoading ? (
                       <div className="flex flex-col gap-3">
                         <CommentSkeleton size={8} />
+                      </div>
+                    ) : commentsError ? (
+                      <div className="flex-center h-full w-full">
+                        <p className="text-md font-normal text-center text-red-500">
+                          Failed to load comments. Please try again.
+                        </p>
                       </div>
                     ) : (
                       commentsData?.items.map((comment: any) => (

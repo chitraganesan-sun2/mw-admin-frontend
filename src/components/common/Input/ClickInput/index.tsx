@@ -22,15 +22,16 @@ const ClickInput = ({
           {availableItems} Available
         </div>
       </div>
-      <div
-        className="flex items-center text-sm justify-between gap-2 cursor-pointer w-full bg-background border border-stroke rounded-lg p-2"
+      <button
+        type="button"
+        className="flex items-center text-sm justify-between gap-2 cursor-pointer w-full bg-background border border-stroke rounded-lg p-2 appearance-none text-left"
         onClick={onClick}
       >
         <div className="font-normal text-black">{selectedItems} Selected</div>
         <div className="font-normal text-black -rotate-90">
           <TiArrowSortedDown className="text-black text-lg" />
         </div>
-      </div>
+      </button>
     </div>
   );
 };

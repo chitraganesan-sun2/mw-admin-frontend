@@ -16,6 +16,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
 const { Panel } = Collapse;
 import noImage from "@/assets/images/no-image.webp";
+import { showToast } from "@/components/common/Toast";
 
 const getValue = (val: any) => val || "-";
 const getFormattedValue = (val?: string) => formatString(val || "") || "-";
@@ -439,6 +440,7 @@ const VolunteerProfileDetails = () => {
       })
       .catch((error) => {
         console.error(error);
+        showToast({ message: error?.data?.detail || "Failed to approve volunteer", type: "error" });
       })
       .finally(() => {
         setIsAcceptLoading(false);
@@ -464,6 +466,7 @@ const VolunteerProfileDetails = () => {
       })
       .catch((error) => {
         console.error(error);
+        showToast({ message: error?.data?.detail || "Failed to reject volunteer", type: "error" });
       })
       .finally(() => {
         setIsRejectLoading(false);

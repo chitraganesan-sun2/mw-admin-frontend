@@ -15,15 +15,16 @@ const TopicCard = ({ index, label, onClick }: Props) => {
 
     return (
         <>
-            <div
+            <button
+                type="button"
                 onClick={onClick}
-                className='w-[200px] cursor-pointer hover:opacity-80 transition-all duration-300 h-[100px] rounded-xl flex items-center justify-center'
+                className='w-[200px] cursor-pointer hover:opacity-80 transition-all duration-300 h-[100px] rounded-xl flex items-center justify-center appearance-none border-0'
                 style={{
                     backgroundImage: index % 2 === 0 ? gradient : gradientReverse,
                 }}
             >
                 <p className=' font-medium '>{label}</p>
-            </div>
+            </button>
         </>
     );
 };

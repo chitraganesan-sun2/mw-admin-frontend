@@ -132,9 +132,11 @@ const SelectionModal = ({
               </div>
               <div className="flex flex-wrap gap-2">
                 {group.items.map((item) => (
-                  <div
+                  <button
+                    type="button"
                     key={item.id}
-                    className={`cursor-pointer font-medium rounded-full py-1.5 px-4 !border-[3px] transition-colors duration-150 ${
+                    aria-pressed={selectedItems.includes(item.id)}
+                    className={`cursor-pointer font-medium rounded-full py-1.5 px-4 !border-[3px] transition-colors duration-150 appearance-none ${
                       selectedItems.includes(item.id)
                         ? selectedColor
                         : unselectedColor
@@ -142,7 +144,7 @@ const SelectionModal = ({
                     onClick={() => onSelectItem(item.id)}
                   >
                     {item.label}
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>

@@ -1,6 +1,5 @@
 import {
   CommunityIcon,
-  DashBoardIcon,
   HiringIcon,
   MailIcon,
   ReportIcon,
@@ -16,8 +15,6 @@ export const getHeaderTitle = (pathname: string) => {
 
 export const getHeaderIcon = (pathname: string) => {
   switch (getHeaderTitle(pathname)) {
-    case "dashboard":
-      return <DashBoardIcon />;
     case "volunteer":
       return <VolunteerIcon />;
     case "learner":

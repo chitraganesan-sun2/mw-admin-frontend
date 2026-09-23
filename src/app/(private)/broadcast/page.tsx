@@ -97,8 +97,12 @@ const Broadcast = () => {
       } else {
         setIsNoData(false);
       }
-    } catch (error) {
+    } catch (error: any) {
+      // Previously silent - allVolunteers/allLearners just stayed at their prior (empty)
+      // value with no indication anything failed, indistinguishable from "no recipients
+      // for this location/language."
       console.error(error);
+      toast.error(error?.data?.detail || error?.message || "Failed to load recipients");
     }
   };
 
