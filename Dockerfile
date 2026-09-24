@@ -1,7 +1,7 @@
 # ── MW Admin Frontend Dockerfile ───────────────────────────────────────────────
 # Multi-stage build for Next.js production deployment
 
-FROM node:20-alpine AS base
+FROM node:25-alpine AS base
 
 # ── Dependencies ──────────────────────────────────────────────────────────────
 FROM base AS deps
