@@ -15,6 +15,7 @@ import { usePathname } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useMemo, useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
+import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 type ShowModalType = "view" | "edit" | "create" | null;
 
@@ -27,14 +28,14 @@ export default function ResourcesPage() {
   const [resourceId, setResourceId] = useQueryState("id");
   const [mode, setMode] = useQueryState("mode");
 
-  const { data: ResourceCategories} =
+  const { data: ResourceCategories, isError: isErrorCategories } =
     useQuery({
       queryKey: ["resource-categories"],
       queryFn: async () =>
         (await GET_API(endpoints.resources.getCategories))?.data || [],
     });
 
-  const { data: resources, isFetching: isFetchingResources } = useQuery({
+  const { data: resources, isFetching: isFetchingResources, isError: isErrorResources } = useQuery({
     queryKey: ["resources", searchQuery],
     queryFn: async () =>
       (await getResources({ query: searchQuery || "" }))?.items || [],
@@ -79,6 +80,8 @@ export default function ResourcesPage() {
           topicSingleTitle={pageTitle}
           handleViewOrEditResource={handleViewOrEditResource}
         />
+      ) : isErrorCategories || isErrorResources ? (
+        <ErrorMsg />
       ) : (
         <>
           {ResourceCategories?.length > 0 && (

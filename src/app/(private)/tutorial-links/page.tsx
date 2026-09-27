@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
 import { safeHref } from "@/utils/safeHref";
+import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 const mutationError = (fallback: string) => (err: any) =>
   showToast({ message: err?.data?.detail || err?.message || fallback, type: "error" });
@@ -49,7 +50,7 @@ export default function TutorialLinksPage() {
   const [editingLink, setEditingLink] = useState<TutorialLink | null>(null);
   const [form] = Form.useForm();
 
-  const { data: links = [], isLoading } = useQuery({
+  const { data: links = [], isLoading, isError } = useQuery({
     queryKey: ["tutorial-links"],
     queryFn: async () => (await GET_API(endpoints.tutorialLinks.getAll))?.data || [],
   });
@@ -174,13 +175,17 @@ export default function TutorialLinksPage() {
         </Button>
       </div>
 
-      <Table
-        dataSource={links}
-        columns={columns}
-        rowKey="link_id"
-        loading={isLoading}
-        pagination={{ pageSize: 10 }}
-      />
+      {isError ? (
+        <ErrorMsg />
+      ) : (
+        <Table
+          dataSource={links}
+          columns={columns}
+          rowKey="link_id"
+          loading={isLoading}
+          pagination={{ pageSize: 10 }}
+        />
+      )}
 
       <Modal
         title={editingLink ? "Edit Tutorial Link" : "Add Tutorial Link"}
