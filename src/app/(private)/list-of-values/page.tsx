@@ -10,6 +10,7 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
+import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 const mutationError = (fallback: string) => (err: any) =>
   showToast({ message: err?.data?.detail || err?.message || fallback, type: "error" });
@@ -54,7 +55,7 @@ export default function ListOfValuesPage() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [form] = Form.useForm();
 
-  const { data: items = [], isLoading } = useQuery({
+  const { data: items = [], isLoading, isError } = useQuery({
     queryKey: ["lov", activeTab],
     queryFn: async () =>
       (await GET_API(endpoints.listOfValues.getAll(activeTab) + "?include_hidden=true"))?.data || [],
@@ -189,13 +190,17 @@ export default function ListOfValuesPage() {
         items={COLLECTION_TYPES.map((t) => ({ key: t.key, label: t.label }))}
       />
 
-      <Table
-        dataSource={items}
-        columns={columns}
-        rowKey={(record) => record[ID_MAP[activeTab]]}
-        loading={isLoading}
-        pagination={{ pageSize: 15 }}
-      />
+      {isError ? (
+        <ErrorMsg />
+      ) : (
+        <Table
+          dataSource={items}
+          columns={columns}
+          rowKey={(record) => record[ID_MAP[activeTab]]}
+          loading={isLoading}
+          pagination={{ pageSize: 15 }}
+        />
+      )}
 
       <Modal
         title={editingItem ? "Edit Item" : `Add New ${COLLECTION_TYPES.find((c) => c.key === activeTab)?.label?.slice(0, -1)}`}

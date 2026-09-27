@@ -3,7 +3,6 @@
 import Link from "next/link";
 import React from "react";
 import { usePathname } from "next/navigation";
-import Cookies from "js-cookie";
 interface SectionCardProps {
   href: string;
   text: string;

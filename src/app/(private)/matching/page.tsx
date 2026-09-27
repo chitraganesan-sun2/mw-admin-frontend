@@ -9,6 +9,7 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
+import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 type TriggerSide = "learner" | "volunteer";
 
@@ -95,6 +96,7 @@ export default function MatchingPage() {
   const {
     data: matchesData,
     isLoading: isMatchesLoading,
+    isError: isMatchesError,
   } = useQuery({
     queryKey: ["matches", matchesPage, matchesPageSize],
     queryFn: async () => {
@@ -258,23 +260,27 @@ export default function MatchingPage() {
         </Button>
       </div>
 
-      <Table
-        dataSource={matches}
-        columns={columns}
-        rowKey="match_id"
-        loading={isMatchesLoading}
-        pagination={{
-          current: matchesPage,
-          pageSize: matchesPageSize,
-          total: matchesTotal,
-          showSizeChanger: true,
-          showQuickJumper: true,
-        }}
-        onChange={(paginationConfig) => {
-          setMatchesPage(paginationConfig.current ?? 1);
-          setMatchesPageSize(paginationConfig.pageSize ?? 15);
-        }}
-      />
+      {isMatchesError ? (
+        <ErrorMsg />
+      ) : (
+        <Table
+          dataSource={matches}
+          columns={columns}
+          rowKey="match_id"
+          loading={isMatchesLoading}
+          pagination={{
+            current: matchesPage,
+            pageSize: matchesPageSize,
+            total: matchesTotal,
+            showSizeChanger: true,
+            showQuickJumper: true,
+          }}
+          onChange={(paginationConfig) => {
+            setMatchesPage(paginationConfig.current ?? 1);
+            setMatchesPageSize(paginationConfig.pageSize ?? 15);
+          }}
+        />
+      )}
     </div>
   );
 }
