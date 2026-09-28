@@ -19,7 +19,9 @@ const Login = () => {
     setloginFormData((prev: any) => ({ ...prev, [key]: value }));
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (loading) return;
     const { username, password } = loginFormData;
     if (!username || !password) return showToast({ message: "Please enter both username and password", type: "error" });
 
@@ -51,9 +53,11 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center h-screen bg-background">
-      <div className="flex flex-col min-w-[482px] min-h-[462px] bg-white p-10 rounded-[40px] gap-7">
+      <div className="flex flex-col w-full max-w-[482px] mx-4 min-h-[462px] bg-white p-6 sm:p-10 rounded-[40px] gap-7">
         <Logo className="flex-col" />
-        <div className="flex flex-col gap-6">
+        {/* A real <form> so Enter in either field submits (previously only a mouse
+            click on the button did anything). */}
+        <form className="flex flex-col gap-6" onSubmit={handleFormSubmit} noValidate>
           <h4 className="text-center text-xl font-medium text-black">
             Admin Portal
           </h4>
@@ -69,9 +73,9 @@ const Login = () => {
             customClassName="h-[40px] !border-none !text-white"
             btnVariant="secondary"
             title={"Login"}
-            onClick={handleFormSubmit}
+            htmlType="submit"
           />
-        </div>
+        </form>
       </div>
     </div>
   );
