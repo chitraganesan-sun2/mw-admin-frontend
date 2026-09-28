@@ -3,6 +3,7 @@ import { Drawer } from "antd";
 import React, { useState } from "react";
 import Divider from "../Divider";
 import Button from "@/components/common/Button";
+import DialogLabel from "./DialogLabel";
 
 interface SideModalProps {
     children: React.ReactNode;
@@ -38,11 +39,13 @@ const SideModal: React.FC<SideModalProps> = ({
                 closable={false}
                 onClose={onClose}
                 open={isOpen}
-                width={400}
+                // Fixed 400px overflowed phones; cap it at the viewport width.
+                width="min(400px, 100vw)"
                 className="py-4 !px-0"
                 styles={{ body: { padding: 0 } }}
             >
                 <div className="flex flex-col h-full">
+                    <DialogLabel label={title} />
                     <div className="flex items-center justify-between gap-4 mb-3 px-5">
                         <h1 className="text-xl font-medium">{title}</h1>
                         <button type="button" aria-label="Close" onClick={onClose} className="cursor-pointer bg-transparent border-0 p-0">

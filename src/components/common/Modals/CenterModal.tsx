@@ -1,4 +1,5 @@
 import { Modal } from "antd";
+import DialogLabel from "./DialogLabel";
 import React, { useState } from "react";
 import Button from "@/components/common/Button";
 import { IoMdCheckmark } from "react-icons/io";
@@ -39,6 +40,7 @@ const CenterModal: React.FC<CenterModalProps> = ({
         closeIcon={false}
         className={`${customClassName} !font-poppins`}
       >
+        <DialogLabel label={typeof title === "string" ? title : undefined} />
         <div className="flex items-center justify-between px-7 py-5">
           <p className="text-xl font-medium">{title}</p>
           <button type="button" aria-label="Close" className="cursor-pointer bg-transparent border-0 p-0" onClick={onClose}>

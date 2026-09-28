@@ -3,6 +3,7 @@ import ViewModal from "./ViewModal";
 import { FeedModalCloseIcon } from "@/assets/icons";
 import Divider from "../Divider";
 import Button from "../Button";
+import DialogLabel from "./DialogLabel";
 
 interface AlertModalProps {
   isOpen: boolean;
@@ -42,7 +43,7 @@ const AlertModal = ({
       case "danger":
         return "text-[#DC2626]";
       case "warning":
-        return "text-[#F59E0B]";
+        return "text-[#A16207]"; // was #F59E0B, 2.1:1 on white
       default:
         return "text-black";
     }
@@ -51,6 +52,7 @@ const AlertModal = ({
   return (
     <ViewModal modalOpen={isOpen} onClose={onClose} width={484} zIndex={100000}>
       <div className="flex flex-col gap-3 !font-poppins">
+        <DialogLabel label={title} />
         <div className="flex items-center justify-between px-5 pt-3">
           <h2 className={`text-2xl font-medium ${getTitleColor()}`}>{title}</h2>
           <button type="button" aria-label="Close" className="cursor-pointer bg-transparent border-0 p-0" onClick={onClose}>

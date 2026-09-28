@@ -3,7 +3,7 @@
 import { endpoints } from "@/api/constants";
 import { DELETE_API, GET_API } from "@/api/request";
 import Table from "@/components/Table";
-import { getLearnerColumns } from "@/constants/tablecolumn";
+import { getLearnerColumns, nextStatusSort } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { useQuery } from "@tanstack/react-query";
@@ -58,21 +58,11 @@ export default function LearnersPage() {
   };
 
   const handleOnboardedStatusFilter = () => {
-    if (
-      onboardedStatusFilter === null ||
-      onboardedStatusFilter === "verification_rejected"
-    ) {
-      setOnboardedStatusFilter("verification_completed");
-    } else if (onboardedStatusFilter === "verification_completed") {
-      setOnboardedStatusFilter("verification_pending");
-    } else if (onboardedStatusFilter === "verification_pending") {
-      setOnboardedStatusFilter("partially_filled");
-    } else if (onboardedStatusFilter === "partially_filled") {
-      setOnboardedStatusFilter("details_pending");
-    } else if (onboardedStatusFilter === "details_pending") {
-      setOnboardedStatusFilter("verification_rejected");
-    }
+    setOnboardedStatusFilter(nextStatusSort(onboardedStatusFilter));
+    // A re-sort from page 5 used to leave you on page 5 of the new order.
+    setPage("1");
   };
+
 
 
   const handleModalConfirm = () => {
@@ -83,7 +73,8 @@ export default function LearnersPage() {
   const columns = getLearnerColumns(
     handleSeeMoreDetails,
     handleDeleteLearner,
-    handleOnboardedStatusFilter
+    handleOnboardedStatusFilter,
+    onboardedStatusFilter
   );
 
   const getAlllearners = async ({

@@ -26,7 +26,7 @@ const config: Config = {
         dark: "#1E1E1E",
         stroke: "#E0E0E0",
         success: {
-          DEFAULT: "#22C55E",
+          DEFAULT: "#15803D", // green-700: 5.0:1 on white (#22C55E was 2.3:1, fails WCAG AA)
           light: "#DCFCE7",
         },
         gray: {
@@ -38,7 +38,7 @@ const config: Config = {
           light: "#FEE2E2",
         },
         warning: {
-          DEFAULT: "#CA8A04",
+          DEFAULT: "#A16207", // yellow-700: 4.9:1 on white (#CA8A04 was 2.9:1)
           light: "#FEF3C7",
         },
         learner: {

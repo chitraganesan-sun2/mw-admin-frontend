@@ -464,12 +464,16 @@ const Broadcast = () => {
                 className="text-sm flex items-center text-gray-500"
               >
                 {file.name}
-                <TiDelete
-                  className="text-red-500 text-xl cursor-pointer ml-2"
+                <button
+                  type="button"
+                  aria-label={`Remove attachment ${file.name}`}
+                  className="bg-transparent border-0 p-0 ml-2 cursor-pointer flex"
                   onClick={() => {
                     setAttachFiles((prev) => prev.filter((_, i) => i !== idx));
                   }}
-                />
+                >
+                  <TiDelete className="text-red-500 text-xl" />
+                </button>
               </span>
             ))}
             <label className="text-sm font-normal text-black flex items-center border border-stroke rounded-xl p-2 gap-2 cursor-pointer ml-2">

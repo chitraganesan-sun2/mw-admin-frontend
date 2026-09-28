@@ -20,6 +20,19 @@ const useAutoLogout = (router: any) => {
     router.push("/");
   }, [router]);
 
+  // lastActivity is shared by every open tab. Each tab's own timer used to log out on
+  // expiry unconditionally, so an idle background tab signed out the tab the admin was
+  // actively using. Re-check the shared value and reschedule if another tab was active.
+  const expireIfIdle = useCallback(() => {
+    const last = parseInt(Cookies.get("lastActivity") || "", 10);
+    const idleFor = Number.isFinite(last) ? Date.now() - last : INACTIVITY_TIMEOUT;
+    if (idleFor < INACTIVITY_TIMEOUT) {
+      timerRef.current = setTimeout(expireIfIdle, INACTIVITY_TIMEOUT - idleFor);
+      return;
+    }
+    clearSession();
+  }, [clearSession]);
+
   const resetTimer = useCallback(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
@@ -31,10 +44,10 @@ const useAutoLogout = (router: any) => {
         sameSite: "strict",
         secure: process.env.NODE_ENV === "production",
       });
-      timerRef.current = setTimeout(clearSession, INACTIVITY_TIMEOUT);
+      timerRef.current = setTimeout(expireIfIdle, INACTIVITY_TIMEOUT);
     }, DEBOUNCE_DELAY);
 
-  }, [clearSession]);
+  }, [expireIfIdle]);
 
   useEffect(() => {
     const lastActivity = Cookies.get("lastActivity");

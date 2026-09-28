@@ -101,10 +101,50 @@ export const getDonationColumns = (
   },
 ];
 
+// "Requested Status" is a priority sort (the backend ranks the chosen status first), not a
+// filter. The cycle used to have no way back to the default order and gave no hint of
+// which status was on top.
+export const STATUS_SORT_CYCLE: (string | null)[] = [
+  null,
+  "verification_completed",
+  "verification_pending",
+  "partially_filled",
+  "details_pending",
+  "verification_rejected",
+];
+const STATUS_SORT_LABEL: Record<string, string> = {
+  verification_completed: "Completed",
+  verification_pending: "Approval Pending",
+  partially_filled: "Partially Filled",
+  details_pending: "Form Incomplete",
+  verification_rejected: "Rejected",
+};
+export const nextStatusSort = (current: string | null) =>
+  STATUS_SORT_CYCLE[(STATUS_SORT_CYCLE.indexOf(current) + 1) % STATUS_SORT_CYCLE.length];
+
+const statusSortTitle = (handler?: () => void, active?: string | null) => {
+  const activeLabel = active ? STATUS_SORT_LABEL[active] : null;
+  return (
+    <button
+      type="button"
+      onClick={handler}
+      aria-label={`Sort by requested status${activeLabel ? ` (currently: ${activeLabel} first)` : ""}`}
+      className="bg-transparent border-0 w-full h-full flex items-center pr-5 gap-2 justify-between cursor-pointer text-left"
+    >
+      <span className="flex flex-col">
+        Requested Status
+        {activeLabel && <span className="text-xs font-normal text-gray-medium">{activeLabel} first</span>}
+      </span>
+      <FaSort className={activeLabel ? "text-primary" : "text-gray-400"} />
+    </button>
+  );
+};
+
 export const getVolunteerColumns = (
   handleSeeMoreDetails?: (id: string) => void,
   handleDeleteVolunteer?: (id: string) => void,
   handleOnboardedStatusFilter?: () => void,
+  activeStatusSort?: string | null,
 ) => [
   {
     title: "Name",
@@ -154,16 +194,7 @@ export const getVolunteerColumns = (
     },
   },
   {
-    title: (
-      <button
-        type="button"
-        onClick={handleOnboardedStatusFilter}
-        className="bg-transparent border-0 w-full h-full flex items-center pr-5 gap-2 justify-between cursor-pointer"
-      >
-        Requested Status
-        <FaSort className="text-gray-400 " />
-      </button>
-    ),
+    title: statusSortTitle(handleOnboardedStatusFilter, activeStatusSort),
     dataIndex: "onboarded_status",
     key: "onboarded_status",
     onFilter: (value: string, record: Volunteer) =>
@@ -262,6 +293,7 @@ export const getLearnerColumns = (
   handleSeeMoreDetails?: (id: string) => void,
   handleDeleteLearner?: (id: string) => void,
   handleOnboardedStatusFilter?: () => void,
+  activeStatusSort?: string | null,
 ) => [
   {
     title: "Name",
@@ -314,16 +346,7 @@ export const getLearnerColumns = (
     },
   },
   {
-    title: (
-      <button
-        type="button"
-        onClick={handleOnboardedStatusFilter}
-        className="bg-transparent border-0 w-full h-full flex pr-5 items-center gap-2 justify-between cursor-pointer"
-      >
-        Requested Status
-        <FaSort className="text-gray-400" />
-      </button>
-    ),
+    title: statusSortTitle(handleOnboardedStatusFilter, activeStatusSort),
     dataIndex: "onboarded_status",
     key: "onboarded_status",
     onFilter: (value: string, record: Learner) =>
