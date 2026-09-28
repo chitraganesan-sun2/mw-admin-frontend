@@ -12,9 +12,10 @@ import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
 import { safeHref } from "@/utils/safeHref";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 const mutationError = (fallback: string) => (err: any) =>
-  showToast({ message: err?.data?.detail || err?.message || fallback, type: "error" });
+  showToast({ message: getApiErrorMessage(err, fallback), type: "error" });
 
 interface TutorialLink {
   link_id: string;

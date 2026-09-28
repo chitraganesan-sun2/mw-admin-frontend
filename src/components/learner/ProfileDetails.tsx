@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
@@ -13,6 +13,7 @@ import { formatLearnerData } from "./format";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { showToast } from "@/components/common/Toast";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 dayjs.extend(customParseFormat);
 
@@ -42,15 +43,11 @@ const LearnerProfileDetails = () => {
   const [learnerId, setLearnerId] = useQueryState("learner_id");
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [hideFooter, setHideFooter] = useState(true);
-  const [learnerDetails, setLearnerDetails] = useState<LearnerDetails | null>(
-    null
-  );
   const [isAcceptLoading, setIsAcceptLoading] = useState(false);
   const [isRejectLoading, setIsRejectLoading] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["learner-details", learnerId],
     queryFn: async () =>
       (await GET_API(endpoints.learner.getLearnerDetails(learnerId || "")))
@@ -58,12 +55,14 @@ const LearnerProfileDetails = () => {
     enabled: !!learnerId,
   });
 
-  useEffect(() => {
-    if (data) {
-      setHideFooter(data?.onboarded_status !== "verification_pending");
-      setLearnerDetails(formatLearnerData(data));
-    }
-  }, [data]);
+  // Derived from the current query rather than copied into state: the copy survived a
+  // switch to another learner, so a failed fetch for learner B kept showing learner A's
+  // profile - with Approve/Reject acting on B.
+  const learnerDetails: LearnerDetails | null = useMemo(
+    () => (data ? formatLearnerData(data) : null),
+    [data]
+  );
+  const hideFooter = !data || data?.onboarded_status !== "verification_pending";
 
   useEffect(() => {
     if (learnerId) setIsOpen(true);
@@ -93,7 +92,7 @@ const LearnerProfileDetails = () => {
     updateVerificationStatus("verification_completed")
       .catch((error) => {
         console.error(error);
-        showToast({ message: error?.data?.detail || "Failed to approve learner", type: "error" });
+        showToast({ message: getApiErrorMessage(error, "Failed to approve learner"), type: "error" });
       })
       .finally(() => {
         setIsAcceptLoading(false);
@@ -105,7 +104,7 @@ const LearnerProfileDetails = () => {
     updateVerificationStatus("verification_rejected", rejectionReason.trim() || undefined)
       .catch((error) => {
         console.error(error);
-        showToast({ message: error?.data?.detail || "Failed to reject learner", type: "error" });
+        showToast({ message: getApiErrorMessage(error, "Failed to reject learner"), type: "error" });
       })
       .finally(() => {
         setIsRejectLoading(false);
@@ -327,7 +326,11 @@ const LearnerProfileDetails = () => {
       acceptLoading={isAcceptLoading}
       rejectLoading={isRejectLoading}
     >
-      {isLoading || !learnerDetails ? (
+      {isError ? (
+        <div className="h-[65vh] w-full flex items-center justify-center text-gray-500">
+          Couldn&apos;t load this learner&apos;s profile. Close and try again.
+        </div>
+      ) : isLoading || !learnerDetails ? (
         <div className="h-[65vh] w-full flex items-center justify-center">
           <Spin size="large" />
         </div>

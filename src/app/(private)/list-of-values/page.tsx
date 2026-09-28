@@ -11,9 +11,10 @@ import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 const mutationError = (fallback: string) => (err: any) =>
-  showToast({ message: err?.data?.detail || err?.message || fallback, type: "error" });
+  showToast({ message: getApiErrorMessage(err, fallback), type: "error" });
 
 const COLLECTION_TYPES = [
   { key: "skills", label: "Skills" },

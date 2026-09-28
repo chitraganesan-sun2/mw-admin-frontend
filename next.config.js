@@ -17,9 +17,9 @@ const safetyOrigin = safetyDashboardUrl
 const csp = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-    "style-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https://res.cloudinary.com",
-    "font-src 'self' data:",
+    "font-src 'self' data: https://fonts.gstatic.com",
     // Sentry's ingest domain - without this, every crash-report event is
     // silently blocked by the browser before it ever reaches Sentry (caught the
     // hard way on melody-wings-frontend's own Sentry rollout).

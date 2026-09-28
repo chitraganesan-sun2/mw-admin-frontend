@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Logo from "../common/Logo";
 import Input from "../common/Input";
 import Button from "../common/Button";
@@ -14,6 +14,11 @@ const Login = () => {
   const [loginFormData, setloginFormData] = useState<any>({});
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  // Submitting before hydration fell through to the browser's native form submit - a GET
+  // that put the password in the URL (history, server logs). Button stays disabled until
+  // React owns the form, and method="post" keeps it out of the URL regardless.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
 
   const handleChange = (key: string, value: any) => {
     setloginFormData((prev: any) => ({ ...prev, [key]: value }));
@@ -57,7 +62,7 @@ const Login = () => {
         <Logo className="flex-col" />
         {/* A real <form> so Enter in either field submits (previously only a mouse
             click on the button did anything). */}
-        <form className="flex flex-col gap-6" onSubmit={handleFormSubmit} noValidate>
+        <form className="flex flex-col gap-6" method="post" onSubmit={handleFormSubmit} noValidate>
           <h4 className="text-center text-xl font-medium text-black">
             Admin Portal
           </h4>
@@ -74,6 +79,7 @@ const Login = () => {
             btnVariant="secondary"
             title={"Login"}
             htmlType="submit"
+            disabled={!hydrated}
           />
         </form>
       </div>

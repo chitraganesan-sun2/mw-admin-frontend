@@ -115,7 +115,7 @@ export default function DonationDetailsModal({
         {isLoading ? (
           <Skeleton />
         ) : !data ? (
-          <div className="flex-1 flex items-center justify-center p-10 text-gray-500">No details available</div>
+          <div className="flex-1 flex items-center justify-center p-10 text-gray-500">Couldn&apos;t load this donation. Close and try again.</div>
         ) : (
           <div className="flex-1 overflow-y-auto px-10 py-6 space-y-10 hide-scrollbar">
             {/* combined stat card */}

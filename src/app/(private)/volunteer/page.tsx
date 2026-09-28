@@ -17,6 +17,7 @@ import AlertModal from "@/components/common/Modals/AlertModal";
 import { downloadCsv } from "@/utils/downloadCsv";
 import { showToast } from "@/components/common/Toast";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 interface PaginationParams {
   page: number | string;
@@ -206,7 +207,7 @@ export default function LearnersPage() {
       showToast({ message: "Volunteer deleted" });
       refetch();
     } catch (err: any) {
-      showToast({ message: err?.data?.detail || "Failed to delete volunteer", type: "error" });
+      showToast({ message: getApiErrorMessage(err, "Failed to delete volunteer"), type: "error" });
     } finally {
       setIsDeleteAlertOpen(false);
       setIsDeleteAlertLoading(false);

@@ -83,7 +83,7 @@ export default function ApplicationDetailsModal({
           </div>
         ) : !data ? (
           <div className="flex-1 flex items-center justify-center p-10 text-gray-500">
-            No data available
+            Couldn&apos;t load this application. Close and try again.
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto px-7 py-6">

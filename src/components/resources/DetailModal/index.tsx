@@ -18,6 +18,7 @@ import LottieLoader from "@/components/common/Loader/Lottie";
 import { useMemo, useState } from "react";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { safeHref } from "@/utils/safeHref";
+import AlertModal from "@/components/common/Modals/AlertModal";
 
 type DetailModalProps = {
   isOpen: boolean;
@@ -36,6 +37,7 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isKeeping, setIsKeeping] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   const { data: resource, isFetching } = useQuery({
     queryKey: ["resource-single", resourceId],
@@ -75,7 +77,10 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
     }
   };
   
-  const handleDelete = () => handleAction(deleteResource, resourceId, "Resource Deleted", "Resource not deleted", setIsDeleting);
+  const handleDelete = async () => {
+    await handleAction(deleteResource, resourceId, "Resource Deleted", "Resource not deleted", setIsDeleting);
+    setIsDeleteConfirmOpen(false);
+  };
   const handleKeepResource = () => handleAction(resolveReport, reportId, "Resource Kept", "Resource not kept", setIsKeeping);
   const handleRejectReport = () => handleAction(rejectReport, reportId, "Resource Rejected", "Resource not rejected", setIsRejecting);
   
@@ -121,7 +126,12 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
         <div className="flex flex-col max-h-[90vh]">
           <div className="flex-1 overflow-y-auto no-scrollbar">
             <div className="relative h-[260px] rounded-t-xl">
-              <Image src={resource?.resource_image?.image_url || "/placeholder.png"} fill className="object-cover" alt="Resource" />
+              {/* "/placeholder.png" never existed in public/, so image-less resources rendered a broken image. */}
+              {resource?.resource_image?.image_url ? (
+                <Image src={resource.resource_image.image_url} fill className="object-cover" alt="Resource" />
+              ) : (
+                <div className="absolute inset-0 bg-gray-100 rounded-t-xl" aria-hidden="true" />
+              )}
               <div className="flex items-center gap-4 w-fit absolute top-4 right-4">
                 <button type="button" onClick={onClose} aria-label="Close" className="bg-transparent border-0 block cursor-pointer">
                   <ModalCloseIcon />
@@ -165,10 +175,19 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
                 <Button loading={isRejecting} onClick={isLoading ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />
               </>
             )}
-            <Button loading={isDeleting} onClick={isLoading ? undefined : handleDelete} btnVariant="error" icon={<IoClose size={18} />} title="Remove Resource" />
+            <Button loading={isDeleting} onClick={isLoading ? undefined : () => setIsDeleteConfirmOpen(true)} btnVariant="error" icon={<IoClose size={18} />} title="Remove Resource" />
           </div>
         </div>
       )}
+      <AlertModal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => setIsDeleteConfirmOpen(false)}
+        onPrimaryAction={handleDelete}
+        title="Remove Resource"
+        description="Are you sure you want to remove this resource? This cannot be undone."
+        primaryActionText="Yes, Remove"
+        isLoading={isDeleting}
+      />
     </ViewModal>
   );
 };

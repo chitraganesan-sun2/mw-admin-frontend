@@ -21,6 +21,7 @@ import { useInView } from "react-intersection-observer";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import AlertModal from "@/components/common/Modals/AlertModal";
 import { showToast } from "@/components/common/Toast";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 interface FeedCardProps {
   onClick: (postId: string) => void;
@@ -81,7 +82,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
       queryClient.invalidateQueries({ queryKey: ["get-posts"] });
       showToast({ message: "Post deleted" });
     } catch (err: any) {
-      showToast({ message: err?.data?.detail || "Failed to delete post", type: "error" });
+      showToast({ message: getApiErrorMessage(err, "Failed to delete post"), type: "error" });
     } finally {
       setIsDeleteAlertOpen(false);
       setIsDeleteAlertLoading(false);

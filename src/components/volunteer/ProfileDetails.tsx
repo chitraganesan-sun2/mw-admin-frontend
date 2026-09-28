@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
@@ -17,6 +17,7 @@ dayjs.extend(customParseFormat);
 const { Panel } = Collapse;
 import noImage from "@/assets/images/no-image.webp";
 import { showToast } from "@/components/common/Toast";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 const getValue = (val: any) => val || "-";
 const getFormattedValue = (val?: string) => formatString(val || "") || "-";
@@ -34,8 +35,6 @@ const VolunteerProfileDetails = () => {
   const queryClient = useQueryClient();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [hideFooter, setHideFooter] = useState(true);
-  const [volunteerDetails, setVolunteerDetails] = useState<VolunteerDetails>();
 
   const [isAcceptLoading, setIsAcceptLoading] = useState(false);
   const [isRejectLoading, setIsRejectLoading] = useState(false);
@@ -55,7 +54,7 @@ const VolunteerProfileDetails = () => {
     }
   }, [isOpen]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["volunteer-details", volunteerId],
     queryFn: async () =>
       (
@@ -66,12 +65,14 @@ const VolunteerProfileDetails = () => {
     enabled: !!volunteerId,
   });
 
-  useEffect(() => {
-    if (data) {
-      setHideFooter(data?.onboarded_status !== "verification_pending");
-      setVolunteerDetails(formatVolunteerData(data));
-    }
-  }, [data]);
+  // Derived from the current query rather than copied into state: the copy survived a
+  // switch to another volunteer, so a failed fetch for volunteer B kept showing volunteer
+  // A's profile - with Approve/Reject acting on B.
+  const volunteerDetails: VolunteerDetails | undefined = useMemo(
+    () => (data ? formatVolunteerData(data) : undefined),
+    [data]
+  );
+  const hideFooter = !data || data?.onboarded_status !== "verification_pending";
 
   useEffect(() => {
     if (volunteerId) setIsOpen(true);
@@ -440,7 +441,7 @@ const VolunteerProfileDetails = () => {
       })
       .catch((error) => {
         console.error(error);
-        showToast({ message: error?.data?.detail || "Failed to approve volunteer", type: "error" });
+        showToast({ message: getApiErrorMessage(error, "Failed to approve volunteer"), type: "error" });
       })
       .finally(() => {
         setIsAcceptLoading(false);
@@ -466,7 +467,7 @@ const VolunteerProfileDetails = () => {
       })
       .catch((error) => {
         console.error(error);
-        showToast({ message: error?.data?.detail || "Failed to reject volunteer", type: "error" });
+        showToast({ message: getApiErrorMessage(error, "Failed to reject volunteer"), type: "error" });
       })
       .finally(() => {
         setIsRejectLoading(false);
@@ -487,7 +488,11 @@ const VolunteerProfileDetails = () => {
       acceptLoading={isAcceptLoading}
       rejectLoading={isRejectLoading}
     >
-      {isLoading ? (
+      {isError ? (
+        <div className="h-[65vh] w-full flex items-center justify-center text-gray-500">
+          Couldn&apos;t load this volunteer&apos;s profile. Close and try again.
+        </div>
+      ) : isLoading ? (
         <div className="h-[65vh] w-full flex items-center justify-center">
           <Spin size="large" />
         </div>

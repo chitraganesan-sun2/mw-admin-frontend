@@ -16,6 +16,16 @@ import { GET_API, POST_FORM_API } from "@/api/request";
 import toast from "react-hot-toast";
 import TextEditor from "@/components/RichTextEditor";
 import Loader from "@/components/common/Loader";
+import AlertModal from "@/components/common/Modals/AlertModal";
+import { getApiErrorMessage } from "@/utils/apiError";
+
+// Mirrors MAX_RECIPIENTS in the backend's routes/v1/admin/mail.py.
+const MAX_RECIPIENTS = 500;
+
+// The rich-text editor emits "<p><br></p>" for an empty body, which passed a plain
+// `.trim()` check and sent blank emails.
+const hasVisibleText = (html: string) =>
+  html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim().length > 0;
 
 const Broadcast = () => {
   const { setHeaderOptions } = useComponentStore();
@@ -39,6 +49,7 @@ const Broadcast = () => {
   const [isLocationLoading, setIsLocationLoading] = useState(false);
   const [isLanguageLoading, setIsLanguageLoading] = useState(false);
   const [isNoData, setIsNoData] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const [errors, setErrors] = useState({
     location: "",
@@ -102,7 +113,7 @@ const Broadcast = () => {
       // value with no indication anything failed, indistinguishable from "no recipients
       // for this location/language."
       console.error(error);
-      toast.error(error?.data?.detail || error?.message || "Failed to load recipients");
+      toast.error(getApiErrorMessage(error, "Failed to load recipients"));
     }
   };
 
@@ -188,16 +199,27 @@ const Broadcast = () => {
     if (!language) newErrors.language = "Language is required";
     if (volunteers.length === 0 && learners.length === 0) {
       newErrors.volunteers = "Select at least one volunteer or learner";
+    } else if (volunteers.length + learners.length > MAX_RECIPIENTS) {
+      newErrors.volunteers = `At most ${MAX_RECIPIENTS} recipients per broadcast`;
     }
     if (!subject.trim()) newErrors.subject = "Subject is required";
-    if (!message.trim()) newErrors.message = "Message is required";
+    if (!hasVisibleText(message)) newErrors.message = "Message is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSendEmail = () => {
+  const recipientCount = volunteers.length + learners.length;
+
+  // Sending is irreversible and can reach hundreds of people, so it goes through a
+  // confirmation showing exactly how many and what subject.
+  const handleSendClick = () => {
     if (!validate()) return;
+    setIsConfirmOpen(true);
+  };
+
+  const handleSendEmail = () => {
     setIsLoading(true);
+    const queuedMessage = `Email queued for ${recipientCount} recipient${recipientCount === 1 ? "" : "s"}`;
     const allEmails = [...volunteers, ...learners].join(",");
 
     // with attachment
@@ -218,11 +240,13 @@ const Broadcast = () => {
         .then(() => {
           setIsLoading(false);
           handleReset();
-          toast.success("Email sent successfully");
+          setIsConfirmOpen(false);
+          toast.success(queuedMessage);
         })
         .catch((err: any) => {
           setIsLoading(false);
-          toast.error(err?.data?.detail || err?.message || "Failed to send email");
+          setIsConfirmOpen(false);
+          toast.error(getApiErrorMessage(err, "Failed to send email"));
         });
     } else {
       // without attachment
@@ -234,11 +258,13 @@ const Broadcast = () => {
         .then(() => {
           handleReset();
           setIsLoading(false);
-          toast.success("Email sent successfully");
+          setIsConfirmOpen(false);
+          toast.success(queuedMessage);
         })
         .catch((err: any) => {
           setIsLoading(false);
-          toast.error(err?.data?.detail || err?.message || "Failed to send email");
+          setIsConfirmOpen(false);
+          toast.error(getApiErrorMessage(err, "Failed to send email"));
         });
     }
   };
@@ -276,6 +302,16 @@ const Broadcast = () => {
 
   return (
     <div className="p-10 flex flex-col gap-5">
+      <AlertModal
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onPrimaryAction={handleSendEmail}
+        type="warning"
+        title="Send Broadcast?"
+        description={`"${subject.trim()}" will be emailed to ${recipientCount} recipient${recipientCount === 1 ? "" : "s"} (${volunteers.length} volunteer${volunteers.length === 1 ? "" : "s"}, ${learners.length} learner${learners.length === 1 ? "" : "s"}). This cannot be undone.`}
+        primaryActionText="Yes, Send"
+        isLoading={isLoading}
+      />
       <SelectionModal
         isOpen={isLearnerSelectionOpen}
         onClose={() => setIsLearnerSelectionOpen(false)}
@@ -416,7 +452,7 @@ const Broadcast = () => {
         <div className="flex items-center justify-between">
           <Button
             className="bg-black px-12 h-[40px] font-poppins text-white rounded-xl font-normal"
-            onClick={handleSendEmail}
+            onClick={handleSendClick}
             disabled={isLoading}
           >
             {isLoading ? "Sending..." : "Send Email"}

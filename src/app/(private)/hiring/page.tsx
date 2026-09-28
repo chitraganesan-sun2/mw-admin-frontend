@@ -11,7 +11,8 @@ import {
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { showToast } from "@/components/common/Toast";
 import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
@@ -76,6 +77,8 @@ export default function HiringPage() {
   const [isDetailsLoading, setIsDetailsLoading] = useState(false);
   const [selectedDetails, setSelectedDetails] =
     useState<ApplicationDetails | null>(null);
+  // Guards against a slow earlier response overwriting the applicant opened after it.
+  const detailsRequestRef = useRef(0);
 
   useEffect(() => {
     setHeaderOptions({
@@ -318,10 +321,15 @@ export default function HiringPage() {
   };
 
   const handleViewApplication = async (row: HiringApplicationRow) => {
+    const requestId = ++detailsRequestRef.current;
+    // Cleared first: on a failed fetch the modal used to keep showing the previously
+    // opened applicant's details under the newly clicked row.
+    setSelectedDetails(null);
     setIsDetailsOpen(true);
     setIsDetailsLoading(true);
     try {
       const response: any = await GET_API(endpoints.hiring.getApplication(row.id));
+      if (requestId !== detailsRequestRef.current) return;
       const resData = response.data;
 
       const roleCode = resData?.selected_position || "";
@@ -513,9 +521,10 @@ export default function HiringPage() {
         },
       });
     } catch (error) {
-      console.error("Failed to fetch application details:", error);
+      if (requestId !== detailsRequestRef.current) return;
+      showToast({ message: "Failed to load application details", type: "error" });
     } finally {
-      setIsDetailsLoading(false);
+      if (requestId === detailsRequestRef.current) setIsDetailsLoading(false);
     }
   };
 

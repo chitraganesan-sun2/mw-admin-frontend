@@ -6,7 +6,8 @@ import { getDonationColumns, DonationRow } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useRef, useState } from "react";
+import { showToast } from "@/components/common/Toast";
 import DonationDetailsModal, { DonationDetails } from "@/components/donations/DonationDetailsModal";
 import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
@@ -160,6 +161,7 @@ export default function DonationsPage() {
     });
   }, [donationsData]);
 
+  const detailsRequestRef = useRef<string | null>(null);
   const handleViewMore = async (row: DonationRow) => {
     try {
       // Reset previous state immediately to avoid flash of old data
@@ -168,7 +170,9 @@ export default function DonationsPage() {
       setDetailsLoading(true);
       setIsDetailsOpen(true);
       // Fetch receipt/details by donation_id
+      detailsRequestRef.current = row.id;
       const res: any = await GET_API(endpoints.donations.getReceipt(row.id));
+      if (detailsRequestRef.current !== row.id) return;
       const payload = res?.data ?? res ?? {};
       const d = payload?.data ?? payload;
 
@@ -214,38 +218,13 @@ export default function DonationsPage() {
 
       setDetails(details);
     } catch (e) {
-      // fallback to row if API fails
-      setDetails({
-        amount: row.amount,
-        dateTime: row.donation_date ? new Date(row.donation_date).toISOString() : new Date().toISOString(),
-        status: "pending",
-        personal: {
-          firstName: row.donor_name === "Anonymous" ? "" : row.donor_name?.split(" ")[0],
-          lastName: row.donor_name === "Anonymous" ? "" : row.donor_name?.split(" ").slice(1).join(" "),
-          email: row.email || "-",
-          phone: "-",
-          dob: "-",
-        },
-        billing: {
-          address1: "-",
-          address2: "-",
-          city: "-",
-          state: "-",
-          zip: "-",
-          country: "-",
-        },
-        preferences: {
-          nameVisibility: row.donor_name === "Anonymous" ? "Hide full name" : "Show full name",
-          showOnDonorWall: "Yes",
-          dedication: "No Dedication",
-          campaign: "Melody Wings Fund",
-          coverFees: "No",
-          hearAboutUs: "-",
-          message: "",
-        },
-      });
+      // Used to render a record built from the table row with invented values (status
+      // "pending", "Show on donor wall: Yes", ...) that an admin couldn't tell from real data.
+      if (detailsRequestRef.current !== row.id) return;
+      setDetails(null);
+      showToast({ message: "Failed to load donation details", type: "error" });
     } finally {
-      setDetailsLoading(false);
+      if (detailsRequestRef.current === row.id) setDetailsLoading(false);
     }
   };
 
