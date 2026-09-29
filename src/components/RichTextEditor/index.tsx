@@ -49,8 +49,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     "underline",
     "strike",
     "align",
-    "list",
-    "bullet",
+    "list", // covers both ordered and bullet lists in Quill 2 - "bullet" isn't a format
     "link",
   ];
 
