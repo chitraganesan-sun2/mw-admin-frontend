@@ -87,12 +87,12 @@ const VolunteerProfileDetails = () => {
     // Try to parse the date with DD-MM-YYYY format first
     const parsedDate = dayjs(dateOfBirth, "DD-MM-YYYY", true);
     if (parsedDate.isValid()) {
-      return parsedDate.format("DD-MMM-YYYY");
+      return parsedDate.format("DD MMM YYYY");
     }
     
     // Fallback to general parsing
     const fallbackDate = dayjs(dateOfBirth);
-    return fallbackDate.isValid() ? fallbackDate.format("DD-MMM-YYYY") : "-";
+    return fallbackDate.isValid() ? fallbackDate.format("DD MMM YYYY") : "-";
   })();
 
   const profileDetails = [

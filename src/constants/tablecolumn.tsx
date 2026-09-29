@@ -4,12 +4,8 @@ import ExpandableText from "@/components/common/Modals/ExpandableText";
 import { Button } from "antd";
 import { DeleteIcon } from "@/assets/icons";
 import { FaSort } from "react-icons/fa";
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import advancedFormat from "dayjs/plugin/advancedFormat";
+import { formatDisplayDate } from "@/utils/moment";
 
-dayjs.extend(customParseFormat);
-dayjs.extend(advancedFormat);
 
 export interface DonationRow {
   id: string;
@@ -63,7 +59,7 @@ export const getDonationColumns = (
       if (!record.donation_date) return "-";
       return (
         <span className="text-base font-medium text-[#121212] !font-poppins !normal-case">
-          {dayjs(record.donation_date).format("Do MMM, YYYY").toLowerCase()}
+          {formatDisplayDate(record.donation_date)}
         </span>
       );
     },
@@ -190,7 +186,7 @@ export const getVolunteerColumns = (
     render: (_: unknown, record: Volunteer) => {
       const date = (record as any)?.created_on;
       if (!date) return "-";
-      return dayjs(date).format("DD MMM YYYY");
+      return formatDisplayDate(date);
     },
   },
   {
@@ -239,7 +235,7 @@ export const getVolunteerColumns = (
                     ? "Rejected"
                     : record.onboarded_status === "partially_filled"
                       ? "Details Pending"
-                      : "Form Incompleted"}
+                      : "Form Incomplete"}
             </span>
           </span>
         );
@@ -342,7 +338,7 @@ export const getLearnerColumns = (
     render: (_: unknown, record: Learner) => {
       const date = (record as any)?.created_on;
       if (!date) return "-";
-      return dayjs(date).format("DD MMM YYYY");
+      return formatDisplayDate(date);
     },
   },
   {
@@ -392,7 +388,7 @@ export const getLearnerColumns = (
                     ? "Rejected"
                     : record.onboarded_status === "partially_filled"
                       ? "Details Pending"
-                      : "Form Incompleted"}
+                      : "Form Incomplete"}
             </span>
           </span>
         );
@@ -486,7 +482,7 @@ export const getReportColumns = (
       "!w-[10%] p-6 text-sm text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
     render: (_: unknown, record: Report) => {
       if (!record.report_time) return "-";
-      return dayjs(record.report_time).format("DD-MMM-YYYY").toLowerCase();
+      return formatDisplayDate(record.report_time);
     },
   },
   {

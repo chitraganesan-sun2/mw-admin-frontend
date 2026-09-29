@@ -16,12 +16,10 @@ import { showToast } from "@/components/common/Toast";
 import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
-import dayjs from "dayjs";
-import advancedFormat from "dayjs/plugin/advancedFormat";
 
-dayjs.extend(advancedFormat);
 import Input from "@/components/common/Input";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+import { formatDisplayDate } from "@/utils/moment";
 
 const ROLE_MAPPINGS: Record<string, { title: string; description: string; responsibilities: string[] }> = {
   social_media_intern: {
@@ -55,7 +53,7 @@ const mapAppToHiringRow = (app: any): HiringApplicationRow => ({
   id: app.application_id,
   applicant_name: app.full_name,
   email: normalizeEmail(app?.email),
-  submission_date: dayjs(app.created_on).format("Do MMM, YYYY"),
+  submission_date: formatDisplayDate(app.created_on),
   submission_timestamp: new Date(app.created_on).getTime(),
 });
 

@@ -129,7 +129,7 @@ const LearnerProfileDetails = () => {
           ).isValid()
           ? dayjs(
               learnerDetails?.learner_personal_info?.learner_date_of_birth, "DD-MM-YYYY"
-            ).format("DD-MMM-YYYY")
+            ).format("DD MMM YYYY")
           : learnerDetails?.learner_personal_info?.learner_date_of_birth
         : "-",
     },
