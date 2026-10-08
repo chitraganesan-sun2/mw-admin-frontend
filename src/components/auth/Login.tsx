@@ -38,7 +38,7 @@ const Login = () => {
         const jwt = res?.data?.jwt;
         if (res?.status !== 200 || !jwt) {
           setLoading(false);
-          return showToast({ message: "Login failed - unexpected server response", type: "error" });
+          return showToast({ message: "Log in failed. Unexpected server response.", type: "error" });
         }
         Cookies.set("token", jwt, {
           expires: 1,
@@ -77,7 +77,7 @@ const Login = () => {
             loading={loading}
             customClassName="h-[40px] !border-none !text-white"
             btnVariant="secondary"
-            title={"Login"}
+            title={"Log In"}
             htmlType="submit"
             disabled={!hydrated}
           />

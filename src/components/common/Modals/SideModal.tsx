@@ -21,7 +21,7 @@ interface SideModalProps {
 
 const SideModal: React.FC<SideModalProps> = ({
     children,
-    title = "Some title",
+    title = "",
     onClose,
     saveButtonText = "Save",
     cancelButtonText = "Cancel",

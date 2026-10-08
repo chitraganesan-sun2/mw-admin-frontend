@@ -151,7 +151,7 @@ export default function DonationDetailsModal({
                 <Field label="Address Line 2" value={data.billing.address2} />
                 <Field label="City" value={data.billing.city} />
                 <Field label="State" value={data.billing.state} />
-                <Field label="ZIP Code" value={data.billing.zip} />
+                <Field label="Zip Code" value={data.billing.zip} />
                 <Field label="Country" value={data.billing.country} />
               </div>
             </div>

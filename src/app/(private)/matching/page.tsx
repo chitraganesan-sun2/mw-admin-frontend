@@ -182,7 +182,7 @@ export default function MatchingPage() {
       key: "session_status",
       render: (sessionStatus: string | null) => {
         if (!sessionStatus) {
-          return <Tag color="default">No Session Yet</Tag>;
+          return <Tag color="default">No Sessions Yet</Tag>;
         }
         const colorByStatus: Record<string, string> = {
           accepted: "green",

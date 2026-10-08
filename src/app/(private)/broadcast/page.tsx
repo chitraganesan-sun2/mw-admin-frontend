@@ -359,7 +359,7 @@ const Broadcast = () => {
             name="language"
             inputType="select"
             options={allLanguages}
-            placeholder="Select Language"
+            placeholder="Select language"
             value={language}
             onChange={(value) => handleSelectLanguage(value as string)}
           />

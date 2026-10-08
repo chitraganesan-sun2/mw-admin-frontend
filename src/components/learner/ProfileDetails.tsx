@@ -137,7 +137,7 @@ const LearnerProfileDetails = () => {
     { title: "Phone Number", value: getValue(learnerDetails?.phone_number) },
     { title: "Zip Code", value: getValue(learnerDetails?.zip_code) },
     { title: "Country", value: getFormattedValue(learnerDetails?.country) },
-    { title: "Timezone", value: getValue(learnerDetails?.timezone) },
+    { title: "Time Zone", value: getValue(learnerDetails?.timezone) },
     // { title: "UTC Offset", value: getValue(learnerDetails?.utc_offset) },
     {
       title: "Primary Language",
@@ -183,7 +183,7 @@ const LearnerProfileDetails = () => {
           value: formatArray(learnerDetails?.academic_strengths),
         },
         {
-          title: "Extracurriculars/ Non-Academic Skills",
+          title: "Extracurriculars / Non-Academic Skills",
           rootClassName: "col-span-2",
           value: getValue(learnerDetails?.extracurricular_activities),
         },
@@ -301,11 +301,11 @@ const LearnerProfileDetails = () => {
           value: learnerDetails?.cookie_consent_accepted ? "Yes" : "No",
         },
         {
-          title: "Acknowledgement of Privacy Policies",
+          title: "Acknowledgment of Privacy Policies",
           value: learnerDetails?.privacy_policy_accepted ? "Yes" : "No",
         },
         {
-          title: "Acknowledgement of Terms & Conditions",
+          title: "Acknowledgment of Terms & Conditions",
           value: learnerDetails?.terms_and_conditions_accepted ? "Yes" : "No",
         },
       ],

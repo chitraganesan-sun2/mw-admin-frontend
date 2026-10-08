@@ -103,7 +103,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
         onClose={() => setIsDeleteAlertOpen(false)}
         onPrimaryAction={hanldeDeleteEvent}
         title="Delete Post"
-        description="Are you sure you want to delete this post? Once deleted, it cannot be undone, and this action is irreversible. All associated data will be permanently removed, and you won’t be able to recover it. Please confirm if you wish to proceed."
+        description="Are you sure you want to delete this post? Once deleted, it cannot be undone, and this action is irreversible. All associated data will be permanently removed, and you won&apos;t be able to recover it. Please confirm if you wish to proceed."
         primaryActionText="Yes, Delete"
         isLoading={isDeleteAlertLoading}
       />
@@ -195,7 +195,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
                           onClick={() => onClick(post.post_id)}
                           className="cursor-pointer text-primary font-medium text-[#ffac71] bg-transparent border-0 p-0 inline"
                         >
-                          See More
+                          See more
                         </button>
                       )}
                     </p>
@@ -248,7 +248,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
                 <PostSkeleton size={2} />
               ) : (
                 <div className="w-full text-center font-semibold text-success mt-4 px-5">
-                  You’ve reached the end. No more posts to show!
+                  You&apos;ve reached the end. No more posts to show!
                 </div>
               )}
             </div>

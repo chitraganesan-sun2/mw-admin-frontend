@@ -265,7 +265,7 @@ export const getVolunteerColumns = (
     ),
   },
   {
-    title: "ACTIONS",
+    title: "Actions",
     key: "actions",
     className: "!p-0 !w-[200px] text-sm text-gray-900 !font-poppins",
     render: (_: any, record: any) => (
@@ -417,7 +417,7 @@ export const getLearnerColumns = (
     ),
   },
   {
-    title: "ACTIONS",
+    title: "Actions",
     key: "actions",
     className: "!p-0 !w-[200px] text-sm text-gray-900 !font-poppins",
     render: (_: any, record: any) => (

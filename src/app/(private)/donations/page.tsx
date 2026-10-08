@@ -209,7 +209,7 @@ export default function DonationsPage() {
           nameVisibility: d?.name_visibility || (d?.show_don_initi ? "Show full name" : "Hide full name"),
           showOnDonorWall: d?.show_on_donor_wall ? "Yes" : "No",
           dedication: d?.dedication || "No Dedication",
-          campaign: d?.fund_destination || "Melody Wings Fund",
+          campaign: d?.fund_destination || "MelodyWings Fund",
           coverFees: (typeof d?.cover_processing_fee === "boolean" ? d.cover_processing_fee : d?.cover_processing_fees) ? "Yes" : "No",
           hearAboutUs: d?.how_did_you_hear || d?.heard_from || "-",
           message: d?.message || "",

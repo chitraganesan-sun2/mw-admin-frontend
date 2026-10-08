@@ -114,7 +114,7 @@ const VolunteerProfileDetails = () => {
     { title: "Phone Number", value: getValue(volunteerDetails?.phone_number) },
     { title: "Zip Code", value: getValue(volunteerDetails?.zip_code) },
     { title: "Country", value: getFormattedValue(volunteerDetails?.country) },
-    { title: "Timezone", value: getValue(volunteerDetails?.timezone) },
+    { title: "Time Zone", value: getValue(volunteerDetails?.timezone) },
     // { title: "UTC Offset", value: getValue(volunteerDetails?.utc_offset) },
     {
       title: "Higher Education",
@@ -138,7 +138,7 @@ const VolunteerProfileDetails = () => {
       value: volunteerDetails?.preferred_learner_age_group,
     },
     {
-      title: "Favorite Free Time Activities",
+      title: "Favorite Free-Time Activities",
       value: volunteerDetails?.volunteer_favorite_activities,
     },
     {
@@ -323,7 +323,7 @@ const VolunteerProfileDetails = () => {
         },
         {
           title:
-            "Do you agree to follow the organization’s policies on confidentiality, behavior, and safeguarding procedures?",
+            "Do you agree to follow the organization's policies on confidentiality, behavior, and safeguarding procedures?",
           value:
             volunteerDetails?.other_consents_details
               ?.agree_to_follow_organization_policies,
@@ -569,7 +569,7 @@ const VolunteerProfileDetails = () => {
               <Panel
                 header={
                   <p className="text-xl font-medium underline">
-                    Some Legal Information
+                    Legal Information
                   </p>
                 }
                 key="1"

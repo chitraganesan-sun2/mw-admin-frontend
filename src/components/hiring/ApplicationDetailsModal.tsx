@@ -119,9 +119,9 @@ export default function ApplicationDetailsModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-24 gap-y-6 mt-5">
                 <Field label="Full Name" value={data.basicInfo.fullName} />
                 <Field label="Email Address" value={data.basicInfo.email} />
-                <Field label="Phone No" value={data.basicInfo.phoneNo} />
+                <Field label="Phone Number" value={data.basicInfo.phoneNo} />
                 <Field label="Date of Birth" value={data.basicInfo.dob} />
-                <Field label="Country of Residence*" value={data.basicInfo.country} />
+                <Field label="Country of Residence" value={data.basicInfo.country} />
                 <Field label="State" value={data.basicInfo.state} />
                 <Field
                   label="LinkedIn or Portfolio"
@@ -132,7 +132,7 @@ export default function ApplicationDetailsModal({
                   value={data.basicInfo.schoolOrUniversity}
                 />
                 <Field
-                  label="Grade Level/ Year"
+                  label="Grade Level / Year"
                   value={data.basicInfo.gradeLevelOrYear}
                 />
                 <Field

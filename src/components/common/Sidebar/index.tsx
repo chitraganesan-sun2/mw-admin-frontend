@@ -115,7 +115,7 @@ const Sidebar = () => {
           className="flex items-center gap-2 text-[#B91C1C] px-4 py-2 rounded-md"
         >
           <SignOutIcon />
-          <span>Sign Out</span>
+          <span>Log Out</span>
         </button>
         )}
       </div>
