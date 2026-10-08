@@ -197,7 +197,7 @@ export default function LearnersPage() {
       showToast({ message: "Volunteer deleted" });
       refetch();
     } catch (err: any) {
-      showToast({ message: getApiErrorMessage(err, "Failed to delete volunteer"), type: "error" });
+      showToast({ message: getApiErrorMessage(err, "Couldn't delete the volunteer. Please try again."), type: "error" });
     } finally {
       setIsDeleteAlertOpen(false);
       setIsDeleteAlertLoading(false);
@@ -213,7 +213,7 @@ export default function LearnersPage() {
 
   useEffect(() => {
     setHeaderOptions({
-      title: "Volunteers Request",
+      title: "Volunteers",
       titleIcon: getHeaderIcon(pathname),
     });
   }, [setHeaderOptions]);

@@ -152,7 +152,7 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
               </div>
               <Divider />
               <div className="flex flex-col gap-2">
-                <p className="font-medium text-black">Skills Gained</p>
+                <p className="font-medium text-black">Skills You Gain</p>
                 <div className="flex flex-wrap gap-y-2">{renderSkills()}</div>
               </div>
               <Divider />

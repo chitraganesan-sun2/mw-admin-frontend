@@ -97,7 +97,7 @@ export const getDonationColumns = (
   },
 ];
 
-// "Requested Status" is a priority sort (the backend ranks the chosen status first), not a
+// "Approval Status" is a priority sort (the backend ranks the chosen status first), not a
 // filter. The cycle used to have no way back to the default order and gave no hint of
 // which status was on top.
 export const STATUS_SORT_CYCLE: (string | null)[] = [
@@ -124,11 +124,11 @@ const statusSortTitle = (handler?: () => void, active?: string | null) => {
     <button
       type="button"
       onClick={handler}
-      aria-label={`Sort by requested status${activeLabel ? ` (currently: ${activeLabel} first)` : ""}`}
+      aria-label={`Sort by approval status${activeLabel ? ` (currently: ${activeLabel} first)` : ""}`}
       className="bg-transparent border-0 w-full h-full flex items-center pr-5 gap-2 justify-between cursor-pointer text-left"
     >
       <span className="flex flex-col">
-        Requested Status
+        Approval Status
         {activeLabel && <span className="text-xs font-normal text-gray-medium">{activeLabel} first</span>}
       </span>
       <FaSort className={activeLabel ? "text-primary" : "text-gray-400"} />
@@ -172,8 +172,11 @@ export const getVolunteerColumns = (
     dataIndex: "email",
     key: "email",
     sorter: false,
-    className:
-      "px-6 !py-3 w-[100px] !lowercase text-sm text-gray-900 !font-poppins",
+    className: "px-6 !py-3 w-[100px] text-sm text-gray-900 !font-poppins",
+    // Lowercased in the cell only - a column-level `lowercase` class also lowercased the header.
+    render: (_: unknown, record: { email?: string }) => (
+      <span className="text-gray-900 !font-poppins">{record?.email?.toLowerCase?.() || "-"}</span>
+    ),
   },
   {
     title: "Registered",
@@ -320,7 +323,7 @@ export const getLearnerColumns = (
     dataIndex: "email",
     key: "email",
     sorter: false,
-    className: "p-6 w-[100px] !lowercase text-sm text-gray-900 !font-poppins",
+    className: "p-6 w-[100px] text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: Learner) => (
       <span className="text-gray-900 !font-poppins">
         {record?.email?.toLowerCase() || "-"}

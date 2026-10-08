@@ -101,7 +101,7 @@ export default function SafetyPage() {
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <p className="text-lg font-medium">Failed to load dashboard</p>
+          <p className="text-lg font-medium">Couldn't load the dashboard. Please try again.</p>
           <p className="text-sm text-gray-500 text-center max-w-md">
             Could not connect to the safety dashboard. This may be caused by a
             network issue, incorrect URL, or the dashboard service being

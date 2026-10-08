@@ -124,7 +124,7 @@ export default function MatchingPage() {
       }
     },
     onError: () => {
-      showToast({ type: "error", message: "Failed to trigger match." });
+      showToast({ type: "error", message: "Couldn't trigger the match. Please try again." });
     },
   });
 

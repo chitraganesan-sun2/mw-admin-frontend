@@ -222,7 +222,7 @@ export default function DonationsPage() {
       // "pending", "Show on donor wall: Yes", ...) that an admin couldn't tell from real data.
       if (detailsRequestRef.current !== row.id) return;
       setDetails(null);
-      showToast({ message: "Failed to load donation details", type: "error" });
+      showToast({ message: "Couldn't load the donation details. Please try again.", type: "error" });
     } finally {
       if (detailsRequestRef.current === row.id) setDetailsLoading(false);
     }

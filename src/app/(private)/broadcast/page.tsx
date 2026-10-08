@@ -113,7 +113,7 @@ const Broadcast = () => {
       // value with no indication anything failed, indistinguishable from "no recipients
       // for this location/language."
       console.error(error);
-      toast.error(getApiErrorMessage(error, "Failed to load recipients"));
+      toast.error(getApiErrorMessage(error, "Couldn't load the recipients. Please try again."));
     }
   };
 
@@ -246,7 +246,7 @@ const Broadcast = () => {
         .catch((err: any) => {
           setIsLoading(false);
           setIsConfirmOpen(false);
-          toast.error(getApiErrorMessage(err, "Failed to send email"));
+          toast.error(getApiErrorMessage(err, "Couldn't send the email. Please try again."));
         });
     } else {
       // without attachment
@@ -264,7 +264,7 @@ const Broadcast = () => {
         .catch((err: any) => {
           setIsLoading(false);
           setIsConfirmOpen(false);
-          toast.error(getApiErrorMessage(err, "Failed to send email"));
+          toast.error(getApiErrorMessage(err, "Couldn't send the email. Please try again."));
         });
     }
   };

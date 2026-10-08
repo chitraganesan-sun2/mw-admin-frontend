@@ -170,7 +170,7 @@ export default function TutorialLinksPage() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Tutorial Links</h1>
+        <h2 className="text-2xl font-semibold">Tutorial Links</h2>
         <Button type="primary" onClick={() => { setEditingLink(null); form.resetFields(); setIsModalOpen(true); }}>
           + Add Link
         </Button>

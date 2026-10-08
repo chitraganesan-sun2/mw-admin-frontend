@@ -353,7 +353,7 @@ export default function HiringPage() {
       });
     } catch (error) {
       if (requestId !== detailsRequestRef.current) return;
-      showToast({ message: "Failed to load application details", type: "error" });
+      showToast({ message: "Couldn't load the application details. Please try again.", type: "error" });
     } finally {
       if (requestId === detailsRequestRef.current) setIsDetailsLoading(false);
     }

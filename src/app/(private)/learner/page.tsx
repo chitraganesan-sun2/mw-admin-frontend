@@ -198,7 +198,7 @@ export default function LearnersPage() {
       showToast({ message: "Learner deleted" });
       refetch();
     } catch (err: any) {
-      showToast({ message: getApiErrorMessage(err, "Failed to delete learner"), type: "error" });
+      showToast({ message: getApiErrorMessage(err, "Couldn't delete the learner. Please try again."), type: "error" });
     } finally {
       setIsDeleteAlertOpen(false);
       setIsDeleteAlertLoading(false);
@@ -210,7 +210,7 @@ export default function LearnersPage() {
 
   useEffect(() => {
     setHeaderOptions({
-      title: "Learners List",
+      title: "Learners",
       titleIcon: getHeaderIcon(pathname),
     });
   }, [setHeaderOptions]);

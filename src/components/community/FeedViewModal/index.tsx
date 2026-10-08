@@ -353,7 +353,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                     ) : commentsError ? (
                       <div className="flex-center h-full w-full">
                         <p className="text-md font-normal text-center text-red-500">
-                          Failed to load comments. Please try again.
+                          Couldn't load the comments. Please try again.
                         </p>
                       </div>
                     ) : (

@@ -82,7 +82,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
       queryClient.invalidateQueries({ queryKey: ["get-posts"] });
       showToast({ message: "Post deleted" });
     } catch (err: any) {
-      showToast({ message: getApiErrorMessage(err, "Failed to delete post"), type: "error" });
+      showToast({ message: getApiErrorMessage(err, "Couldn't delete the post. Please try again."), type: "error" });
     } finally {
       setIsDeleteAlertOpen(false);
       setIsDeleteAlertLoading(false);

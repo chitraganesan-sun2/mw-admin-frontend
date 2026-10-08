@@ -441,7 +441,7 @@ const VolunteerProfileDetails = () => {
       })
       .catch((error) => {
         console.error(error);
-        showToast({ message: getApiErrorMessage(error, "Failed to approve volunteer"), type: "error" });
+        showToast({ message: getApiErrorMessage(error, "Couldn't approve the volunteer. Please try again."), type: "error" });
       })
       .finally(() => {
         setIsAcceptLoading(false);
@@ -467,7 +467,7 @@ const VolunteerProfileDetails = () => {
       })
       .catch((error) => {
         console.error(error);
-        showToast({ message: getApiErrorMessage(error, "Failed to reject volunteer"), type: "error" });
+        showToast({ message: getApiErrorMessage(error, "Couldn't reject the volunteer. Please try again."), type: "error" });
       })
       .finally(() => {
         setIsRejectLoading(false);

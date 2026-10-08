@@ -25,12 +25,12 @@ const Sidebar = () => {
   const linksData = [
     {
       href: "/volunteer",
-      text: "Volunteer",
+      text: "Volunteers",
       icon: <VolunteerIcon />,
     },
     {
       href: "/learner",
-      text: "Learner",
+      text: "Learners",
       icon: <VolunteerIcon />,
     },
     {
@@ -55,7 +55,7 @@ const Sidebar = () => {
     },
     {
       href: "/broadcast",
-      text: "Broadcast",
+      text: "Email Broadcast",
       icon: <MailIcon />,
     },
     {
@@ -65,12 +65,12 @@ const Sidebar = () => {
     },
     {
       href: "/safety",
-      text: "Safety",
+      text: "Safety Monitoring",
       icon: <SafetyIcon />,
     },
     {
       href: "/tutorial-links",
-      text: "Tutorials",
+      text: "Tutorial Links",
       icon: <ResourceIcon />,
     },
     {

@@ -92,7 +92,7 @@ const LearnerProfileDetails = () => {
     updateVerificationStatus("verification_completed")
       .catch((error) => {
         console.error(error);
-        showToast({ message: getApiErrorMessage(error, "Failed to approve learner"), type: "error" });
+        showToast({ message: getApiErrorMessage(error, "Couldn't approve the learner. Please try again."), type: "error" });
       })
       .finally(() => {
         setIsAcceptLoading(false);
@@ -104,7 +104,7 @@ const LearnerProfileDetails = () => {
     updateVerificationStatus("verification_rejected", rejectionReason.trim() || undefined)
       .catch((error) => {
         console.error(error);
-        showToast({ message: getApiErrorMessage(error, "Failed to reject learner"), type: "error" });
+        showToast({ message: getApiErrorMessage(error, "Couldn't reject the learner. Please try again."), type: "error" });
       })
       .finally(() => {
         setIsRejectLoading(false);
@@ -305,7 +305,7 @@ const LearnerProfileDetails = () => {
           value: learnerDetails?.privacy_policy_accepted ? "Yes" : "No",
         },
         {
-          title: "Acknowledgment of Terms & Conditions",
+          title: "Acknowledgment of Terms and Conditions",
           value: learnerDetails?.terms_and_conditions_accepted ? "Yes" : "No",
         },
       ],

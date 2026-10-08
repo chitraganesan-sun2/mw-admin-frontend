@@ -25,6 +25,6 @@ export async function downloadCsv(endpoint: string, filename: string) {
         link.remove();
         window.URL.revokeObjectURL(objectUrl);
     } catch (error) {
-        showToast({ message: "Failed to download CSV export", type: "error" });
+        showToast({ message: "Couldn't download the CSV export. Please try again.", type: "error" });
     }
 }
