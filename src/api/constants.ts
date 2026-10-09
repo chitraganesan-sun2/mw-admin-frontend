@@ -51,6 +51,14 @@ export const endpoints: EndpointProps = {
     resolveReport: (report_id: string) => `admin/report/${report_id}`,
     rejectReport: (report_id: string) => `admin/report/${report_id}`,
   },
+  profileChanges: {
+    list: (status: string, page: number, pageSize: number) =>
+      `admin/profile-changes?status=${status}&page=${page}&page_size=${pageSize}`,
+    get: (id: string) => `admin/profile-changes/${id}`,
+    approve: (id: string) => `admin/profile-changes/${id}/approve`,
+    reject: (id: string, reason?: string) =>
+      `admin/profile-changes/${id}/reject${reason ? `?reason=${encodeURIComponent(reason)}` : ""}`,
+  },
   hiring: {
     getAllApplications: "admin/join-us",
     getApplication: (application_id: string) => `admin/join-us/${application_id}`,
