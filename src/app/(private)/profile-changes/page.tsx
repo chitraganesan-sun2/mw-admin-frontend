@@ -107,7 +107,7 @@ export default function ProfileChangesPage() {
     if (!selectedId) return;
     setRejectLoading(true);
     try {
-      await PUT_API(endpoints.profileChanges.reject(selectedId, reason || undefined), {});
+      await PUT_API(endpoints.profileChanges.reject(selectedId), { reason: reason || undefined });
       showToast({ message: "Changes rejected. The profile was left as it was." });
       closeModal();
       refresh();

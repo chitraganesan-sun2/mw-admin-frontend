@@ -78,8 +78,8 @@ const LearnerProfileDetails = () => {
     if (!learnerId) return;
 
     await PUT_API(
-      endpoints.onboarding.updateOnboardingStatus(learnerId, "learner", status, reason),
-      {}
+      endpoints.onboarding.updateOnboardingStatus(learnerId, "learner", status),
+      { reason: reason || undefined }
     );
     handleModalClose();
     queryClient.invalidateQueries({ queryKey: ["learners"] });

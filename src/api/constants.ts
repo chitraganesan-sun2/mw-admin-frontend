@@ -5,8 +5,9 @@ export const endpoints: EndpointProps = {
     login: "admin/auth/sign_in",
   },
   onboarding: {
-    updateOnboardingStatus: (id: string, type: UserType, status: string, reason?: string) =>
-      `admin/onboarding/update_verification_status/${type}/${id}/${status}${reason ? `?reason=${encodeURIComponent(reason)}` : ""}`,
+    // The rejection reason goes in the PUT body, not the URL (URLs end up in access logs/Sentry).
+    updateOnboardingStatus: (id: string, type: UserType, status: string) =>
+      `admin/onboarding/update_verification_status/${type}/${id}/${status}`,
   },
   common: (path: CommonPath) => `common/${path}/`,
   volunteer: {
@@ -56,8 +57,7 @@ export const endpoints: EndpointProps = {
       `admin/profile-changes?status=${status}&page=${page}&page_size=${pageSize}`,
     get: (id: string) => `admin/profile-changes/${id}`,
     approve: (id: string) => `admin/profile-changes/${id}/approve`,
-    reject: (id: string, reason?: string) =>
-      `admin/profile-changes/${id}/reject${reason ? `?reason=${encodeURIComponent(reason)}` : ""}`,
+    reject: (id: string) => `admin/profile-changes/${id}/reject`,
   },
   hiring: {
     getAllApplications: "admin/join-us",

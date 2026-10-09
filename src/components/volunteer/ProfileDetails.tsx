@@ -453,10 +453,9 @@ const VolunteerProfileDetails = () => {
       endpoints.onboarding.updateOnboardingStatus(
         volunteerId as string,
         "volunteer",
-        "verification_rejected",
-        rejectionReason.trim() || undefined
+        "verification_rejected"
       ),
-      {}
+      { reason: rejectionReason.trim() || undefined }
     )
       .then(() => {
         handleModalClose();

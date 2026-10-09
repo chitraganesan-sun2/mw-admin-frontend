@@ -447,7 +447,7 @@ export const getReportColumns = (
     title: "Title",
     dataIndex: "title",
     key: "title",
-    sorter: true,
+    sorter: false,
     className:
       "!w-[20%] p-6 text-sm !font-semibold text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
   },
@@ -455,7 +455,7 @@ export const getReportColumns = (
     title: "Reported By",
     dataIndex: "profile_name",
     key: "profile_name",
-    sorter: true,
+    sorter: false,
     className:
       "!w-[15%] p-6 text-sm !font-semibold text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
   },
@@ -480,7 +480,7 @@ export const getReportColumns = (
     title: "Reported On",
     dataIndex: "report_time",
     key: "report_time",
-    sorter: true,
+    sorter: false,
     className:
       "!w-[10%] p-6 text-sm text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
     render: (_: unknown, record: Report) => {
@@ -586,9 +586,8 @@ export const getHiringColumns = (
     title: "Submission date",
     dataIndex: "submission_date",
     key: "submission_date",
-    sorter: (a: HiringApplicationRow, b: HiringApplicationRow) =>
-      (a.submission_timestamp ?? 0) - (b.submission_timestamp ?? 0),
-    sortDirections: ["ascend", "descend"] as const,
+    // Server-paginated and already newest-first; a client sorter only reordered the visible page.
+    sorter: false,
     className:
       "p-6 w-[200px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
   },
