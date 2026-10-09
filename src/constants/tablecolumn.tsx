@@ -178,7 +178,7 @@ export const getVolunteerColumns = (
     className: "px-6 !py-3 w-[100px] text-sm text-gray-900 !font-poppins",
     // Lowercased in the cell only - a column-level `lowercase` class also lowercased the header.
     render: (_: unknown, record: { email?: string }) => (
-      <span className="text-gray-900 !font-poppins">{record?.email?.toLowerCase?.() || "-"}</span>
+      <span className="text-gray-900 !font-poppins !normal-case">{record?.email?.toLowerCase?.() || "-"}</span>
     ),
   },
   {
@@ -320,7 +320,7 @@ export const getLearnerColumns = (
     sorter: false,
     className: "p-6 w-[100px] text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: Learner) => (
-      <span className="text-gray-900 !font-poppins">
+      <span className="text-gray-900 !font-poppins !normal-case">
         {record?.email?.toLowerCase() || "-"}
       </span>
     ),
