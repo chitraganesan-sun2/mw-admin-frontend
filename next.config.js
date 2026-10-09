@@ -1,12 +1,19 @@
 /** @type {import('next').NextConfig} */
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-const apiOrigin = apiUrl ? new URL(apiUrl).origin : "";
+// A malformed value (e.g. missing scheme) used to throw here and fail the whole build.
+const originOf = (value) => {
+    try {
+        return value ? new URL(value).origin : "";
+    } catch {
+        console.warn(`next.config.js: ignoring malformed URL "${value}"`);
+        return "";
+    }
+};
+const apiOrigin = originOf(apiUrl);
 
 const safetyDashboardUrl = process.env.NEXT_PUBLIC_SAFETY_DASHBOARD_URL || "";
-const safetyOrigin = safetyDashboardUrl
-    ? new URL(safetyDashboardUrl).origin
-    : "";
+const safetyOrigin = originOf(safetyDashboardUrl);
 
 // App-wide Content-Security-Policy. 'unsafe-inline'/'unsafe-eval' stay on
 // script-src because Next's runtime + antd need them and this app has no nonce

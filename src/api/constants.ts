@@ -54,7 +54,7 @@ export const endpoints: EndpointProps = {
   },
   profileChanges: {
     list: (status: string, page: number, pageSize: number) =>
-      `admin/profile-changes?status=${status}&page=${page}&page_size=${pageSize}`,
+      `admin/profile-changes?status=${status}&page=${page}&size=${pageSize}`,
     get: (id: string) => `admin/profile-changes/${id}`,
     approve: (id: string) => `admin/profile-changes/${id}/approve`,
     reject: (id: string) => `admin/profile-changes/${id}/reject`,

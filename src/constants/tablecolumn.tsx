@@ -108,13 +108,16 @@ export const STATUS_SORT_CYCLE: (string | null)[] = [
   "details_pending",
   "verification_rejected",
 ];
-const STATUS_SORT_LABEL: Record<string, string> = {
+// One label per status, used by the Status cell AND the sort control (they used to disagree:
+// the cell said "Details Pending" where the sort said "Partially Filled").
+export const STATUS_LABEL: Record<string, string> = {
   verification_completed: "Completed",
   verification_pending: "Approval Pending",
-  partially_filled: "Partially Filled",
+  partially_filled: "Form In Progress",
   details_pending: "Form Incomplete",
   verification_rejected: "Rejected",
 };
+const STATUS_SORT_LABEL = STATUS_LABEL;
 export const nextStatusSort = (current: string | null) =>
   STATUS_SORT_CYCLE[(STATUS_SORT_CYCLE.indexOf(current) + 1) % STATUS_SORT_CYCLE.length];
 
@@ -230,15 +233,7 @@ export const getVolunteerColumns = (
                           : "bg-gray-500"
                 }`}
               ></div>
-              {record.onboarded_status === "verification_pending"
-                ? "Approval Pending"
-                : record.onboarded_status === "verification_completed"
-                  ? "Completed"
-                  : record.onboarded_status === "verification_rejected"
-                    ? "Rejected"
-                    : record.onboarded_status === "partially_filled"
-                      ? "Details Pending"
-                      : "Form Incomplete"}
+              {STATUS_LABEL[record.onboarded_status] ?? "Form Incomplete"}
             </span>
           </span>
         );
@@ -383,15 +378,7 @@ export const getLearnerColumns = (
                           : "bg-gray-500"
                 }`}
               ></div>
-              {record.onboarded_status === "verification_pending"
-                ? "Approval Pending"
-                : record.onboarded_status === "verification_completed"
-                  ? "Completed"
-                  : record.onboarded_status === "verification_rejected"
-                    ? "Rejected"
-                    : record.onboarded_status === "partially_filled"
-                      ? "Details Pending"
-                      : "Form Incomplete"}
+              {STATUS_LABEL[record.onboarded_status] ?? "Form Incomplete"}
             </span>
           </span>
         );
