@@ -79,6 +79,11 @@ const Sidebar = () => {
       icon: <ResourceIcon />,
     },
     {
+      href: "/profile-changes",
+      text: "Profile Changes",
+      icon: <VolunteerIcon />,
+    },
+    {
       href: "/matching",
       text: "Matching",
       icon: <VolunteerIcon />,

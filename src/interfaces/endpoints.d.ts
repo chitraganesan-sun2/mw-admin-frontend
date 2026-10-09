@@ -51,6 +51,12 @@ type EndpointProps = {
     resolveReport: (report_id: string) => string;
     rejectReport: (report_id: string) => string;
   };
+  profileChanges: {
+    list: (status: string, page: number, pageSize: number) => string;
+    get: (id: string) => string;
+    approve: (id: string) => string;
+    reject: (id: string, reason?: string) => string;
+  };
   hiring: {
     getAllApplications: string;
     getApplication: (application_id: string) => string;
