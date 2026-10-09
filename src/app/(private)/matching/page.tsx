@@ -9,6 +9,7 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
+import { getApiErrorMessage } from "@/utils/apiError";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 type TriggerSide = "learner" | "volunteer";
@@ -123,8 +124,8 @@ export default function MatchingPage() {
         showToast({ type: "success", message: "Match triggered successfully." });
       }
     },
-    onError: () => {
-      showToast({ type: "error", message: "Couldn't trigger the match. Please try again." });
+    onError: (err) => {
+      showToast({ type: "error", message: getApiErrorMessage(err, "Couldn't trigger the match. Please try again.") });
     },
   });
 

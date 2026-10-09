@@ -54,6 +54,7 @@ export default function ProfileChangesPage() {
 
   const { data, isLoading, isFetching, isError } = useQuery({
     queryKey: ["profile-changes", status, page, pageSize],
+    staleTime: 0,
     queryFn: async () => {
       const response: any = await GET_API(endpoints.profileChanges.list(status, page, pageSize));
       return { rows: (response?.data?.data ?? []) as Row[], total: (response?.data?.total ?? 0) as number };
@@ -67,12 +68,23 @@ export default function ProfileChangesPage() {
       return response.data as ProfileChangeDetails;
     },
     enabled: !!selectedId,
+    staleTime: 0,
   });
+
+  // Deciding the last request on a page above 1 leaves that page out of range - step back.
+  const rowCount = data?.rows.length ?? 0;
+  useEffect(() => {
+    if (!isFetching && page > 1 && rowCount === 0) setPage((p) => p - 1);
+  }, [isFetching, page, rowCount]);
 
   const closeModal = () => setSelectedId(null);
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["profile-changes"] });
     queryClient.invalidateQueries({ queryKey: ["profile-change"] });
+    // An approval edits the member's profile (name, country...), so their cached admin views are stale too.
+    ["volunteers", "learners", "volunteer-details", "learner-details"].forEach((key) =>
+      queryClient.invalidateQueries({ queryKey: [key] })
+    );
   };
 
   const handleApprove = async () => {
@@ -166,6 +178,7 @@ export default function ProfileChangesPage() {
       <ProfileChangeDetailsModal
         isOpen={!!selectedId}
         isLoading={details.isLoading}
+        isError={details.isError}
         data={details.data ?? null}
         acceptLoading={acceptLoading}
         rejectLoading={rejectLoading}
@@ -174,7 +187,7 @@ export default function ProfileChangesPage() {
         onReject={handleReject}
       />
       <div className="w-full mb-4 flex items-center justify-between gap-4">
-        <h2 className="text-[20px] font-medium text-[#121212] !font-poppins">Profile change requests</h2>
+        <h2 className="text-[20px] font-medium text-[#121212] !font-poppins">Profile Changes</h2>
         <div className="flex gap-2" role="tablist" aria-label="Request status">
           {TABS.map((tab) => (
             <button

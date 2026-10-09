@@ -190,17 +190,19 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
   const handleDeleteEvent = async () => {
     setIsDeleteAlertLoading(true);
     try {
+      // Delete first: resolving the report before a failed delete dropped it off the
+      // pending queue while the post stayed live.
+      await DELETE_API(endpoints.post.deletePost(currentDeletePostId || ""));
       if (isReportsPage && reportId) {
         await resolveReport(reportId);
       }
-      await DELETE_API(endpoints.post.deletePost(currentDeletePostId || ""));
-      invalidateQueries();
-    } catch (error) {
-      showToast({ message: "An error occurred", type: "error" });
-    } finally {
       setIsDeleteAlertOpen(false);
-      setIsDeleteAlertLoading(false);
       onClose();
+    } catch (error) {
+      showToast({ message: "Couldn't delete the post. Please try again.", type: "error" });
+    } finally {
+      invalidateQueries();
+      setIsDeleteAlertLoading(false);
     }
   };
 
@@ -221,6 +223,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
       setIsCommentDeleteAlertOpen(false);
     } catch (error) {
       console.error("Error deleting comment:", error);
+      showToast({ message: "Couldn't delete the comment. Please try again.", type: "error" });
     }
     setIsCommentDeleteLoading(false);
   };

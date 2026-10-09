@@ -65,7 +65,7 @@ const LearnerProfileDetails = () => {
   const hideFooter = !data || data?.onboarded_status !== "verification_pending";
 
   useEffect(() => {
-    if (learnerId) setIsOpen(true);
+    setIsOpen(!!learnerId);
   }, [learnerId]);
 
   const handleModalClose = () => {
@@ -82,9 +82,8 @@ const LearnerProfileDetails = () => {
       {}
     );
     handleModalClose();
-    queryClient.invalidateQueries({
-      queryKey: ["learners"],
-    });
+    queryClient.invalidateQueries({ queryKey: ["learners"] });
+    queryClient.invalidateQueries({ queryKey: ["learner-details"] });
   };
 
   const handleAccept = () => {
