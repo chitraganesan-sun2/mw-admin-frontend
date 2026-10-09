@@ -108,13 +108,16 @@ export const STATUS_SORT_CYCLE: (string | null)[] = [
   "details_pending",
   "verification_rejected",
 ];
-const STATUS_SORT_LABEL: Record<string, string> = {
+// One label per status, used by the Status cell AND the sort control (they used to disagree:
+// the cell said "Details Pending" where the sort said "Partially Filled").
+export const STATUS_LABEL: Record<string, string> = {
   verification_completed: "Completed",
   verification_pending: "Approval Pending",
-  partially_filled: "Partially Filled",
+  partially_filled: "Form In Progress",
   details_pending: "Form Incomplete",
   verification_rejected: "Rejected",
 };
+const STATUS_SORT_LABEL = STATUS_LABEL;
 export const nextStatusSort = (current: string | null) =>
   STATUS_SORT_CYCLE[(STATUS_SORT_CYCLE.indexOf(current) + 1) % STATUS_SORT_CYCLE.length];
 
@@ -175,7 +178,7 @@ export const getVolunteerColumns = (
     className: "px-6 !py-3 w-[100px] text-sm text-gray-900 !font-poppins",
     // Lowercased in the cell only - a column-level `lowercase` class also lowercased the header.
     render: (_: unknown, record: { email?: string }) => (
-      <span className="text-gray-900 !font-poppins">{record?.email?.toLowerCase?.() || "-"}</span>
+      <span className="text-gray-900 !font-poppins !normal-case">{record?.email?.toLowerCase?.() || "-"}</span>
     ),
   },
   {
@@ -230,15 +233,7 @@ export const getVolunteerColumns = (
                           : "bg-gray-500"
                 }`}
               ></div>
-              {record.onboarded_status === "verification_pending"
-                ? "Approval Pending"
-                : record.onboarded_status === "verification_completed"
-                  ? "Completed"
-                  : record.onboarded_status === "verification_rejected"
-                    ? "Rejected"
-                    : record.onboarded_status === "partially_filled"
-                      ? "Details Pending"
-                      : "Form Incomplete"}
+              {STATUS_LABEL[record.onboarded_status] ?? "Form Incomplete"}
             </span>
           </span>
         );
@@ -325,7 +320,7 @@ export const getLearnerColumns = (
     sorter: false,
     className: "p-6 w-[100px] text-sm text-gray-900 !font-poppins",
     render: (_: unknown, record: Learner) => (
-      <span className="text-gray-900 !font-poppins">
+      <span className="text-gray-900 !font-poppins !normal-case">
         {record?.email?.toLowerCase() || "-"}
       </span>
     ),
@@ -383,15 +378,7 @@ export const getLearnerColumns = (
                           : "bg-gray-500"
                 }`}
               ></div>
-              {record.onboarded_status === "verification_pending"
-                ? "Approval Pending"
-                : record.onboarded_status === "verification_completed"
-                  ? "Completed"
-                  : record.onboarded_status === "verification_rejected"
-                    ? "Rejected"
-                    : record.onboarded_status === "partially_filled"
-                      ? "Details Pending"
-                      : "Form Incomplete"}
+              {STATUS_LABEL[record.onboarded_status] ?? "Form Incomplete"}
             </span>
           </span>
         );
@@ -447,7 +434,7 @@ export const getReportColumns = (
     title: "Title",
     dataIndex: "title",
     key: "title",
-    sorter: true,
+    sorter: false,
     className:
       "!w-[20%] p-6 text-sm !font-semibold text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
   },
@@ -455,7 +442,7 @@ export const getReportColumns = (
     title: "Reported By",
     dataIndex: "profile_name",
     key: "profile_name",
-    sorter: true,
+    sorter: false,
     className:
       "!w-[15%] p-6 text-sm !font-semibold text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
   },
@@ -480,7 +467,7 @@ export const getReportColumns = (
     title: "Reported On",
     dataIndex: "report_time",
     key: "report_time",
-    sorter: true,
+    sorter: false,
     className:
       "!w-[10%] p-6 text-sm text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
     render: (_: unknown, record: Report) => {
@@ -586,9 +573,8 @@ export const getHiringColumns = (
     title: "Submission date",
     dataIndex: "submission_date",
     key: "submission_date",
-    sorter: (a: HiringApplicationRow, b: HiringApplicationRow) =>
-      (a.submission_timestamp ?? 0) - (b.submission_timestamp ?? 0),
-    sortDirections: ["ascend", "descend"] as const,
+    // Server-paginated and already newest-first; a client sorter only reordered the visible page.
+    sorter: false,
     className:
       "p-6 w-[200px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
   },

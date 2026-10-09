@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
 
 export type ProfileChangeDiffItem = {
@@ -26,6 +26,7 @@ export type ProfileChangeDetails = {
 type Props = {
   isOpen: boolean;
   isLoading: boolean;
+  isError?: boolean;
   data: ProfileChangeDetails | null;
   acceptLoading: boolean;
   rejectLoading: boolean;
@@ -36,9 +37,15 @@ type Props = {
 
 const NOT_SET = "Not set";
 
-const ProfileChangeDetailsModal = ({ isOpen, isLoading, data, acceptLoading, rejectLoading, onClose, onApprove, onReject }: Props) => {
+const ProfileChangeDetailsModal = ({ isOpen, isLoading, isError = false, data, acceptLoading, rejectLoading, onClose, onApprove, onReject }: Props) => {
   const [reason, setReason] = useState("");
   const isPending = data?.status === "pending" || data?.status === "processing";
+
+  // A reason typed for one request must never carry over to the next one opened.
+  const requestId = data?.request_id;
+  useEffect(() => {
+    setReason("");
+  }, [requestId, isOpen]);
 
   const handleClose = () => {
     setReason("");
@@ -54,16 +61,18 @@ const ProfileChangeDetailsModal = ({ isOpen, isLoading, data, acceptLoading, rej
     <CenterModal
       isOpen={isOpen}
       onClose={handleClose}
-      title={data ? `Profile changes — ${data.name || "Unknown"} (${data.role})` : "Profile changes"}
+      title={data ? `Profile Changes — ${data.name || "Unknown"} (${data.role === "learner" ? "Learner" : "Volunteer"})` : "Profile Changes"}
       width={720}
-      hideFooter={!isPending || isLoading}
+      hideFooter={!isPending || isLoading || isError}
       actionLoading={acceptLoading || rejectLoading}
       acceptLoading={acceptLoading}
       rejectLoading={rejectLoading}
       onAccept={onApprove}
       onReject={() => onReject(reason.trim())}
     >
-      {isLoading || !data ? (
+      {isError ? (
+        <p className="text-sm text-gray-medium">Couldn&apos;t load these changes. Please try again.</p>
+      ) : isLoading || !data ? (
         <p className="text-sm text-gray-medium">Loading...</p>
       ) : (
         <div className="flex flex-col gap-5 max-h-[60vh] overflow-y-auto pr-1">

@@ -82,7 +82,7 @@ export default function DonationsPage() {
   }) => {
     const params = new URLSearchParams({
       page: String(page),
-      page_size: String(size),
+      size: String(size),
     });
     if (query) params.append("search_query", query);
     if (sf && so) {

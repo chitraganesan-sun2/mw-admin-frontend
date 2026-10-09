@@ -75,7 +75,7 @@ const VolunteerProfileDetails = () => {
   const hideFooter = !data || data?.onboarded_status !== "verification_pending";
 
   useEffect(() => {
-    if (volunteerId) setIsOpen(true);
+    setIsOpen(!!volunteerId);
   }, [volunteerId]);
 
   const volunteerDateOfBirth = (() => {
@@ -435,9 +435,8 @@ const VolunteerProfileDetails = () => {
     )
       .then(() => {
         handleModalClose();
-        queryClient.invalidateQueries({
-          queryKey: ["volunteers"],
-        });
+        queryClient.invalidateQueries({ queryKey: ["volunteers"] });
+        queryClient.invalidateQueries({ queryKey: ["volunteer-details"] });
       })
       .catch((error) => {
         console.error(error);
@@ -454,16 +453,14 @@ const VolunteerProfileDetails = () => {
       endpoints.onboarding.updateOnboardingStatus(
         volunteerId as string,
         "volunteer",
-        "verification_rejected",
-        rejectionReason.trim() || undefined
+        "verification_rejected"
       ),
-      {}
+      { reason: rejectionReason.trim() || undefined }
     )
       .then(() => {
         handleModalClose();
-        queryClient.invalidateQueries({
-          queryKey: ["volunteers"],
-        });
+        queryClient.invalidateQueries({ queryKey: ["volunteers"] });
+        queryClient.invalidateQueries({ queryKey: ["volunteer-details"] });
       })
       .catch((error) => {
         console.error(error);

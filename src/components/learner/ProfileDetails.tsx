@@ -65,7 +65,7 @@ const LearnerProfileDetails = () => {
   const hideFooter = !data || data?.onboarded_status !== "verification_pending";
 
   useEffect(() => {
-    if (learnerId) setIsOpen(true);
+    setIsOpen(!!learnerId);
   }, [learnerId]);
 
   const handleModalClose = () => {
@@ -78,13 +78,12 @@ const LearnerProfileDetails = () => {
     if (!learnerId) return;
 
     await PUT_API(
-      endpoints.onboarding.updateOnboardingStatus(learnerId, "learner", status, reason),
-      {}
+      endpoints.onboarding.updateOnboardingStatus(learnerId, "learner", status),
+      { reason: reason || undefined }
     );
     handleModalClose();
-    queryClient.invalidateQueries({
-      queryKey: ["learners"],
-    });
+    queryClient.invalidateQueries({ queryKey: ["learners"] });
+    queryClient.invalidateQueries({ queryKey: ["learner-details"] });
   };
 
   const handleAccept = () => {

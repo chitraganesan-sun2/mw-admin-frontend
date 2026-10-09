@@ -12,7 +12,6 @@ import { useQueryState } from "nuqs";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import CommunityModal from "@/components/community/FeedViewModal";
 import ResourceModal from "@/components/resources/DetailModal";
-import { toUserTimeZone } from "@/utils/timeFunctions";
 import { formatString } from "@/utils/stringFunctions";
 import { getReportsByType } from "@/api/reports";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
@@ -73,7 +72,9 @@ export default function ReportsPage() {
           title: item?.source_title,
           profile_name: item?.author?.name,
           reason: formatString(item?.report_description),
-          report_time: toUserTimeZone({ date: item?.created_at, format: "h:mm A, DD MMM YYYY",}),
+          // ISO passed through: the column formats it once. It was pre-formatted here and then
+          // re-parsed by the column, which shows "-" in browsers that can't parse that string.
+          report_time: item?.created_at,
           report_status: item?.report_status || "pending",
         })),
         total: response.data?.total || 0,
@@ -126,7 +127,10 @@ export default function ReportsPage() {
       <GroupFilters
         tabButtons={tabs}
         currentTab={currentTab}
-        handleTabClick={setCurrentTab}
+        handleTabClick={(tab: string) => {
+          setPagination((p) => ({ ...p, page: 1 }));
+          setCurrentTab(tab);
+        }}
         showSearch={true}
       />
 

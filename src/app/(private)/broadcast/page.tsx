@@ -18,6 +18,7 @@ import TextEditor from "@/components/RichTextEditor";
 import Loader from "@/components/common/Loader";
 import AlertModal from "@/components/common/Modals/AlertModal";
 import { getApiErrorMessage } from "@/utils/apiError";
+import { showToast } from "@/components/common/Toast";
 
 // Mirrors MAX_RECIPIENTS in the backend's routes/v1/admin/mail.py.
 const MAX_RECIPIENTS = 500;
@@ -62,26 +63,39 @@ const Broadcast = () => {
 
   const getLocation = async () => {
     setIsLocationLoading(true);
-    const response: any = await GET_API(endpoints.comment.getLocation);
-    const locations = response.data.map((location: any) => ({
-      label: location.country_name,
-      value: location.country_id,
-    }));
-    setAllLocations(locations);
-    setIsLocationLoading(false);
-    return locations;
+    try {
+      const response: any = await GET_API(endpoints.comment.getLocation);
+      const locations = response.data.map((location: any) => ({
+        label: location.country_name,
+        value: location.country_id,
+      }));
+      setAllLocations(locations);
+      return locations;
+    } catch {
+      showToast({ message: "Couldn't load the countries. Please try again.", type: "error" });
+      return [];
+    } finally {
+      // Always clear the flag: a failed fetch used to leave the whole form on the loader forever.
+      setIsLocationLoading(false);
+    }
   };
 
   const getLanguage = async () => {
     setIsLanguageLoading(true);
-    const response: any = await GET_API(endpoints.comment.getLanguage);
-    const languages = response.data.map((language: any) => ({
-      label: language,
-      value: language,
-    }));
-    setAllLanguages(languages);
-    setIsLanguageLoading(false);
-    return languages;
+    try {
+      const response: any = await GET_API(endpoints.comment.getLanguage);
+      const languages = response.data.map((language: any) => ({
+        label: language,
+        value: language,
+      }));
+      setAllLanguages(languages);
+      return languages;
+    } catch {
+      showToast({ message: "Couldn't load the languages. Please try again.", type: "error" });
+      return [];
+    } finally {
+      setIsLanguageLoading(false);
+    }
   };
 
   const getRecipients = async () => {

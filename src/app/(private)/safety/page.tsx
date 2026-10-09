@@ -45,7 +45,11 @@ export default function SafetyPage() {
     setIsLoading(true);
     // Force iframe reload by resetting src
     if (iframeRef.current) {
-      iframeRef.current.src = `${SAFETY_DASHBOARD_URL}?embed=true&t=${Date.now()}`;
+      // URL API: blind string-appending broke a dashboard URL that already had a query string.
+      const url = new URL(SAFETY_DASHBOARD_URL);
+      url.searchParams.set("embed", "true");
+      url.searchParams.set("t", String(Date.now()));
+      iframeRef.current.src = url.toString();
     }
   }, []);
 
@@ -68,7 +72,7 @@ export default function SafetyPage() {
         </svg>
         <p className="text-lg font-medium">Safety Dashboard Unavailable</p>
         <p className="text-sm">
-          The <code className="bg-gray-100 px-1 rounded">NEXT_PUBLIC_SAFETY_DASHBOARD_URL</code> environment variable is not configured.
+          The safety dashboard isn&apos;t connected yet. Ask whoever manages the deployment to set it up.
         </p>
       </div>
     );

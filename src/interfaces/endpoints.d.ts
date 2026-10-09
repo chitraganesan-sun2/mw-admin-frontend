@@ -55,7 +55,7 @@ type EndpointProps = {
     list: (status: string, page: number, pageSize: number) => string;
     get: (id: string) => string;
     approve: (id: string) => string;
-    reject: (id: string, reason?: string) => string;
+    reject: (id: string) => string;
   };
   hiring: {
     getAllApplications: string;

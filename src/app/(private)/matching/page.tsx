@@ -9,6 +9,7 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
+import { getApiErrorMessage } from "@/utils/apiError";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 type TriggerSide = "learner" | "volunteer";
@@ -19,6 +20,9 @@ export default function MatchingPage() {
   const queryClient = useQueryClient();
   const [side, setSide] = useState<TriggerSide>("learner");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Remembered so the Select keeps showing the chosen name after a new search replaces the
+  // option list (otherwise antd falls back to displaying the raw id).
+  const [selectedOption, setSelectedOption] = useState<{ value: string; label: string } | null>(null);
 
   // The picker used to fetch a flat page=1&size=100 and filter client-side, so a
   // learner/volunteer past the first 100 verified users could never be found.
@@ -123,8 +127,8 @@ export default function MatchingPage() {
         showToast({ type: "success", message: "Match triggered successfully." });
       }
     },
-    onError: () => {
-      showToast({ type: "error", message: "Couldn't trigger the match. Please try again." });
+    onError: (err) => {
+      showToast({ type: "error", message: getApiErrorMessage(err, "Couldn't trigger the match. Please try again.") });
     },
   });
 
@@ -237,7 +241,10 @@ export default function MatchingPage() {
             showSearch
             allowClear
             value={selectedId}
-            onChange={setSelectedId}
+            onChange={(value: string | null, option: any) => {
+              setSelectedId(value ?? null);
+              setSelectedOption(value && option ? { value, label: String(option.label ?? value) } : null);
+            }}
             onSearch={setPickerSearch}
             // Results are already filtered server-side (search_query) - a
             // local filterOption on top would incorrectly hide server matches
@@ -247,7 +254,12 @@ export default function MatchingPage() {
             loading={side === "learner" ? isLearnerOptionsLoading : isVolunteerOptionsLoading}
             style={{ width: "100%" }}
             placeholder={side === "learner" ? "Search learners..." : "Search volunteers..."}
-            options={side === "learner" ? learnerOptions : volunteerOptions}
+            options={(() => {
+              const list = side === "learner" ? learnerOptions : volunteerOptions;
+              return selectedOption && selectedId === selectedOption.value && !list.some((o: any) => o.value === selectedId)
+                ? [selectedOption, ...list]
+                : list;
+            })()}
           />
         </div>
         <Button
