@@ -3,6 +3,7 @@ type UserType = "volunteer" | "learner";
 export const endpoints: EndpointProps = {
   auth: {
     login: "admin/auth/sign_in",
+    me: "admin/auth/me",
   },
   onboarding: {
     // The rejection reason goes in the PUT body, not the URL (URLs end up in access logs/Sentry).
@@ -62,6 +63,20 @@ export const endpoints: EndpointProps = {
   hiring: {
     getAllApplications: "admin/join-us",
     getApplication: (application_id: string) => `admin/join-us/${application_id}`,
+    getResume: (application_id: string) => `admin/join-us/${application_id}/resume`,
+  },
+  notificationRecipients: {
+    list: "admin/notification-recipients",
+    create: "admin/notification-recipients",
+    update: (id: string) => `admin/notification-recipients/${id}`,
+    delete: (id: string) => `admin/notification-recipients/${id}`,
+    log: (limit = 30) => `admin/notification-recipients/log?limit=${limit}`,
+  },
+  skills: {
+    list: (query: string) => `admin/skills${query ? `?${query}` : ""}`,
+    create: "admin/skills",
+    update: (id: string) => `admin/skills/${id}`,
+    delete: (id: string) => `admin/skills/${id}`,
   },
   donations: {
     list: "admin/donation/list",

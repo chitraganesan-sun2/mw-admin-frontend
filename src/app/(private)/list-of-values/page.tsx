@@ -12,11 +12,14 @@ import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { getApiErrorMessage } from "@/utils/apiError";
+import SkillsTab, { usePendingSkillsCount } from "@/components/list-of-values/SkillsTab";
 
 const mutationError = (fallback: string) => (err: any) =>
   showToast({ message: getApiErrorMessage(err, fallback), type: "error" });
 
 const COLLECTION_TYPES = [
+  // "skills" has its own dedicated tab (components/list-of-values/SkillsTab) - it shows
+  // user-submitted skills awaiting review, filters, and the pending/active/disabled lifecycle.
   { key: "skills", label: "Skills" },
   { key: "subjects", label: "Subjects" },
   { key: "languages", label: "Languages" },
@@ -55,8 +58,11 @@ export default function ListOfValuesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [form] = Form.useForm();
+  const pendingSkills = usePendingSkillsCount();
+  const isSkills = activeTab === "skills";
 
   const { data: items = [], isLoading, isError } = useQuery({
+    enabled: !isSkills,
     queryKey: ["lov", activeTab],
     queryFn: async () =>
       (await GET_API(endpoints.listOfValues.getAll(activeTab) + "?include_hidden=true"))?.data || [],
@@ -173,25 +179,39 @@ export default function ListOfValuesPage() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">List of Values</h1>
-        <Button
-          type="primary"
-          onClick={() => {
-            setEditingItem(null);
-            form.resetFields();
-            setIsModalOpen(true);
-          }}
-        >
-          + Add {COLLECTION_TYPES.find((c) => c.key === activeTab)?.label?.slice(0, -1)}
-        </Button>
+        {!isSkills && (
+          <Button
+            type="primary"
+            onClick={() => {
+              setEditingItem(null);
+              form.resetFields();
+              setIsModalOpen(true);
+            }}
+          >
+            + Add {COLLECTION_TYPES.find((c) => c.key === activeTab)?.label?.slice(0, -1)}
+          </Button>
+        )}
       </div>
 
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
-        items={COLLECTION_TYPES.map((t) => ({ key: t.key, label: t.label }))}
+        items={COLLECTION_TYPES.map((t) => ({
+          key: t.key,
+          label:
+            t.key === "skills" && pendingSkills > 0 ? (
+              <span>
+                {t.label} <Tag color="gold">{pendingSkills} new</Tag>
+              </span>
+            ) : (
+              t.label
+            ),
+        }))}
       />
 
-      {isError ? (
+      {isSkills ? (
+        <SkillsTab />
+      ) : isError ? (
         <ErrorMsg />
       ) : (
         <Table

@@ -14,6 +14,9 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { VolunteerIcon, ReportIcon, HiringIcon } from "@/assets/icons";
 import React from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useStaff } from "@/hooks/useStaff";
+import { canAccessPath } from "@/constants/access";
 
 const Sidebar = () => {
   const router = useRouter();
@@ -22,7 +25,15 @@ const Sidebar = () => {
     setIsClient(true);
   }, []);
 
-  const linksData = [
+  const { data: staff, isLoading: staffLoading } = useStaff();
+  const queryClient = useQueryClient();
+
+  const allLinks = [
+    {
+      href: "/support",
+      text: "Support",
+      icon: <ReportIcon />,
+    },
     {
       href: "/volunteer",
       text: "Volunteers",
@@ -79,6 +90,11 @@ const Sidebar = () => {
       icon: <ResourceIcon />,
     },
     {
+      href: "/notifications",
+      text: "Notifications",
+      icon: <MailIcon />,
+    },
+    {
       href: "/profile-changes",
       text: "Profile Changes",
       icon: <VolunteerIcon />,
@@ -90,7 +106,17 @@ const Sidebar = () => {
     },
   ];
 
+  // Only the pages this account may open, by what the server says it may do. The "Support" home
+  // is for support accounts (admins land on the admin screens). Hidden links are a convenience:
+  // the APIs enforce the same permissions.
+  const linksData = (staff ? allLinks : []).filter(
+    (link) =>
+      (link.href !== "/support" || staff?.role === "support") &&
+      canAccessPath(link.href, staff?.permissions ?? [])
+  );
+
   const handleSignOut = () => {
+    queryClient.clear();
     Cookies.remove("token", { path: "/" });
     Cookies.remove("role", { path: "/" });
     Cookies.remove("onboarded_status", { path: "/" });
@@ -107,12 +133,19 @@ const Sidebar = () => {
           <Logo />
         </Link>
         <div className="flex flex-col items-center gap-[2.2rem] w-full mt-20">
+          {staffLoading && <p className="text-sm text-gray-light">Loading...</p>}
           {linksData.map((link) => (
             <SectionCard key={link.href} {...link} />
           ))}
         </div>
       </div>
-      <div>
+      <div className="w-full flex flex-col items-center gap-2">
+        {staff && (
+          <p className="text-xs text-gray-light text-center" data-testid="staff-role">
+            {staff.username ? `${staff.username} · ` : ""}
+            {staff.role === "support" ? "Support" : "Admin"}
+          </p>
+        )}
         {isClient && (
         <button
           onClick={handleSignOut}

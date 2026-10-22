@@ -28,6 +28,7 @@ export const getHeaderIcon = (pathname: string) => {
     case "donations":
       return <DonationIcon />;
     case "broadcast":
+    case "notifications":
       return <MailIcon />;
     case "hiring":
       return <HiringIcon />;

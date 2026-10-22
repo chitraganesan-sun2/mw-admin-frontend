@@ -1,6 +1,7 @@
 type EndpointProps = {
   auth: {
     login: string;
+    me: string;
   };
   onboarding: {
     updateOnboardingStatus: (
@@ -60,6 +61,20 @@ type EndpointProps = {
   hiring: {
     getAllApplications: string;
     getApplication: (application_id: string) => string;
+    getResume: (application_id: string) => string;
+  };
+  notificationRecipients: {
+    list: string;
+    create: string;
+    update: (id: string) => string;
+    delete: (id: string) => string;
+    log: (limit?: number) => string;
+  };
+  skills: {
+    list: (query: string) => string;
+    create: string;
+    update: (id: string) => string;
+    delete: (id: string) => string;
   };
   donations: {
     list: string;

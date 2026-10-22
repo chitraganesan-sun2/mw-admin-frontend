@@ -9,6 +9,7 @@ import { endpoints } from "@/api/constants";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { showToast } from "../common/Toast";
+import { safeHomePath } from "@/constants/access";
 
 const Login = () => {
   const [loginFormData, setloginFormData] = useState<any>({});
@@ -47,10 +48,17 @@ const Login = () => {
           secure: process.env.NODE_ENV === "production",
         });
         setloginFormData({});
-        router.replace("/volunteer");
+        // Where to land comes from the server's answer about this account's role (admin -> the
+        // admin screens, support -> the support dashboard), never from anything the client set.
+        router.replace(safeHomePath(res?.data?.home_path, res?.data?.role));
       })
       .catch((err) => {
-        const errorMessage = err?.status === 401 ? "Invalid username or password" : "Something went wrong";
+        const errorMessage =
+          err?.status === 401
+            ? "Invalid username or password"
+            : err?.status === 403
+              ? "This account has been disabled. Please contact an admin."
+              : "Something went wrong";
         showToast({ message: errorMessage, type: "error" });
         setLoading(false);
       });

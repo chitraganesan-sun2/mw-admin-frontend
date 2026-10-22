@@ -1,7 +1,9 @@
 import { FeedModalCloseIcon } from "@/assets/icons";
 import Divider from "@/components/common/Divider";
 import ViewModal from "@/components/common/Modals/ViewModal";
-import React from "react";
+import React, { useState } from "react";
+import { endpoints } from "@/api/constants";
+import { downloadFile } from "@/utils/downloadFile";
 
 export type QA = { question: string; answer: string };
 
@@ -23,9 +25,10 @@ export interface ApplicationDetails {
     schoolOrUniversity: string;
     gradeLevelOrYear: string;
     currentEmploymentDetails: string;
-    compensationExpectation: string;
-    acknowledgement: string;
+    // Present only on applications submitted before the compensation question was removed.
+    compensationExpectation?: string;
   };
+  resume: { filename: string; sizeBytes?: number | null } | null;
   applicationQuestions: QA[];
   legalAndSafety: Array<{
     title: string;
@@ -43,6 +46,44 @@ const Field = ({ label, value }: { label: string; value: string }) => (
     <p className="text-[16px] font-medium text-[#121212]">{value || "-"}</p>
   </div>
 );
+
+const formatSize = (bytes?: number | null) => {
+  if (bytes == null) return "";
+  return bytes >= 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+};
+
+// The resume is only reachable through this authenticated download (the file is stored encrypted
+// and the API refuses anyone without the hiring permission).
+const ResumeRow = ({ applicationId, resume }: { applicationId: string; resume: ApplicationDetails["resume"] }) => {
+  const [downloading, setDownloading] = useState(false);
+  return (
+    <div className="mt-6 flex flex-col gap-1">
+      <p className="text-[14px] text-[#4F4F4F]">Resume</p>
+      {resume ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-[16px] font-medium text-[#121212] break-all">
+            {resume.filename}
+            {resume.sizeBytes != null && <span className="text-[#4F4F4F] font-normal"> · {formatSize(resume.sizeBytes)}</span>}
+          </p>
+          <button
+            type="button"
+            disabled={downloading}
+            onClick={async () => {
+              setDownloading(true);
+              await downloadFile(endpoints.hiring.getResume(applicationId), resume.filename, "Couldn't download the resume. Please try again.");
+              setDownloading(false);
+            }}
+            className="bg-transparent border border-[#121212] rounded-lg px-4 py-1.5 text-[14px] font-medium text-[#121212] cursor-pointer disabled:opacity-60"
+          >
+            {downloading ? "Downloading..." : "Download resume"}
+          </button>
+        </div>
+      ) : (
+        <p className="text-[16px] font-medium text-[#121212]">No resume uploaded</p>
+      )}
+    </div>
+  );
+};
 
 const QAItem = ({ question, answer }: QA) => (
   <div className="flex flex-col gap-1">
@@ -139,15 +180,15 @@ export default function ApplicationDetailsModal({
                   label="Current Employment Details"
                   value={data.basicInfo.currentEmploymentDetails}
                 />
-                <Field
-                  label="Compensation / Stipend Expectation"
-                  value={data.basicInfo.compensationExpectation}
-                />
+                {data.basicInfo.compensationExpectation && (
+                  <Field
+                    label="Compensation Expectation (earlier form)"
+                    value={data.basicInfo.compensationExpectation}
+                  />
+                )}
               </div>
 
-              <p className="text-[14px] text-[#4F4F4F] mt-6 leading-5 whitespace-pre-line">
-                {data.basicInfo.acknowledgement}
-              </p>
+              <ResumeRow applicationId={data.id} resume={data.resume} />
               <div className="mt-6">
                 <Divider />
               </div>
