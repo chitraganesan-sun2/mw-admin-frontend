@@ -283,7 +283,7 @@ export default function NotificationsPage() {
         open={isModalOpen}
         onCancel={closeModal}
         footer={null}
-        destroyOnClose
+        forceRender
       >
         <Form form={form} layout="vertical" onFinish={onSubmit} requiredMark>
           <Form.Item
