@@ -296,6 +296,10 @@ const LearnerProfileDetails = () => {
           value: learnerDetails?.photo_or_video_consent ? "Yes" : "No",
         },
         {
+          title: "How They Heard About Us",
+          value: learnerDetails?.heard_about_us || "-",
+        },
+        {
           title: "Cookie Consent",
           value: learnerDetails?.cookie_consent_accepted ? "Yes" : "No",
         },
