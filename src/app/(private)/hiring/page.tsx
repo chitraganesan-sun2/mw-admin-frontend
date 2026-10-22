@@ -23,7 +23,7 @@ import { formatDisplayDate } from "@/utils/moment";
 
 const ROLE_MAPPINGS: Record<string, { title: string; description: string; responsibilities: string[] }> = {
   social_media_intern: {
-    title: "Social Media Intern",
+    title: "Social Media",
     description:
       "Help grow MelodyWings' online presence by creating engaging content and sharing stories from our community.",
     responsibilities: [
@@ -55,6 +55,8 @@ const mapAppToHiringRow = (app: any): HiringApplicationRow => ({
   email: normalizeEmail(app?.email),
   submission_date: formatDisplayDate(app.created_on),
   submission_timestamp: new Date(app.created_on).getTime(),
+  hours_per_week: app.hours_per_week != null && app.hours_per_week !== "" ? String(app.hours_per_week) : "-",
+  has_resume: Boolean(app.has_resume),
 });
 
 // The consent text shown with the applicant's photo/video answer.
@@ -199,18 +201,26 @@ export default function HiringPage() {
           schoolOrUniversity: resData?.education?.school_or_university || "-",
           gradeLevelOrYear: resData?.education?.grade_level_or_year || "-",
           currentEmploymentDetails: resData?.current_employment_details || "-",
-          compensationExpectation: resData?.compensation_expectation || "-",
-          acknowledgement: `This internship is currently unpaid and designed as a volunteer or learning opportunity. MelodyWings is a nonprofit organization, and while compensation cannot be guaranteed at this time, stipends or honorariums may be offered in the future if donations or funding become available.\n\nPlease confirm that you understand and are comfortable with this arrangement.\n\nYes, I understand and am willing to participate under these conditions`,
+          // The careers form no longer asks about compensation; applications submitted before that
+          // still carry the answer, so it is shown for those only.
+          compensationExpectation: resData?.compensation_expectation || undefined,
         },
+        resume: resData?.has_resume
+          ? { filename: resData?.resume?.filename || "resume", sizeBytes: resData?.resume?.size_bytes ?? null }
+          : null,
         applicationQuestions: [
-          {
-            question: "Are you looking for an internship opportunity?",
-            answer: toYesNo(resData?.application_questions?.looking_for_internship),
-          },
-          { question: "Why are you interested in this opportunity with MelodyWings?", answer: resData?.application_questions?.interest_in_melodywings || "-" },
-          { question: "What relevant experience do you have for this role?", answer: resData?.application_questions?.relevant_experience || "-" },
-          { question: "What skills would you bring to this role?", answer: resData?.application_questions?.skills_for_role || "-" },
-          { question: "How many hours per week are you available?", answer: resData?.application_questions?.hours_per_week || "-" },
+          // Only applications submitted before the question was removed have an answer to show.
+          ...(resData?.application_questions?.looking_for_internship != null
+            ? [{
+                question: "Are you looking for an internship opportunity?",
+                answer: toYesNo(resData?.application_questions?.looking_for_internship),
+              }]
+            : []),
+          { question: "Why are you interested in joining MelodyWings?", answer: resData?.application_questions?.interest_in_melodywings || "-" },
+          { question: "Why are you interested in the role you selected?", answer: resData?.application_questions?.interest_in_selected_role || "-" },
+          // One section; older applications have it assembled from their two separate answers.
+          { question: "Experience & Skills", answer: resData?.application_questions?.experience_and_skills || "-" },
+          { question: "Hours Per Week", answer: resData?.application_questions?.hours_per_week != null && resData?.application_questions?.hours_per_week !== "" ? String(resData.application_questions.hours_per_week) : "-" },
           { question: "When would you be available to start?", answer: resData?.application_questions?.available_start_date || "-" },
           { question: "Have you previously volunteered or worked with children or neurodivergent learners? If yes, please describe.", answer: resData?.application_questions?.children_or_neurodivergent_experience || "-" },
           { question: "Is there anything else you would like us to know about you?", answer: resData?.application_questions?.additional_information || "-" },

@@ -6,7 +6,10 @@ export function getApiErrorMessage(err: any, fallback = "Something went wrong. P
     const detail = err?.data?.detail ?? err?.response?.data?.detail;
     if (typeof detail === "string" && detail.trim()) return detail;
     if (Array.isArray(detail) && detail.length) {
-        const msgs = detail.map((d: any) => (typeof d === "string" ? d : d?.msg)).filter(Boolean);
+        const msgs = detail
+      .map((d: any) => (typeof d === "string" ? d : d?.msg))
+      .filter(Boolean)
+      .map((m: string) => m.replace(/^Value error, /, ""));
         if (msgs.length) return msgs.join(". ");
     }
     if (err?.status === 429) return "Too many requests. Please wait a moment and try again.";

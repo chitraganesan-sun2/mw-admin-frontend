@@ -535,6 +535,8 @@ export interface HiringApplicationRow {
   email: string;
   submission_date: string;
   submission_timestamp?: number;
+  hours_per_week?: string;
+  has_resume?: boolean;
 }
 
 export const getHiringColumns = (
@@ -577,6 +579,22 @@ export const getHiringColumns = (
     sorter: false,
     className:
       "p-6 w-[200px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
+  },
+  {
+    title: "Hours / week",
+    dataIndex: "hours_per_week",
+    key: "hours_per_week",
+    sorter: false,
+    className: "p-6 w-[140px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
+    render: (_: unknown, record: HiringApplicationRow) => record?.hours_per_week || "-",
+  },
+  {
+    title: "Resume",
+    dataIndex: "has_resume",
+    key: "has_resume",
+    sorter: false,
+    className: "p-6 w-[110px] text-base text-[#121212] !font-poppins !font-medium",
+    render: (_: unknown, record: HiringApplicationRow) => (record?.has_resume ? "Yes" : "-"),
   },
   {
     title: "",

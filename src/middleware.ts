@@ -1,20 +1,23 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtDecode } from "jwt-decode";
+import { canAccessPath, KNOWN_ROLES, ROLE_HOME, ROLE_PERMISSIONS_UX, StaffRole } from "./constants/access";
 
-const isTokenValid = (token: string | undefined): boolean => {
-    if (!token) return false;
+// The role claim in the cookie's token is only used to route (it is readable and editable in the
+// browser). The API re-reads the role from the database on every request and refuses anything
+// the account may not do, so a tampered token gets a redirect here at best and 401/403 there.
+const readStaffRole = (token: string | undefined): StaffRole | null => {
+    if (!token) return null;
 
     try {
         const decodedToken: { exp?: number; role?: string } = jwtDecode(token);
         const currentTime = Math.floor(Date.now() / 1000);
-        if (decodedToken.exp && decodedToken.exp < currentTime) return false;
-        // This console is admin-only. A non-admin JWT (a learner/volunteer token
-        // minted by the public app — same signing secret) must not load the shell.
-        if (decodedToken.role !== "admin") return false;
-        return true;
+        if (decodedToken.exp && decodedToken.exp < currentTime) return null;
+        // This console is for portal staff only. A learner/volunteer JWT (minted by the public
+        // app - same signing secret) must not load the shell.
+        return KNOWN_ROLES.includes(decodedToken.role as StaffRole) ? (decodedToken.role as StaffRole) : null;
     } catch {
-        return false;
+        return null;
     }
 };
 
@@ -26,12 +29,17 @@ export default function middleware(req: NextRequest) {
         return NextResponse.next();
     }
 
-    const isValidToken = isTokenValid(token);
-    if (!isValidToken && pathname !== "/") {
+    const role = readStaffRole(token);
+    if (!role && pathname !== "/") {
         return NextResponse.redirect(new URL("/", origin));
     }
-    if (isValidToken && pathname === "/") {
-        return NextResponse.redirect(new URL("/volunteer", origin));
+    if (role && pathname === "/") {
+        return NextResponse.redirect(new URL(ROLE_HOME[role], origin));
+    }
+    // Files served from /public (logo, lottie JSON, icons) are not pages and have no permission.
+    const isStaticFile = /\.[a-z0-9]+$/i.test(pathname);
+    if (role && !isStaticFile && !canAccessPath(pathname, ROLE_PERMISSIONS_UX[role])) {
+        return NextResponse.redirect(new URL("/access-denied", origin));
     }
 
     return NextResponse.next();
