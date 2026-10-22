@@ -35,6 +35,8 @@ export default function SupportDashboard() {
       </p>
       {isLoading ? (
         <p className="mt-6 text-gray-500">Loading...</p>
+      ) : queues.length === 0 ? (
+        <p className="mt-6 text-gray-600">Your account doesn&apos;t have access to any areas yet. Please ask an admin.</p>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           {queues.map((q) => (

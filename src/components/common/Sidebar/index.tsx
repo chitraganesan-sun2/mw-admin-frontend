@@ -95,6 +95,11 @@ const Sidebar = () => {
       icon: <MailIcon />,
     },
     {
+      href: "/accounts",
+      text: "Accounts",
+      icon: <VolunteerIcon />,
+    },
+    {
       href: "/profile-changes",
       text: "Profile Changes",
       icon: <VolunteerIcon />,

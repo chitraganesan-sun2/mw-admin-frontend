@@ -18,6 +18,7 @@ export const getHeaderIcon = (pathname: string) => {
     case "volunteer":
       return <VolunteerIcon />;
     case "learner":
+    case "accounts":
       return <VolunteerIcon />;
     case "reports":
       return <ReportIcon />;

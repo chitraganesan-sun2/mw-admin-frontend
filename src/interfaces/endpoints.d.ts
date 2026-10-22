@@ -63,6 +63,14 @@ type EndpointProps = {
     getApplication: (application_id: string) => string;
     getResume: (application_id: string) => string;
   };
+  accounts: {
+    list: string;
+    create: string;
+    role: (id: string) => string;
+    disabled: (id: string) => string;
+    permissions: (id: string) => string;
+    catalog: string;
+  };
   notificationRecipients: {
     list: string;
     create: string;

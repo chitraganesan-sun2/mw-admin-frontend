@@ -49,6 +49,8 @@ export function usePendingSkillsCount() {
 export default function SkillsTab() {
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
+  const [formInitial, setFormInitial] = useState<Record<string, any>>({});
+  const [formKey, setFormKey] = useState(0);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [category, setCategory] = useState<string | undefined>();
@@ -81,7 +83,6 @@ export default function SkillsTab() {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditing(null);
-    form.resetFields();
   };
 
   const createMutation = useMutation({
@@ -115,12 +116,14 @@ export default function SkillsTab() {
 
   const openAdd = () => {
     setEditing(null);
-    form.resetFields();
+    setFormInitial({});
+    setFormKey((k) => k + 1);
     setIsModalOpen(true);
   };
   const openEdit = (row: SkillRow) => {
     setEditing(row);
-    form.setFieldsValue({ name: row.skill_name, category: row.category ?? undefined });
+    setFormKey((k) => k + 1);
+    setFormInitial({ name: row.skill_name, category: row.category ?? undefined });
     setIsModalOpen(true);
   };
 
@@ -278,8 +281,8 @@ export default function SkillsTab() {
         />
       )}
 
-      <Modal title={editing ? "Edit skill" : "Add skill"} open={isModalOpen} onCancel={closeModal} footer={null} forceRender>
-        <Form form={form} layout="vertical" onFinish={onSubmit}>
+      <Modal title={editing ? "Edit skill" : "Add skill"} open={isModalOpen} onCancel={closeModal} footer={null} destroyOnClose>
+        <Form key={formKey} form={form} layout="vertical" onFinish={onSubmit} initialValues={formInitial}>
           <Form.Item
             name="name"
             label="Name"
