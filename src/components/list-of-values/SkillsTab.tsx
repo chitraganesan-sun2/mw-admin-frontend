@@ -278,7 +278,7 @@ export default function SkillsTab() {
         />
       )}
 
-      <Modal title={editing ? "Edit skill" : "Add skill"} open={isModalOpen} onCancel={closeModal} footer={null} destroyOnClose>
+      <Modal title={editing ? "Edit skill" : "Add skill"} open={isModalOpen} onCancel={closeModal} footer={null} forceRender>
         <Form form={form} layout="vertical" onFinish={onSubmit}>
           <Form.Item
             name="name"
