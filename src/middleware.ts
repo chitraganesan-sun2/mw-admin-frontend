@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtDecode } from "jwt-decode";
-import { canAccessPath, KNOWN_ROLES, ROLE_HOME, ROLE_PERMISSIONS_UX, StaffRole } from "./constants/access";
+import { KNOWN_ROLES, ROLE_HOME, StaffRole } from "./constants/access";
 
 // The role claim in the cookie's token is only used to route (it is readable and editable in the
-// browser). The API re-reads the role from the database on every request and refuses anything
-// the account may not do, so a tampered token gets a redirect here at best and 401/403 there.
+// browser). Which pages an account may open depends on permissions an admin can switch per account,
+// which only the server knows: the page guard (MainLayout, from GET /admin/auth/me) redirects to
+// /access-denied, and the API re-reads the account from the database on every request and refuses
+// anything it may not do - so a tampered token gets nothing there.
 const readStaffRole = (token: string | undefined): StaffRole | null => {
     if (!token) return null;
 
@@ -36,12 +38,6 @@ export default function middleware(req: NextRequest) {
     if (role && pathname === "/") {
         return NextResponse.redirect(new URL(ROLE_HOME[role], origin));
     }
-    // Files served from /public (logo, lottie JSON, icons) are not pages and have no permission.
-    const isStaticFile = /\.[a-z0-9]+$/i.test(pathname);
-    if (role && !isStaticFile && !canAccessPath(pathname, ROLE_PERMISSIONS_UX[role])) {
-        return NextResponse.redirect(new URL("/access-denied", origin));
-    }
-
     return NextResponse.next();
 }
 

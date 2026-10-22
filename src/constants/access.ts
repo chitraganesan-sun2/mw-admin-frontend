@@ -2,15 +2,26 @@
 // to redirect - it is not a security boundary. Every API enforces the same rules on the server
 // (melody-wings-backend: utils/rbac.py + AuthHandler.require_permission), so a hidden link or a
 // hand-edited token still gets 401/403 from the API.
+//
+// What an account can open is decided by the server (GET /admin/auth/me): its role's defaults, or
+// the custom switches an admin set for it on the Accounts page.
 
 export type Permission =
   | "applications.read"
   | "applications.review"
+  | "members.manage"
   | "hiring.read"
   | "profile_changes.review"
+  | "matching.manage"
+  | "reports.manage"
+  | "resources.manage"
+  | "community.manage"
+  | "broadcast.send"
+  | "safety.monitor"
   | "donations.read"
   | "notifications.manage"
   | "skills.manage"
+  | "tutorials.manage"
   | "admins.manage";
 
 export type StaffRole = "admin" | "support";
@@ -23,17 +34,25 @@ export interface Staff {
   permissions: Permission[];
 }
 
-// Path prefix -> the permission needed to open it. A path not listed here is admin-only
-// (the default for anything new): only an account holding every permission may open it.
+// Path prefix -> the permission needed to open it (null = any signed-in portal user). A path not
+// listed here is admin-only (the default for anything new): it needs `admins.manage`.
 const PAGE_PERMISSIONS: Array<{ prefix: string; permission: Permission | null }> = [
-  { prefix: "/support", permission: "applications.read" },
+  { prefix: "/support", permission: null },
   { prefix: "/volunteer", permission: "applications.read" },
   { prefix: "/learner", permission: "applications.read" },
   { prefix: "/hiring", permission: "hiring.read" },
   { prefix: "/profile-changes", permission: "profile_changes.review" },
+  { prefix: "/matching", permission: "matching.manage" },
+  { prefix: "/reports", permission: "reports.manage" },
+  { prefix: "/resources", permission: "resources.manage" },
+  { prefix: "/community", permission: "community.manage" },
+  { prefix: "/broadcast", permission: "broadcast.send" },
+  { prefix: "/safety", permission: "safety.monitor" },
   { prefix: "/donations", permission: "donations.read" },
   { prefix: "/notifications", permission: "notifications.manage" },
   { prefix: "/list-of-values", permission: "skills.manage" },
+  { prefix: "/tutorial-links", permission: "tutorials.manage" },
+  { prefix: "/accounts", permission: "admins.manage" },
   { prefix: "/access-denied", permission: null },
 ];
 
@@ -47,23 +66,6 @@ export const requiredPermissionFor = (pathname: string): Permission | null => {
 export const canAccessPath = (pathname: string, permissions: readonly string[]): boolean => {
   const needed = requiredPermissionFor(pathname);
   return needed === null || permissions.includes(needed);
-};
-
-// UX-only mirror of the server's role -> permission map (utils/rbac.py), used by the edge
-// middleware, which can read the role claim from the cookie but cannot call the API. The portal
-// pages themselves use useStaff() (the server's answer) instead.
-export const ROLE_PERMISSIONS_UX: Record<StaffRole, Permission[]> = {
-  admin: [
-    "applications.read",
-    "applications.review",
-    "hiring.read",
-    "profile_changes.review",
-    "donations.read",
-    "notifications.manage",
-    "skills.manage",
-    "admins.manage",
-  ],
-  support: ["applications.read", "applications.review", "hiring.read", "profile_changes.review"],
 };
 
 // Roles the portal knows how to route (anything else is treated as "no access").

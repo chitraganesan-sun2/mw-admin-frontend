@@ -65,6 +65,14 @@ export const endpoints: EndpointProps = {
     getApplication: (application_id: string) => `admin/join-us/${application_id}`,
     getResume: (application_id: string) => `admin/join-us/${application_id}/resume`,
   },
+  accounts: {
+    list: "admin/auth/users",
+    create: "admin/auth/create_credentials",
+    role: (id: string) => `admin/auth/users/${id}/role`,
+    disabled: (id: string) => `admin/auth/users/${id}/disabled`,
+    permissions: (id: string) => `admin/auth/users/${id}/permissions`,
+    catalog: "admin/auth/permissions",
+  },
   notificationRecipients: {
     list: "admin/notification-recipients",
     create: "admin/notification-recipients",

@@ -66,6 +66,8 @@ export default function NotificationsPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
   const [form] = Form.useForm();
+  const [formInitial, setFormInitial] = useState<Record<string, any>>({});
+  const [formKey, setFormKey] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<Recipient | null>(null);
 
@@ -98,7 +100,6 @@ export default function NotificationsPage() {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditing(null);
-    form.resetFields();
   };
 
   const createMutation = useMutation({
@@ -133,12 +134,14 @@ export default function NotificationsPage() {
 
   const openAdd = () => {
     setEditing(null);
-    form.setFieldsValue({ email: "", enabled: true, application_types: allTypes, events: allEvents });
+    setFormKey((k) => k + 1);
+    setFormInitial({ email: "", enabled: true, application_types: allTypes, events: allEvents });
     setIsModalOpen(true);
   };
   const openEdit = (r: Recipient) => {
     setEditing(r);
-    form.setFieldsValue({ email: r.email, enabled: r.enabled, application_types: r.application_types, events: r.events });
+    setFormKey((k) => k + 1);
+    setFormInitial({ email: r.email, enabled: r.enabled, application_types: r.application_types, events: r.events });
     setIsModalOpen(true);
   };
 
@@ -283,9 +286,9 @@ export default function NotificationsPage() {
         open={isModalOpen}
         onCancel={closeModal}
         footer={null}
-        forceRender
+        destroyOnClose
       >
-        <Form form={form} layout="vertical" onFinish={onSubmit} requiredMark>
+        <Form key={formKey} form={form} layout="vertical" onFinish={onSubmit} initialValues={formInitial} requiredMark>
           <Form.Item
             name="email"
             label="Email address"
