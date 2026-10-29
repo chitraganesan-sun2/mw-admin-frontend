@@ -14,6 +14,8 @@ import CommunityModal from "@/components/community/FeedViewModal";
 import ResourceModal from "@/components/resources/DetailModal";
 import { formatString } from "@/utils/stringFunctions";
 import { getReportsByType } from "@/api/reports";
+import PersonReportModal from "@/components/reports/PersonReportModal";
+import type { Report } from "@/constants/column";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 interface PaginationParams {
@@ -24,7 +26,13 @@ interface PaginationParams {
 const tabs = [
   { key: "resource", title: "Resource" },
   { key: "post", title: "Community" },
+  { key: "user", title: "People" },
+  { key: "message", title: "Messages" },
+  { key: "session", title: "Sessions" },
 ];
+
+// Reports about a person's conduct, reviewed in their own modal (no content to open).
+const PERSON_TABS = ["user", "message", "session"];
 
 export default function ReportsPage() {
   const { setHeaderOptions } = useComponentStore();
@@ -59,7 +67,11 @@ export default function ReportsPage() {
     setReportId(reportId || null);
     setId(id);
   }, []);
-  const columns = useMemo(() => getReportColumns(handleViewAction), [handleViewAction]);
+  const isPersonTab = PERSON_TABS.includes(currentTab);
+  const columns = useMemo(
+    () => getReportColumns(handleViewAction, isPersonTab ? "Review" : "See post"),
+    [handleViewAction, isPersonTab]
+  );
 
   const getAllReports = useCallback(async () => {
     const response: any = await getReportsByType(debouncedTab, pagination);
@@ -76,6 +88,10 @@ export default function ReportsPage() {
           // re-parsed by the column, which shows "-" in browsers that can't parse that string.
           report_time: item?.created_at,
           report_status: item?.report_status || "pending",
+          reportType: item?.report_type,
+          rawReason: item?.report_description,
+          reportedUserId: item?.reported_user_id,
+          reportedUserRole: item?.reported_user_role,
         })),
         total: response.data?.total || 0,
       };
@@ -108,7 +124,15 @@ export default function ReportsPage() {
 
   return (
     <div className="w-full px-6">
-      {currentTab === "resource" ? (
+      {isPersonTab ? (
+        <PersonReportModal
+          key={`${currentTab}-${reportId}`}
+          isOpen={mode === "view"}
+          onClose={handleCloseModal}
+          report={(data?.data as Report[] | undefined)?.find((r) => r.reportId === reportId)}
+          onChanged={refetch}
+        />
+      ) : currentTab === "resource" ? (
         <ResourceModal
           key={`${currentTab}-${reportId}`}
           isOpen={mode === "view"}

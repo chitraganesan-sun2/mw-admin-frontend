@@ -429,6 +429,7 @@ export const getLearnerColumns = (
 
 export const getReportColumns = (
   handleSeePost?: (id: string, reportId?: string) => void,
+  actionLabel = "See post",
 ) => [
   {
     title: "Title",
@@ -522,7 +523,7 @@ export const getReportColumns = (
           onClick={() => handleSeePost?.(record.docId, record.reportId)}
           className="bg-transparent border-0 p-0 !font-semibold text-gray-900 underline !font-poppins cursor-pointer"
         >
-          See post
+          {actionLabel}
         </button>
       </div>
     ),
