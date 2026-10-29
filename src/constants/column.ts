@@ -25,4 +25,10 @@ export interface Report {
   reason: string;
   report_time: string;
   report_status: string;
+  title?: string;
+  /** user / message / session reports only (set by the server). */
+  reportType?: string;
+  rawReason?: string;
+  reportedUserId?: string;
+  reportedUserRole?: "learner" | "volunteer";
 }
