@@ -84,17 +84,17 @@ export default function WingTimePage() {
     try {
       if (kind === "approve") {
         await POST_API(endpoints.wingtime.approve(reviewing.wingtime_id), {});
-        showToast({ message: "Approved. The meeting link was created and learners can now see it." });
+        showToast({ message: "WingTime approved. The meeting link was created and learners can now see it." });
       } else {
         await POST_API(endpoints.wingtime.reject(reviewing.wingtime_id), { reason });
-        showToast({ message: "Not approved. The host has been told." });
+        showToast({ message: "WingTime rejected. The volunteer has been told." });
       }
       setReviewing(null);
     } catch (error) {
       showToast({
         message: getApiErrorMessage(
           error,
-          kind === "approve" ? "Couldn't approve this WingTime. Please try again." : "Couldn't send the decision. Please try again."
+          kind === "approve" ? "Couldn't approve the WingTime. Please try again." : "Couldn't reject the WingTime. Please try again."
         ),
         type: "error",
       });
@@ -109,7 +109,7 @@ export default function WingTimePage() {
     setCompleting(true);
     try {
       await POST_API(endpoints.wingtime.complete(reviewing.wingtime_id), {});
-      showToast({ message: "Marked as completed." });
+      showToast({ message: "WingTime marked as completed." });
       setReviewing(null);
     } catch (error) {
       showToast({ message: getApiErrorMessage(error, "Couldn't mark it completed. Please try again."), type: "error" });
@@ -129,20 +129,20 @@ export default function WingTimePage() {
         render: (_: unknown, r: AdminWingTime) => <span className={`${cell} !font-semibold break-words`}>{r.topic}</span>,
       },
       {
-        title: "Host",
+        title: "Volunteer",
         dataIndex: "host_name",
         key: "host_name",
         className: "p-6 w-[130px]",
         render: (_: unknown, r: AdminWingTime) => <span className={cell}>{r.host_name || "-"}</span>,
       },
       {
-        title: "When (host's time zone)",
+        title: "When (Volunteer's Time Zone)",
         key: "when",
         className: "p-6 w-[250px]",
         render: (_: unknown, r: AdminWingTime) => <span className={cell}>{whenInHostZone(r)}</span>,
       },
       {
-        title: "Signed up",
+        title: "Signed Up",
         key: "capacity",
         className: "p-6 w-[100px] whitespace-nowrap",
         render: (_: unknown, r: AdminWingTime) => (
@@ -160,7 +160,7 @@ export default function WingTimePage() {
       {
         title: "",
         key: "actions",
-        className: "!p-0 !w-[110px]",
+        className: "!p-0 !w-[170px]",
         render: (_: unknown, r: AdminWingTime) => (
           <button
             type="button"
@@ -171,7 +171,7 @@ export default function WingTimePage() {
             }}
             aria-label={`${r.status === "pending_approval" ? "Review" : "View"} ${r.topic}`}
           >
-            {r.status === "pending_approval" ? "Review" : "View"}
+            {r.status === "pending_approval" ? "Review WingTime" : "View WingTime"}
           </button>
         ),
       },

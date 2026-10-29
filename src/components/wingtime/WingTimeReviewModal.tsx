@@ -23,6 +23,14 @@ const Row = ({ label, children }: { label: string; children: React.ReactNode }) 
   </div>
 );
 
+const actionBtn = "h-9 px-4 rounded-xl text-sm cursor-pointer border-0 disabled:opacity-60 disabled:cursor-not-allowed";
+
+/**
+ * Review dialog - the same pattern as the Profile Changes dialog: details in the body, a
+ * "Rejection reason" box, and the shared Reject / Accept footer. (Here the reason is required,
+ * because the host sees it.) Once decided, the footer goes away and the body offers Participants
+ * and, after the session has ended, Mark Completed.
+ */
 export default function WingTimeReviewModal({
   item,
   approving,
@@ -34,14 +42,12 @@ export default function WingTimeReviewModal({
   onShowParticipants,
   onComplete,
 }: Props) {
-  const [declining, setDeclining] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
 
-  // A reason typed for one session must never carry over to the next one opened.
+  // A reason typed for one WingTime must never carry over to the next one opened.
   const id = item?.wingtime_id;
   useEffect(() => {
-    setDeclining(false);
     setReason("");
     setError("");
   }, [id]);
@@ -49,87 +55,48 @@ export default function WingTimeReviewModal({
   const pending = item?.status === "pending_approval";
   const busy = approving || rejecting || completing;
 
-  const submitDecline = () => {
+  const handleReject = () => {
     if (!reason.trim()) {
-      setError("Enter a reason - the host will see it.");
+      setError("Please enter a rejection reason - the volunteer will see it.");
       return;
     }
     onReject(reason.trim());
   };
 
-  const btn =
-    "rounded-2xl px-5 py-3 text-sm font-medium cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed border";
-
   return (
-    <CenterModal isOpen={!!item} onClose={() => !busy && onClose()} title={item ? item.topic : "WingTime"} width={680} hideFooter>
+    <CenterModal
+      isOpen={!!item}
+      onClose={() => !busy && onClose()}
+      title={item ? item.topic : "WingTime"}
+      width={720}
+      hideFooter={!pending}
+      actionLoading={busy}
+      acceptLoading={approving}
+      rejectLoading={rejecting}
+      onAccept={onApprove}
+      onReject={handleReject}
+    >
       {item && (
-        <div className="flex flex-col gap-4 max-h-[65vh] overflow-y-auto pr-1">
+        <div className="flex flex-col gap-5 max-h-[60vh] overflow-y-auto pr-1">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Row label="Host">{item.host_name || "-"}</Row>
+            <Row label="Volunteer">{item.host_name || "-"}</Row>
             <Row label="Status">{WINGTIME_STATUS_LABEL[item.status]}</Row>
-            <Row label="When (host's time zone)">{whenInHostZone(item)}</Row>
+            <Row label="When (volunteer's time zone)">{whenInHostZone(item)}</Row>
             <Row label="Capacity">
               {item.registered_count} of {item.capacity} signed up
             </Row>
           </div>
           <Row label="Description">{item.description}</Row>
           <Row label="Materials">
-            {!item.materials || item.materials.trim().toLowerCase() === "none" ? "No materials needed" : item.materials}
+            {!item.materials || item.materials.trim().toLowerCase() === "none" ? "None needed" : item.materials}
           </Row>
           {item.tags.length > 0 && <Row label="Topics">{item.tags.join(", ")}</Row>}
-          {item.status === "rejected" && item.reject_reason && <Row label="Reason given">{item.reject_reason}</Row>}
 
-          {!pending && (
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={onShowParticipants}
-                disabled={busy}
-                className={`${btn} bg-white text-[#121212] border-[#E5E5E5]`}
-              >
-                Participants
-              </button>
-              {item.status === "approved" && hasEnded(item) && (
-                <button type="button" onClick={onComplete} disabled={busy} className={`${btn} bg-black text-white border-black`}>
-                  {completing ? "Saving..." : "Mark completed"}
-                </button>
-              )}
-            </div>
-          )}
-
-          {pending && !declining && (
-            <>
-              <p className="text-xs text-gray-medium">
-                Approving creates the Google Meet link and makes this visible to learners. The host is told either way.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={onApprove}
-                  disabled={busy}
-                  className={`${btn} bg-black text-white border-black`}
-                >
-                  {approving ? "Approving..." : "Approve"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeclining(true)}
-                  disabled={busy}
-                  className={`${btn} bg-white text-[#121212] border-[#E5E5E5]`}
-                >
-                  Don&apos;t approve
-                </button>
-              </div>
-            </>
-          )}
-
-          {pending && declining && (
-            <div className="flex flex-col gap-2">
-              <label htmlFor="wingtime-reject-reason" className="text-sm font-medium text-gray-dark">
-                Why isn&apos;t this approved? (the host will see this)
-              </label>
+          {pending ? (
+            <div>
+              <p className="text-sm font-medium text-gray-medium mb-2">Rejection reason (required to reject)</p>
               <textarea
-                id="wingtime-reject-reason"
+                aria-label="Rejection reason"
                 value={reason}
                 onChange={(e) => {
                   setReason(e.target.value);
@@ -138,32 +105,46 @@ export default function WingTimeReviewModal({
                 maxLength={500}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "wingtime-reject-error" : undefined}
-                className="w-full min-h-[90px] rounded-lg border border-gray-200 p-3 text-sm text-gray-dark focus:outline-none focus:ring-1 focus:ring-gray-400"
+                placeholder="Tell the volunteer why this WingTime wasn't approved. It's shown to them on the WingTime."
+                className="w-full min-h-[80px] rounded-lg border border-gray-200 p-3 text-sm text-gray-dark focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
               {error && (
-                <p id="wingtime-reject-error" role="alert" className="text-sm text-red-700">
+                <p id="wingtime-reject-error" role="alert" className="mt-1 text-sm text-red-700">
                   {error}
+                </p>
+              )}
+              <p className="mt-2 text-xs text-gray-medium">
+                Accepting creates the Google Meet link and makes this visible to learners. The volunteer is told either way.
+              </p>
+            </div>
+          ) : (
+            <>
+              {item.status === "rejected" && item.reject_reason && (
+                <p className="text-sm text-gray-dark">
+                  <span className="font-medium">Rejection reason:</span> {item.reject_reason}
                 </p>
               )}
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
-                  onClick={submitDecline}
+                  onClick={onShowParticipants}
                   disabled={busy}
-                  className={`${btn} bg-black text-white border-black`}
+                  className={`${actionBtn} border border-[#E5E5E5] bg-white text-[#121212]`}
                 >
-                  {rejecting ? "Sending..." : "Send decision"}
+                  Participants
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setDeclining(false)}
-                  disabled={busy}
-                  className={`${btn} bg-white text-[#121212] border-[#E5E5E5]`}
-                >
-                  Back
-                </button>
+                {item.status === "approved" && hasEnded(item) && (
+                  <button
+                    type="button"
+                    onClick={onComplete}
+                    disabled={busy}
+                    className={`${actionBtn} bg-[#DCFCE7] text-success`}
+                  >
+                    {completing ? "Saving..." : "Mark Completed"}
+                  </button>
+                )}
               </div>
-            </div>
+            </>
           )}
         </div>
       )}

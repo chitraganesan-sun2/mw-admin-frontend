@@ -43,9 +43,9 @@ export interface RosterParticipant {
 }
 
 export const WINGTIME_TABS: { key: WingTimeStatus; label: string }[] = [
-  { key: "pending_approval", label: "Pending approval" },
+  { key: "pending_approval", label: "Pending" },
   { key: "approved", label: "Approved" },
-  { key: "rejected", label: "Not approved" },
+  { key: "rejected", label: "Rejected" },
   { key: "completed", label: "Completed" },
   { key: "cancelled", label: "Cancelled" },
 ];
