@@ -24,5 +24,7 @@ jobs:
       # and type-checks. There's no ESLint config in this repo yet (`next lint`
       # errors out with nothing to run), so build is the only check for now -
       # matching melody-wings-frontend's own note on the same gap.
+      - name: Unit tests
+        run: npm run test:unit
       - name: Build
         run: npx next build

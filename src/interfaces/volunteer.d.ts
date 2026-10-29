@@ -43,6 +43,7 @@ interface VolunteerDetails {
     video_url: string;
 
     photo_or_video_consent: boolean;
+    heard_about_us: string;
     cookie_consent_accepted: boolean;
     privacy_policy_accepted: boolean;
     terms_and_conditions_accepted: boolean;

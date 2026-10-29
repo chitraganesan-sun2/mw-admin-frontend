@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { formatHeardAboutUs } from "@/utils/heardAboutUs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 
 dayjs.extend(customParseFormat);
@@ -82,6 +83,7 @@ export const formatVolunteerData = (data: any): VolunteerDetails => {
         other_consents_details: legal_and_safety_info?.other_consents_details || {},
 
         photo_or_video_consent: consent_and_permissions?.photo_or_video_consent ?? false,
+        heard_about_us: formatHeardAboutUs(consent_and_permissions),
         cookie_consent_accepted,
         privacy_policy_accepted,
         terms_and_conditions_accepted,

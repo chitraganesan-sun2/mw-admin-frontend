@@ -606,6 +606,14 @@ const VolunteerProfileDetails = () => {
           </div>
           <div>
             <p className="text-xl font-medium border-t mt-5 pt-5 mb-4">
+              How They Heard About Us
+            </p>
+            <p className="text-[1rem] text-gray-dark font-medium my-4">
+              {volunteerDetails?.heard_about_us || "-"}
+            </p>
+          </div>
+          <div>
+            <p className="text-xl font-medium border-t mt-5 pt-5 mb-4">
               Consents
             </p>
             <div className="flex flex-col gap-4 my-4">

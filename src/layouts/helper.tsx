@@ -19,6 +19,7 @@ export const getHeaderIcon = (pathname: string) => {
     case "volunteer":
       return <VolunteerIcon />;
     case "learner":
+    case "accounts":
       return <VolunteerIcon />;
     case "reports":
       return <ReportIcon />;
@@ -29,6 +30,7 @@ export const getHeaderIcon = (pathname: string) => {
     case "donations":
       return <DonationIcon />;
     case "broadcast":
+    case "notifications":
       return <MailIcon />;
     case "hiring":
       return <HiringIcon />;
