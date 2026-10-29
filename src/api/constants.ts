@@ -52,6 +52,16 @@ export const endpoints: EndpointProps = {
     resolveReport: (report_id: string) => `admin/report/${report_id}`,
     rejectReport: (report_id: string) => `admin/report/${report_id}`,
   },
+  // Trailing slash before the query on purpose: the collection route is "/", and without it the
+  // backend redirects to an http:// URL that an https page can't follow.
+  wingtime: {
+    list: (status: string, page: number, pageSize: number) =>
+      `admin/wingtime/?${status ? `status=${status}&` : ""}page=${page}&size=${pageSize}`,
+    approve: (id: string) => `admin/wingtime/${id}/approve`,
+    reject: (id: string) => `admin/wingtime/${id}/reject`,
+    complete: (id: string) => `admin/wingtime/${id}/complete`,
+    roster: (id: string) => `admin/wingtime/${id}/roster`,
+  },
   profileChanges: {
     list: (status: string, page: number, pageSize: number) =>
       `admin/profile-changes?status=${status}&page=${page}&size=${pageSize}`,

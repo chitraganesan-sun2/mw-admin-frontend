@@ -51,6 +51,13 @@ type EndpointProps = {
     resolveReport: (report_id: string) => string;
     rejectReport: (report_id: string) => string;
   };
+  wingtime: {
+    list: (status: string, page: number, pageSize: number) => string;
+    approve: (id: string) => string;
+    reject: (id: string) => string;
+    complete: (id: string) => string;
+    roster: (id: string) => string;
+  };
   profileChanges: {
     list: (status: string, page: number, pageSize: number) => string;
     get: (id: string) => string;

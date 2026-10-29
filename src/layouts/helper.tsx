@@ -7,6 +7,7 @@ import {
   VolunteerIcon,
   DonationIcon,
 } from "@/assets/icons";
+import { MdOutlineGroups } from "react-icons/md";
 
 export const getHeaderTitle = (pathname: string) => {
   const path = pathname.split("/")?.[1];
@@ -31,6 +32,8 @@ export const getHeaderIcon = (pathname: string) => {
       return <MailIcon />;
     case "hiring":
       return <HiringIcon />;
+    case "wingtime":
+      return <MdOutlineGroups />;
     default:
       return null;
   }

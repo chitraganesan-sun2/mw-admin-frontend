@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { VolunteerIcon, ReportIcon, HiringIcon } from "@/assets/icons";
 import React from "react";
+import { MdOutlineGroups } from "react-icons/md";
+import { WINGTIME_ENABLED } from "@/config/wingtime";
 
 const Sidebar = () => {
   const router = useRouter();
@@ -88,6 +90,8 @@ const Sidebar = () => {
       text: "Matching",
       icon: <VolunteerIcon />,
     },
+    // WingTime approvals - only shown where the feature is switched on.
+    ...(WINGTIME_ENABLED ? [{ href: "/wingtime", text: "WingTime", icon: <MdOutlineGroups size={22} /> }] : []),
   ];
 
   const handleSignOut = () => {
