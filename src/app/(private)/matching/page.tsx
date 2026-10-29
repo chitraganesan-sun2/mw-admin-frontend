@@ -11,6 +11,7 @@ import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
 import { getApiErrorMessage } from "@/utils/apiError";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+import { formatDisplayDateTime } from "@/utils/displayDateTime";
 
 type TriggerSide = "learner" | "volunteer";
 
@@ -211,7 +212,7 @@ export default function MatchingPage() {
       title: "Date",
       dataIndex: "created_at",
       key: "created_at",
-      render: (v: string) => new Date(v).toLocaleString(),
+      render: (v: string) => formatDisplayDateTime(v),
     },
   ];
 
