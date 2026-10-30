@@ -111,6 +111,33 @@ type EndpointProps = {
     trigger: string;
     getAll: string;
   };
+  safety: {
+    reports: string;
+    report: (id: number | string) => string;
+    status: (id: number | string) => string;
+    evidence: (id: number | string) => string;
+    stats: (id: number | string) => string;
+    pdf: (id: number | string) => string;
+    bulkDelete: string;
+    email: (id: number | string, kind: "alert" | "summary" | "admin") => string;
+    analyzeTranscript: string;
+    analyzeTranscriptFile: string;
+    analyzeAudio: string;
+    analyzeVideo: string;
+    analytics: string;
+    insights: string;
+    chat: string;
+    drive: {
+      status: string;
+      authUrl: string;
+      files: string;
+      import: string;
+      disconnect: string;
+      watcher: string;
+      watcherStart: string;
+      watcherStop: string;
+    };
+  };
 };
 
 type CommonPath = "skills" | "languages" | "subjects" | "media" | "categories";

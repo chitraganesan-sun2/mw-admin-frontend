@@ -12,9 +12,6 @@ const originOf = (value) => {
 };
 const apiOrigin = originOf(apiUrl);
 
-const safetyDashboardUrl = process.env.NEXT_PUBLIC_SAFETY_DASHBOARD_URL || "";
-const safetyOrigin = originOf(safetyDashboardUrl);
-
 // App-wide Content-Security-Policy. 'unsafe-inline'/'unsafe-eval' stay on
 // script-src because Next's runtime + antd need them and this app has no nonce
 // pipeline; the value here is still that connect-src / img-src / frame-src are
@@ -30,8 +27,9 @@ const csp = [
     // Sentry's ingest domain - without this, every crash-report event is
     // silently blocked by the browser before it ever reaches Sentry (caught the
     // hard way on melody-wings-frontend's own Sentry rollout).
-    `connect-src 'self' https://o4509625850658816.ingest.us.sentry.io${apiOrigin ? " " + apiOrigin : ""}${safetyOrigin ? " " + safetyOrigin : ""}`,
-    `frame-src ${safetyOrigin || "'none'"}`,
+    `connect-src 'self' https://o4509625850658816.ingest.us.sentry.io${apiOrigin ? " " + apiOrigin : ""}`,
+    // Nothing is embedded: Safety Monitoring is native, it no longer frames an external dashboard.
+    "frame-src 'none'",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",

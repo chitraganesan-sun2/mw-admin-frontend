@@ -1,6 +1,6 @@
 # melody-wings-admin-frontend
 
-Next.js (App Router) internal staff console for **Melody Wings** — approvals, content moderation, donations, hiring, broadcast email, and a safety dashboard. Talks exclusively to the admin routes of [melody-wings-backend](../melody-wings-backend).
+Next.js (App Router) internal staff console for **Melody Wings** — approvals, content moderation, donations, hiring, broadcast email, and Safety Monitoring (AI detection of unsafe language in session recordings and transcripts). Talks exclusively to the admin routes of [melody-wings-backend](../melody-wings-backend).
 
 ## Tech stack
 
@@ -40,7 +40,7 @@ flowchart TB
             Donations["/donations — view-only"]
             Hiring["/hiring — view-only"]
             Broadcast["/broadcast — bulk email"]
-            Safety["/safety — iframe"]
+            Safety["/safety/* — Safety Monitoring,<br/>native pages, safety.monitor"]
             Dashboard["/dashboard — mock data,<br/>unlinked from sidebar"]
         end
 
@@ -58,8 +58,6 @@ flowchart TB
         AdminAPI["/api/v1/admin/*<br/>Depends(require_admin)<br/>— any valid admin token, no finer roles"]
     end
 
-    ExternalSafety["External safety/transcript-analysis<br/>dashboard (separately hosted)<br/>NEXT_PUBLIC_SAFETY_DASHBOARD_URL"]
-
     Live -.->|serves| AdminApp
     Staff --> Middleware
     Middleware --> LoginPage
@@ -68,7 +66,6 @@ flowchart TB
     PrivateGroup --> APIClient
     DevGroup --> APIClient
     APIClient --> AdminAPI
-    Safety --> ExternalSafety
     QueryProvider --> PrivateGroup
     StrayQC -.->|"invalidateQueries no-op —<br/>cache bug"| Resources
 ```
@@ -131,7 +128,7 @@ src/app/
     resources/, tutorial-links/, list-of-values/
     donations/, hiring/      # view-only
     broadcast/               # bulk email compose/send
-    safety/                  # iframe to external dashboard
+    safety/                  # Safety Monitoring: reports, upload, report detail, analytics, compare, Google Drive
     dashboard/                # mock data, not linked in Sidebar
   development/               # NOT in (private) group — raw JSON dumps, same auth gate only
     learner/, volunteer/
@@ -160,4 +157,4 @@ npm install
 npm run dev   # http://localhost:3000 (or configured port)
 ```
 
-Set `NEXT_PUBLIC_API_URL` to point at a running [melody-wings-backend](../melody-wings-backend), and `NEXT_PUBLIC_SAFETY_DASHBOARD_URL` for the `/safety` iframe to render anything other than its "not configured" fallback state.
+Set `NEXT_PUBLIC_API_URL` to point at a running [melody-wings-backend](../melody-wings-backend). Safety Monitoring needs nothing else here: its pages call `/api/v1/admin/safety/*` on that backend, which talks to the detection service (see `melody-wings-backend/docs/safety-integration.md`). The old `NEXT_PUBLIC_SAFETY_DASHBOARD_URL` iframe setting is gone.

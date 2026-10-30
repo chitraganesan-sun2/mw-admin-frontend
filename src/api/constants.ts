@@ -116,4 +116,33 @@ export const endpoints: EndpointProps = {
     trigger: "admin/match/trigger",
     getAll: "admin/match",
   },
+  // Safety Monitoring (the detection pipeline), reached through the MelodyWings backend.
+  safety: {
+    reports: "admin/safety/reports",
+    report: (id: number | string) => `admin/safety/reports/${id}`,
+    status: (id: number | string) => `admin/safety/reports/${id}/status`,
+    evidence: (id: number | string) => `admin/safety/reports/${id}/evidence`,
+    stats: (id: number | string) => `admin/safety/reports/${id}/stats`,
+    pdf: (id: number | string) => `admin/safety/reports/${id}/pdf`,
+    bulkDelete: "admin/safety/reports/bulk-delete",
+    email: (id: number | string, kind: "alert" | "summary" | "admin") =>
+      `admin/safety/reports/${id}/email/${kind}`,
+    analyzeTranscript: "admin/safety/analyze/transcript",
+    analyzeTranscriptFile: "admin/safety/analyze/transcript-file",
+    analyzeAudio: "admin/safety/analyze/audio",
+    analyzeVideo: "admin/safety/analyze/video",
+    analytics: "admin/safety/analytics",
+    insights: "admin/safety/analytics/insights",
+    chat: "admin/safety/chat",
+    drive: {
+      status: "admin/safety/drive/status",
+      authUrl: "admin/safety/drive/auth-url",
+      files: "admin/safety/drive/files",
+      import: "admin/safety/drive/import",
+      disconnect: "admin/safety/drive/connection",
+      watcher: "admin/safety/drive/watcher",
+      watcherStart: "admin/safety/drive/watcher/start",
+      watcherStop: "admin/safety/drive/watcher/stop",
+    },
+  },
 };

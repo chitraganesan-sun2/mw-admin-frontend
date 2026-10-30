@@ -21,7 +21,6 @@ COPY . .
 
 # Build-time env vars (will be baked into the client bundle)
 ENV NEXT_PUBLIC_API_URL=http://localhost:8080
-ENV NEXT_PUBLIC_SAFETY_DASHBOARD_URL=http://localhost:3000
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
