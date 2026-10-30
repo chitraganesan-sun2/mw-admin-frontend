@@ -129,7 +129,13 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <StatCard
               label="Notification emails, last 7 days"
-              value={email.failed_7d === 0 ? "All delivered" : `${formatNumber(email.failed_7d)} failed`}
+              value={
+                email.total_7d === 0
+                  ? "None sent"
+                  : email.failed_7d === 0
+                    ? "All delivered"
+                    : `${formatNumber(email.failed_7d)} failed`
+              }
               detail={`${plural(email.total_7d, "email")} attempted`}
               href="/notifications"
             />
