@@ -20,9 +20,9 @@ export default function DashboardPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
   const { data: staff } = useStaff();
-  // Sessions show members' names and live meeting links, so the table needs the Safety permission
-  // (the API enforces the same rule).
-  const canSeeSessions = !!staff?.permissions.includes("safety.monitor");
+  // Sessions show members' names and live meeting links, so the table follows the permission that
+  // opens the volunteer and learner lists (the API enforces the same rule).
+  const canSeeSessions = !!staff?.permissions.includes("applications.read");
 
   useEffect(() => {
     setHeaderOptions({ title: "Dashboard", titleIcon: getHeaderIcon(pathname) });
