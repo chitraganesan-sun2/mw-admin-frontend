@@ -119,6 +119,7 @@ export const endpoints: EndpointProps = {
   // Home page numbers; what comes back depends on the signed-in account's permissions.
   dashboard: {
     summary: "admin/dashboard/summary",
+    sessions: "admin/dashboard/sessions",
   },
 
   // Safety Monitoring (the detection pipeline), reached through the MelodyWings backend.

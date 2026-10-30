@@ -11,12 +11,18 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { formatDisplayDateTime } from "@/utils/displayDateTime";
 import { AttentionCard, Section, StatCard, formatMoney, formatNumber, plural } from "@/components/dashboard/widgets";
+import SessionsTable from "@/components/dashboard/SessionsTable";
+import { useStaff } from "@/hooks/useStaff";
 
 const DASHBOARD_QUERY_KEY = ["dashboard-summary"];
 
 export default function DashboardPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
+  const { data: staff } = useStaff();
+  // Sessions show members' names and live meeting links, so the table needs the Safety permission
+  // (the API enforces the same rule).
+  const canSeeSessions = !!staff?.permissions.includes("safety.monitor");
 
   useEffect(() => {
     setHeaderOptions({ title: "Dashboard", titleIcon: getHeaderIcon(pathname) });
@@ -53,7 +59,8 @@ export default function DashboardPage() {
   const { attention, numbers, health, unavailable } = data;
   const { members, donations, hiring } = numbers;
   const email = health.email;
-  const hasAnything = attention.length > 0 || Object.keys(numbers).length > 0 || Object.keys(health).length > 0;
+  const hasAnything =
+    attention.length > 0 || Object.keys(numbers).length > 0 || Object.keys(health).length > 0 || canSeeSessions;
 
   return (
     <div className="p-8">
@@ -140,6 +147,12 @@ export default function DashboardPage() {
               href="/notifications"
             />
           </div>
+        </Section>
+      ) : null}
+
+      {canSeeSessions ? (
+        <Section title="Sessions" hint="Every session, with a join link for confirmed ones that are still on">
+          <SessionsTable />
         </Section>
       ) : null}
     </div>

@@ -113,6 +113,7 @@ type EndpointProps = {
   };
   dashboard: {
     summary: string;
+    sessions: string;
   };
   safety: {
     reports: string;
