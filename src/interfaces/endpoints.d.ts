@@ -111,6 +111,9 @@ type EndpointProps = {
     trigger: string;
     getAll: string;
   };
+  dashboard: {
+    summary: string;
+  };
   safety: {
     reports: string;
     report: (id: number | string) => string;

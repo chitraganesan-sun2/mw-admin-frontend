@@ -37,6 +37,7 @@ export interface Staff {
 // Path prefix -> the permission needed to open it (null = any signed-in portal user). A path not
 // listed here is admin-only (the default for anything new): it needs `admins.manage`.
 const PAGE_PERMISSIONS: Array<{ prefix: string; permission: Permission | null }> = [
+  { prefix: "/dashboard", permission: null },
   { prefix: "/support", permission: null },
   { prefix: "/volunteer", permission: "applications.read" },
   { prefix: "/learner", permission: "applications.read" },
@@ -74,7 +75,7 @@ export const KNOWN_ROLES: StaffRole[] = ["admin", "support"];
 // Where each role lands after signing in; the server's `home_path` is preferred, this is the
 // fallback if an older server doesn't send it.
 export const ROLE_HOME: Record<StaffRole, string> = {
-  admin: "/volunteer",
+  admin: "/dashboard",
   support: "/support",
 };
 

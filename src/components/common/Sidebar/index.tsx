@@ -9,6 +9,7 @@ import {
   SignOutIcon,
   DonationIcon,
   SafetyIcon,
+  DashBoardIcon,
 } from "@/assets/icons";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -31,6 +32,11 @@ const Sidebar = () => {
   const queryClient = useQueryClient();
 
   const allLinks = [
+    {
+      href: "/dashboard",
+      text: "Dashboard",
+      icon: <DashBoardIcon />,
+    },
     {
       href: "/support",
       text: "Support",

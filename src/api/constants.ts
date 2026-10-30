@@ -116,6 +116,11 @@ export const endpoints: EndpointProps = {
     trigger: "admin/match/trigger",
     getAll: "admin/match",
   },
+  // Home page numbers; what comes back depends on the signed-in account's permissions.
+  dashboard: {
+    summary: "admin/dashboard/summary",
+  },
+
   // Safety Monitoring (the detection pipeline), reached through the MelodyWings backend.
   safety: {
     reports: "admin/safety/reports",

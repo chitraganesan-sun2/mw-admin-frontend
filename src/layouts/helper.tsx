@@ -7,6 +7,7 @@ import {
   VolunteerIcon,
   DonationIcon,
   SafetyIcon,
+  DashBoardIcon,
 } from "@/assets/icons";
 import { MdOutlineGroups } from "react-icons/md";
 
@@ -17,6 +18,8 @@ export const getHeaderTitle = (pathname: string) => {
 
 export const getHeaderIcon = (pathname: string) => {
   switch (getHeaderTitle(pathname)) {
+    case "dashboard":
+      return <DashBoardIcon />;
     case "volunteer":
       return <VolunteerIcon />;
     case "learner":
