@@ -21,7 +21,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useStaff } from "@/hooks/useStaff";
 import { canAccessPath } from "@/constants/access";
 
-const Sidebar = () => {
+interface SidebarProps {
+  // "rail" is the permanent desktop column; "drawer" is the same menu inside the phone slide-out.
+  variant?: "rail" | "drawer";
+  // Called when a link is followed, so the phone menu can close itself.
+  onNavigate?: () => void;
+}
+
+const Sidebar = ({ variant = "rail", onNavigate }: SidebarProps) => {
   const router = useRouter();
   const [isClient, setIsClient] = React.useState(false);
   React.useEffect(() => {
@@ -142,15 +149,19 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="bg-white w-full h-screen flex flex-col items-center justify-between p-6 overflow-y-auto">
+    <div
+      className={`bg-white w-full flex flex-col items-center justify-between overflow-y-auto ${
+        variant === "drawer" ? "h-full p-4" : "h-screen p-6"
+      }`}
+    >
       <div className="w-full">
         <Link href="/">
           <Logo />
         </Link>
-        <div className="flex flex-col items-center gap-[2.2rem] w-full mt-20">
+        <div className={`flex flex-col items-center w-full ${variant === "drawer" ? "gap-6 mt-8" : "gap-[2.2rem] mt-20"}`}>
           {staffLoading && <p className="text-sm text-gray-light">Loading...</p>}
           {linksData.map((link) => (
-            <SectionCard key={link.href} {...link} />
+            <SectionCard key={link.href} {...link} onClick={onNavigate} />
           ))}
         </div>
       </div>

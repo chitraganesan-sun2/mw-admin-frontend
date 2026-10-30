@@ -134,6 +134,9 @@ export default function SessionsTable() {
       title: "Join",
       dataIndex: "join_url",
       key: "join_url",
+      // Stays in view when the other columns have to scroll sideways on a narrow screen.
+      fixed: "right" as const,
+      width: 90,
       render: (url: string | null, row: DashboardSession) => {
         const href = safeHref(url);
         return href ? (
@@ -156,17 +159,20 @@ export default function SessionsTable() {
   ];
 
   const rows = data?.sessions ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-3 mb-4">
+      <div className="grid grid-cols-2 gap-3 mb-4 sm:flex sm:flex-wrap sm:items-center">
         <Input
           allowClear
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="Search name, title or ID"
           aria-label="Search sessions by volunteer or learner name, title or ID"
-          style={{ width: 260 }}
+          className="col-span-2 sm:!w-[260px]"
+          size="large"
         />
         <Select
           allowClear
@@ -175,7 +181,8 @@ export default function SessionsTable() {
           options={STATUS_OPTIONS}
           placeholder="Status"
           aria-label="Filter by status"
-          style={{ width: 140 }}
+          className="w-full sm:!w-[140px]"
+          size="large"
         />
         <Select
           allowClear
@@ -184,7 +191,8 @@ export default function SessionsTable() {
           options={KIND_OPTIONS}
           placeholder="Type"
           aria-label="Filter by session type"
-          style={{ width: 130 }}
+          className="w-full sm:!w-[130px]"
+          size="large"
         />
         <Select
           allowClear
@@ -193,7 +201,8 @@ export default function SessionsTable() {
           options={WHEN_OPTIONS}
           placeholder="Upcoming / past"
           aria-label="Filter by upcoming or past"
-          style={{ width: 150 }}
+          className="col-span-2 w-full sm:!w-[150px]"
+          size="large"
         />
         <DatePicker.RangePicker
           value={range}
@@ -202,10 +211,16 @@ export default function SessionsTable() {
             setPage(1);
           }}
           aria-label="Filter by session date (UTC)"
+          className="col-span-2 w-full sm:!w-auto"
+          size="large"
         />
-        {anyFilter ? <Button onClick={resetFilters}>Clear filters</Button> : null}
+        {anyFilter ? (
+          <Button onClick={resetFilters} size="large" className="col-span-2 sm:!col-auto">
+            Clear filters
+          </Button>
+        ) : null}
       </div>
-      <p className="mb-3 text-xs text-[#4F4F4F]">Date filter uses UTC dates. Times in the table are shown in your time zone.</p>
+      <p className="mb-3 text-xs text-[#4F4F4F]">Date filter uses UTC dates. Times are shown in your time zone.</p>
 
       {error ? (
         <div role="alert" className="py-6">
@@ -219,24 +234,83 @@ export default function SessionsTable() {
           {anyFilter ? "No sessions match these filters." : "No sessions yet."}
         </div>
       ) : (
-        <Table
-          data={rows}
-          columns={columns}
-          loading={isLoading || isFetching}
-          rowKey="session_id"
-          rootClassName="[&_.ant-table]:!normal-case [&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal"
-          pagination={{
-            current: page,
-            pageSize,
-            total: data?.total ?? 0,
-            showSizeChanger: true,
-            pageSizeOptions: PAGE_SIZES,
-          }}
-          onChange={(pagination: { current?: number; pageSize?: number }) => {
-            setPage(pagination.current ?? 1);
-            setPageSize(pagination.pageSize ?? 20);
-          }}
-        />
+        <>
+          {/* Phones: one card per session (a seven-column table is unreadable at this width). */}
+          <div className="md:hidden" aria-busy={isLoading || isFetching}>
+            <ul className="space-y-3" aria-label="Sessions">
+              {rows.map((row) => {
+                const href = safeHref(row.join_url);
+                const known = STATUS_LABEL[row.status];
+                return (
+                  <li key={row.session_id} className="rounded-2xl border border-stroke bg-white p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="min-w-0 break-words font-medium text-dark">{row.title || "Untitled"}</h3>
+                      <Tag color={known?.color ?? "default"} className="shrink-0 !m-0">
+                        {known?.label ?? row.status}
+                      </Tag>
+                    </div>
+                    <p className="mt-1 text-sm text-[#4F4F4F]">
+                      {row.start_utc ? formatDisplayDateTime(row.start_utc) : "Unknown time"} ·{" "}
+                      {row.kind === "instant" ? "Instant" : "Scheduled"}
+                    </p>
+                    <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+                      <dt className="text-[#4F4F4F]">Volunteer</dt>
+                      <dd className="min-w-0 break-words text-dark">{row.volunteer_name || "Unknown"}</dd>
+                      <dt className="text-[#4F4F4F]">Learner</dt>
+                      <dd className="min-w-0 break-words text-dark">{row.learner_name || "Unknown"}</dd>
+                    </dl>
+                    {href ? (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Join session ${row.title ?? row.session_id} (opens in a new tab)`}
+                        className="mt-4 flex min-h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-medium text-dark hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-dark"
+                      >
+                        Join
+                      </a>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <Button size="large" disabled={page <= 1 || isFetching} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+                Previous
+              </Button>
+              <span className="text-center text-sm text-[#4F4F4F]" aria-live="polite">
+                Page {page} of {totalPages}
+                <br />
+                {total} sessions
+              </span>
+              <Button size="large" disabled={page >= totalPages || isFetching} onClick={() => setPage((p) => p + 1)}>
+                Next
+              </Button>
+            </div>
+          </div>
+
+          {/* Tablets and desktops: the table. */}
+          <div className="hidden md:block">
+            <Table
+              data={rows}
+              columns={columns}
+              loading={isLoading || isFetching}
+              rowKey="session_id"
+              rootClassName="[&_.ant-table]:!normal-case [&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal"
+              pagination={{
+                current: page,
+                pageSize,
+                total,
+                showSizeChanger: true,
+                pageSizeOptions: PAGE_SIZES,
+              }}
+              onChange={(pagination: { current?: number; pageSize?: number }) => {
+                setPage(pagination.current ?? 1);
+                setPageSize(pagination.pageSize ?? 20);
+              }}
+            />
+          </div>
+        </>
       )}
     </div>
   );

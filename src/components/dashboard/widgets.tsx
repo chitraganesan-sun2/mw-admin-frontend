@@ -7,7 +7,7 @@ const formatMoney = (value: number) =>
 
 export const Section = ({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) => (
   <section className="mb-8" aria-label={title}>
-    <div className="flex items-baseline gap-3 mb-3">
+    <div className="flex flex-wrap items-baseline gap-x-3 mb-3">
       <h2 className="text-lg font-semibold text-dark">{title}</h2>
       {hint ? <span className="text-sm text-[#4F4F4F]">{hint}</span> : null}
     </div>
@@ -22,11 +22,11 @@ export const AttentionCard = ({ item }: { item: DashboardAttentionItem }) => {
   return (
     <Link
       href={item.href}
-      className={`block rounded-2xl p-5 bg-white border transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary ${
+      className={`block rounded-2xl p-4 sm:p-5 bg-white border transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary ${
         waiting ? "border-primary" : "border-stroke"
       }`}
     >
-      <div className={`text-4xl font-semibold ${waiting ? "text-dark" : "text-[#4F4F4F]"}`}>{formatNumber(item.count)}</div>
+      <div className={`text-3xl sm:text-4xl font-semibold ${waiting ? "text-dark" : "text-[#4F4F4F]"}`}>{formatNumber(item.count)}</div>
       <div className="mt-1 text-sm text-dark">{item.label}</div>
       <div className={`mt-3 text-xs font-medium ${waiting ? "text-[#046A8A]" : "text-success"}`}>
         {waiting ? "Review now →" : "All clear"}
@@ -49,11 +49,11 @@ export const StatCard = ({
   const body = (
     <>
       <div className="text-xs uppercase font-medium text-[#4F4F4F] tracking-wide">{label}</div>
-      <div className="mt-2 text-3xl font-semibold text-dark">{value}</div>
+      <div className="mt-2 text-2xl sm:text-3xl font-semibold text-dark break-words">{value}</div>
       {detail ? <div className="mt-1 text-sm text-[#4F4F4F]">{detail}</div> : null}
     </>
   );
-  const base = "block rounded-2xl p-5 bg-white border border-stroke";
+  const base = "block rounded-2xl p-4 sm:p-5 bg-white border border-stroke";
   return href ? (
     <Link href={href} className={`${base} hover:shadow-md transition-shadow focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary`}>
       {body}

@@ -42,8 +42,8 @@ const CommonHeader: React.FC = () => {
   const isDonations = (title || "").toLowerCase().includes("donation");
 
   return (
-    <div className="w-full h-full p-2 px-3 flex items-center justify-between">
-      <div className="flex capitalize items-center">
+    <div className="w-full lg:h-full p-2 px-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="flex capitalize items-center min-w-0">
         <Button
           icon={titleIcon}
           rootClassName={cn(
@@ -53,14 +53,14 @@ const CommonHeader: React.FC = () => {
           )}
           onClick={titleIconClick}
         />
-        <h1 className={cn("font-medium", isDonations ? "text-[18px]" : "text-lg")}>
+        <h1 className={cn("font-medium truncate", isDonations ? "text-[18px]" : "text-lg")}>
           {formatString(title ?? "")}
         </h1>
       </div>
       <div
         className={cn(
           actionButtonPlacement === "left" ? "flex-row-reverse" : "flex",
-          "flex items-center justify-center gap-2"
+          "flex items-center justify-center gap-2 flex-wrap max-w-full"
         )}
       >
         { showSearch && <Input

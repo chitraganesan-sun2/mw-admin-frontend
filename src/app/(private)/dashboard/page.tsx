@@ -39,7 +39,7 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="p-8" aria-busy="true" aria-label="Loading the dashboard">
+      <div className="p-4 sm:p-8" aria-busy="true" aria-label="Loading the dashboard">
         <Skeleton active paragraph={{ rows: 8 }} />
       </div>
     );
@@ -47,7 +47,7 @@ export default function DashboardPage() {
 
   if (error || !data) {
     return (
-      <div className="p-8" role="alert">
+      <div className="p-4 sm:p-8" role="alert">
         <p className="text-dark mb-3">{getApiErrorMessage(error, "Couldn't load the dashboard.")}</p>
         <Button onClick={() => refetch()} loading={isFetching}>
           Try again
@@ -63,8 +63,8 @@ export default function DashboardPage() {
     attention.length > 0 || Object.keys(numbers).length > 0 || Object.keys(health).length > 0 || canSeeSessions;
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 sm:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <p className="text-sm text-[#4F4F4F]">
           Updated {formatDisplayDateTime(data.generated_at)}. Figures refresh every few minutes.
         </p>
@@ -85,7 +85,7 @@ export default function DashboardPage() {
 
       {attention.length > 0 ? (
         <Section title="Needs attention" hint="Work waiting for someone on the team">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
             {attention.map((item) => (
               <AttentionCard key={item.key} item={item} />
             ))}
@@ -95,7 +95,7 @@ export default function DashboardPage() {
 
       {members || donations || hiring ? (
         <Section title="Key numbers">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
             {members ? (
               <>
                 <StatCard
@@ -133,7 +133,7 @@ export default function DashboardPage() {
 
       {email ? (
         <Section title="System health">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
             <StatCard
               label="Notification emails, last 7 days"
               value={
