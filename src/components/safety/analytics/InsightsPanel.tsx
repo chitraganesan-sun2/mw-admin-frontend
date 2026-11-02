@@ -127,7 +127,7 @@ export default function InsightsPanel() {
   const llmError = typeof insights?.llm_error === "string" ? insights.llm_error : "";
 
   return (
-    <section aria-labelledby="safety-insights-heading" className="bg-white rounded-xl p-5">
+    <section aria-labelledby="safety-insights-heading" className="bg-white rounded-2xl border border-stroke p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <h3 id="safety-insights-heading" className="text-base font-semibold m-0">

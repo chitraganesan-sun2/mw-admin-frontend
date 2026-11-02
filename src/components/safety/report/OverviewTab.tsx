@@ -49,18 +49,6 @@ function RiskRing({ report, model }: { report: SafetyReport; model: ReportModel 
             <SeverityTag severity={report.severity} />
           </div>
         </div>
-        <dl className="grid grid-cols-3 gap-4 w-full text-center">
-          {[
-            ["Findings", model.findings.length],
-            ["Evidence", model.evidence.length],
-            ["Categories", model.categoryCounts.length],
-          ].map(([label, value]) => (
-            <div key={label}>
-              <dt className="text-xs text-gray-500">{label}</dt>
-              <dd className="text-lg font-semibold text-gray-800">{value}</dd>
-            </div>
-          ))}
-        </dl>
       </div>
     </Panel>
   );

@@ -28,7 +28,7 @@ const describe = (labels: string[], values: number[]) => labels.map((l, i) => `$
 
 function StatCard({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-4 flex flex-col gap-1">
+    <div className="bg-white rounded-2xl border border-stroke p-4 flex flex-col gap-1">
       <dt className="text-xs text-gray-500">{label}</dt>
       <dd className="text-2xl font-semibold text-gray-800">{value}</dd>
       {hint && <dd className="text-xs text-gray-400">{hint}</dd>}
@@ -103,7 +103,7 @@ export default function AnalyticsTab({ report, model }: { report: SafetyReport; 
   const hasAnything = findings.length > 0 || categoryCounts.length > 0 || otherStats.length > 0;
 
   if (!hasAnything) {
-    return <div className="bg-white rounded-xl border border-gray-100 p-8 text-center text-gray-500">No statistics were produced for this report.</div>;
+    return <div className="bg-white rounded-2xl border border-stroke p-8 text-center text-gray-500">No statistics were produced for this report.</div>;
   }
 
   return (

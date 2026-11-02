@@ -13,7 +13,7 @@ function EvidenceCard({ item }: { item: ReportFinding }) {
     item.contextType || item.baseConfidence != null || item.contextMultiplier != null || item.speaker || item.timestamp != null;
 
   return (
-    <article className="bg-white rounded-xl border border-gray-100 border-l-4 p-4 flex flex-col gap-3" style={{ borderLeftColor: color }}>
+    <article className="bg-white rounded-2xl border border-stroke border-l-4 p-4 flex flex-col gap-3" style={{ borderLeftColor: color }}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <CategoryPills categories={item.categories.length ? item.categories : ["uncategorised"]} />
         <span className="flex flex-wrap items-center gap-1.5">

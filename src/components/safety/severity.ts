@@ -12,6 +12,38 @@ export const SEVERITY_COLORS: Record<SafetySeverity, { hex: string; tag: string 
   Critical: { hex: "#EF4444", tag: "red" },
 };
 
+// Badge / panel tones. Each pair (text on tint) is at least WCAG AA, and the severity is always written
+// out beside its colour: the colour reinforces the word, it never carries the meaning alone.
+export const SEVERITY_TONE: Record<SafetySeverity, { dot: string; bg: string; border: string; text: string }> = {
+  Safe: { dot: "#10B981", bg: "#ECFDF5", border: "#A7F3D0", text: "#047857" },
+  Low: { dot: "#3B82F6", bg: "#EFF6FF", border: "#BFDBFE", text: "#1D4ED8" },
+  Moderate: { dot: "#F59E0B", bg: "#FFFBEB", border: "#FDE68A", text: "#92400E" },
+  High: { dot: "#F97316", bg: "#FFF7ED", border: "#FED7AA", text: "#C2410C" },
+  Critical: { dot: "#EF4444", bg: "#FEF2F2", border: "#FECACA", text: "#B91C1C" },
+};
+
+/** The pipeline's own score bands: Safe 0-20, Low 21-40, Moderate 41-60, High 61-80, Critical 81-100. */
+export const riskSeverity = (score?: number | null): SafetySeverity | null => {
+  if (typeof score !== "number" || !Number.isFinite(score)) return null;
+  if (score >= 81) return "Critical";
+  if (score >= 61) return "High";
+  if (score >= 41) return "Moderate";
+  if (score >= 21) return "Low";
+  return "Safe";
+};
+
+/** Colour for a 0..100 risk score (grey while there is none). */
+export const riskHex = (score?: number | null): string => {
+  const band = riskSeverity(score);
+  return band ? SEVERITY_COLORS[band].hex : "#9CA3AF";
+};
+
+/** High and Critical are the reports an admin should open first. */
+export const needsAttention = (severity?: string | null): boolean => {
+  const rank = severityRank(severity);
+  return rank >= SEVERITY_ORDER.indexOf("High");
+};
+
 /** Position in SEVERITY_ORDER (unknown / not yet analysed sorts lowest). */
 export const severityRank = (severity?: string | null): number => {
   const index = SEVERITY_ORDER.findIndex((s) => s.toLowerCase() === String(severity ?? "").toLowerCase());

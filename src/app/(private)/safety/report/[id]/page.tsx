@@ -9,8 +9,10 @@ import { useSafetyReportStatus } from "@/hooks/useSafetyReportStatus";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { getHeaderIcon } from "@/layouts/helper";
 import { getApiErrorMessage } from "@/utils/apiError";
-import SafetyTabs from "@/components/safety/SafetyTabs";
-import { isInFlight } from "@/components/safety/severity";
+import { FiAlertTriangle, FiClock, FiFileText, FiLayers, FiShield, FiType } from "react-icons/fi";
+import { SafetyPage } from "@/components/safety/ui/SafetyPage";
+import { StatCard } from "@/components/safety/ui/StatCard";
+import { isInFlight, needsAttention } from "@/components/safety/severity";
 import Chatbot from "@/components/safety/Chatbot";
 import AnalyticsTab from "@/components/safety/report/AnalyticsTab";
 import EvidenceTab from "@/components/safety/report/EvidenceTab";
@@ -28,12 +30,12 @@ const isNotFound = (err: unknown) => (err as { status?: number } | null)?.status
 function LoadingState() {
   return (
     <div className="flex flex-col gap-4" role="status" aria-label="Loading report">
-      <div className="bg-white rounded-xl border border-gray-100 p-5">
+      <div className="rounded-2xl border border-stroke bg-white p-5">
         <Skeleton active paragraph={{ rows: 3 }} />
       </div>
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid gap-4 md:grid-cols-3">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="bg-white rounded-xl border border-gray-100 p-5">
+          <div key={i} className="rounded-2xl border border-stroke bg-white p-5">
             <Skeleton active paragraph={{ rows: 2 }} />
           </div>
         ))}
@@ -102,10 +104,10 @@ export default function SafetyReportPage() {
         <ReportHeader report={report} chatOpen={chatOpen} onToggleChat={() => setChatOpen((open) => !open)} />
 
         {inFlight && (
-          <div className="bg-white rounded-xl border border-gray-100 p-6 flex flex-col gap-3" role="status" aria-live="polite">
-            <h2 className="text-base font-semibold text-gray-800">Analysis in progress</h2>
+          <div className="flex flex-col gap-3 rounded-2xl border border-stroke bg-white p-5 sm:p-6" role="status" aria-live="polite">
+            <h3 className="m-0 text-base font-semibold text-dark">Analysis in progress</h3>
             <Progress percent={100} status="active" showInfo={false} />
-            <p className="text-sm text-gray-600">
+            <p className="m-0 text-sm text-[#4F4F4F]">
               The conversation is still being analysed. This page checks every few seconds and shows the results as soon as they are ready, so you can leave it open.
             </p>
             {statusQuery.isError && (
@@ -128,23 +130,30 @@ export default function SafetyReportPage() {
         )}
 
         {completed && (
-          <div className="grid xl:grid-cols-[minmax(0,1fr)_380px] gap-4 items-start">
+          <div className={chatOpen ? "grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]" : "flex flex-col gap-4"}>
             <div className="min-w-0 xl:order-first">
-              <dl className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-4">
+              <div className={`mb-4 grid grid-cols-2 gap-3 md:grid-cols-3 ${chatOpen ? "" : "xl:grid-cols-6"}`}>
                 {[
-                  ["Findings", model.findings.length],
-                  ["Evidence items", model.evidence.length],
-                  ["Words analysed", typeof model.stats.word_count === "number" ? model.stats.word_count : "-"],
-                  ["Risk categories", model.categoryCounts.length],
-                  ["Timeline segments", model.timeline.length],
-                  ["Severity", report.severity ?? "-"],
-                ].map(([label, value]) => (
-                  <div key={String(label)} className="bg-white rounded-xl border border-gray-100 px-4 py-3">
-                    <dt className="text-xs text-gray-500">{label}</dt>
-                    <dd className="text-lg font-semibold text-gray-800">{value}</dd>
-                  </div>
+                  { label: "Findings", value: model.findings.length, icon: <FiAlertTriangle size={16} /> },
+                  { label: "Evidence items", value: model.evidence.length, icon: <FiFileText size={16} /> },
+                  {
+                    label: "Words analysed",
+                    value: typeof model.stats.word_count === "number" ? model.stats.word_count.toLocaleString() : "-",
+                    icon: <FiType size={16} />,
+                  },
+                  { label: "Risk categories", value: model.categoryCounts.length, icon: <FiLayers size={16} /> },
+                  { label: "Timeline segments", value: model.timeline.length, icon: <FiClock size={16} /> },
+                  { label: "Severity", value: report.severity ?? "-", icon: <FiShield size={16} /> },
+                ].map(({ label, value, icon }) => (
+                  <StatCard
+                    key={label}
+                    label={label}
+                    value={value}
+                    icon={icon}
+                    tone={label === "Severity" && needsAttention(report.severity) ? "danger" : "neutral"}
+                  />
                 ))}
-              </dl>
+              </div>
 
               <Tabs
                 activeKey={activeTab}
@@ -177,10 +186,5 @@ export default function SafetyReportPage() {
     );
   }
 
-  return (
-    <div className="p-6 flex flex-col gap-4">
-      <SafetyTabs />
-      {body}
-    </div>
-  );
+  return <SafetyPage>{body}</SafetyPage>;
 }

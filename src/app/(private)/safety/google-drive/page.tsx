@@ -16,7 +16,7 @@ import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { showToast } from "@/components/common/Toast";
 import { getApiErrorMessage } from "@/utils/apiError";
-import SafetyTabs from "@/components/safety/SafetyTabs";
+import { SafetyPage } from "@/components/safety/ui/SafetyPage";
 import DriveFileTable, { type ImportEntry } from "@/components/safety/drive/DriveFileTable";
 import DriveStatePanel, { RetryButton } from "@/components/safety/drive/DriveStatePanel";
 import DriveWatcherPanel, { WATCHER_QUERY_KEY } from "@/components/safety/drive/DriveWatcherPanel";
@@ -220,7 +220,7 @@ function GoogleDriveContent() {
       <div className={isRefreshingFiles ? "opacity-60 transition-opacity" : "transition-opacity"} aria-busy={isRefreshingFiles}>
         <DriveFileTable files={files} imports={imports} onImport={handleImport} />
         {files.length >= pageSize ? (
-          <p className="text-xs text-gray-500 px-4 py-3 m-0 border-t border-gray-100">
+          <p className="m-0 border-t border-stroke px-4 py-3 text-xs text-[#6B7280]">
             Showing the {pageSize} most recently modified files. Search to narrow the list, or show more.
           </p>
         ) : null}
@@ -231,7 +231,7 @@ function GoogleDriveContent() {
   const renderConnection = () => {
     if (statusQuery.isLoading) {
       return (
-        <div aria-busy="true" aria-label="Checking the Google Drive connection" className="bg-white border border-gray-200 rounded-xl p-5">
+        <div aria-busy="true" aria-label="Checking the Google Drive connection" className="bg-white border border-stroke rounded-2xl p-5">
           <Skeleton active title={{ width: 220 }} paragraph={{ rows: 1 }} />
         </div>
       );
@@ -269,14 +269,14 @@ function GoogleDriveContent() {
       );
     }
     return (
-      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white border border-stroke rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-start gap-3 min-w-0">
           <span className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 text-xl shrink-0" aria-hidden="true">
             <FiCheckCircle />
           </span>
           <div className="min-w-0">
-            <h2 className="text-base font-semibold text-gray-900 m-0">Google Drive is connected</h2>
-            <p className="text-sm text-gray-500 m-0">
+            <h3 className="m-0 text-base font-semibold text-dark">Google Drive is connected</h3>
+            <p className="m-0 text-sm text-[#4F4F4F]">
               Read-only access to .txt files and Google Docs. This connection is shared by everyone who uses Safety Monitoring.
             </p>
           </div>
@@ -298,16 +298,10 @@ function GoogleDriveContent() {
   };
 
   return (
-    <div className="flex flex-col gap-4 pb-8">
-      <SafetyTabs />
-
-      <div>
-        <h1 className="text-xl font-semibold text-gray-900 m-0">Google Drive import</h1>
-        <p className="text-sm text-gray-500 mt-1 mb-0">
-          Import .txt files and Google Docs straight from Drive and run them through the safety analysis. No upload needed.
-        </p>
-      </div>
-
+    <SafetyPage
+      title="Google Drive import"
+      description="Import .txt files and Google Docs straight from Drive and run them through the safety analysis. No upload needed."
+    >
       {notice ? (
         <Alert
           type={notice.type}
@@ -324,17 +318,17 @@ function GoogleDriveContent() {
         <>
           <DriveWatcherPanel />
 
-          <section aria-labelledby="drive-files-heading" className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 border-b border-gray-100">
-              <h2 id="drive-files-heading" className="text-base font-semibold text-gray-900 m-0">
+          <section aria-labelledby="drive-files-heading" className="overflow-hidden rounded-2xl border border-stroke bg-white">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stroke p-4 sm:p-5">
+              <h3 id="drive-files-heading" className="m-0 text-base font-semibold text-dark">
                 Files
                 {filesQuery.data ? (
-                  <span className="ml-2 text-sm font-normal text-gray-500">
+                  <span className="ml-2 text-sm font-normal text-[#6B7280]">
                     {files.length} {files.length === 1 ? "file" : "files"}
                   </span>
                 ) : null}
-              </h2>
-              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              </h3>
+              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                 <Input
                   allowClear
                   value={searchInput}
@@ -364,7 +358,7 @@ function GoogleDriveContent() {
           </section>
         </>
       ) : null}
-    </div>
+    </SafetyPage>
   );
 }
 

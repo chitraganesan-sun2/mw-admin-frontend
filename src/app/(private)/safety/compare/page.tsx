@@ -13,7 +13,7 @@ import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { formatDisplayDateTime } from "@/utils/displayDateTime";
-import SafetyTabs from "@/components/safety/SafetyTabs";
+import { SafetyPage } from "@/components/safety/ui/SafetyPage";
 import { SeverityTag, StatusTag } from "@/components/safety/SeverityTag";
 import { categoryLabel, formatRisk, isSafetySeverity } from "@/components/safety/severity";
 import { normalizeSeverity, riskColor } from "@/components/safety/analytics/analyticsData";
@@ -123,7 +123,7 @@ const ScoreCard = ({ column, baseline }: { column: Column; baseline?: Column }) 
   const base = baseline?.report;
   const showDiff = base && baseline && baseline.id !== column.id;
   return (
-    <div className="bg-white rounded-xl p-5 flex flex-col items-center text-center min-w-0" style={{ borderTop: `4px solid ${column.color}` }}>
+    <div className="bg-white rounded-2xl border border-stroke p-5 flex flex-col items-center text-center min-w-0" style={{ borderTop: `4px solid ${column.color}` }}>
       <p className="text-xs text-gray-medium m-0 flex items-center gap-1.5">
         <Swatch color={column.color} />
         Report {column.letter} - #{report.id}
@@ -162,7 +162,7 @@ const ColumnHead = ({ column }: { column: Column }) => (
 );
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <section className="bg-white rounded-xl p-5 min-w-0">
+  <section className="bg-white rounded-2xl border border-stroke p-5 min-w-0">
     <h3 className="text-base font-semibold m-0 mb-4">{title}</h3>
     {children}
   </section>
@@ -333,17 +333,11 @@ export default function SafetyComparePage() {
   const canAdd = slots.length < MAX_REPORTS;
 
   return (
-    <div className="p-6">
-      <SafetyTabs />
-
-      <div className="mb-5">
-        <h2 className="text-lg font-semibold m-0">Compare reports</h2>
-        <p className="text-sm text-gray-medium m-0">
-          Pick two to {MAX_REPORTS} completed reports to compare them side by side. The selection is saved in the page link.
-        </p>
-      </div>
-
-      <section aria-label="Choose reports" className="bg-white rounded-xl p-5 mb-5">
+    <SafetyPage
+      title="Compare reports"
+      description={`Pick two to ${MAX_REPORTS} completed reports to compare them side by side. The selection is saved in the page link.`}
+    >
+      <section aria-label="Choose reports" className="rounded-2xl border border-stroke bg-white p-4 sm:p-5">
         <div className={GRID}>
           {slots.map((id, index) => {
             const fieldId = `compare-report-${index}`;
@@ -425,7 +419,7 @@ export default function SafetyComparePage() {
       </section>
 
       {problems.length > 0 ? (
-        <div className="space-y-3 mb-5">
+        <div className="space-y-3">
           {problems.map((c) => (
             <Alert
               key={c.id}
@@ -596,7 +590,7 @@ export default function SafetyComparePage() {
           </Section>
         </div>
       ) : anyLoading ? (
-        <div aria-busy="true" className="bg-white rounded-xl p-10 flex flex-col items-center gap-3 text-center">
+        <div aria-busy="true" className="bg-white rounded-2xl border border-stroke p-10 flex flex-col items-center gap-3 text-center">
           <Spin />
           <p className="text-sm text-gray-medium m-0">Loading reports...</p>
           <div className="w-full max-w-md">
@@ -604,7 +598,7 @@ export default function SafetyComparePage() {
           </div>
         </div>
       ) : problems.length > 0 ? null : (
-        <div className="bg-white rounded-xl p-10">
+        <div className="bg-white rounded-2xl border border-stroke p-10">
           <Empty
             description={
               listQuery.isSuccess && completedRows.length === 0 && selectedIds.length === 0
@@ -622,8 +616,8 @@ export default function SafetyComparePage() {
       )}
 
       {problems.length > 0 && ready.length < 2 && !anyLoading ? (
-        <p className="text-sm text-gray-medium">Fix or replace the reports above to see a comparison.</p>
+        <p className="m-0 text-sm text-[#4F4F4F]">Fix or replace the reports above to see a comparison.</p>
       ) : null}
-    </div>
+    </SafetyPage>
   );
 }

@@ -1,5 +1,5 @@
 import dayjs, { Dayjs } from "dayjs";
-import { SEVERITY_COLORS, SEVERITY_ORDER, STATUS_LABELS, categoryLabel, isSafetySeverity } from "../severity";
+import { SEVERITY_COLORS, SEVERITY_ORDER, STATUS_LABELS, categoryLabel, isSafetySeverity, riskHex } from "../severity";
 
 // Pure helpers that turn the analytics summary and the report history into chart-ready data.
 // The summary's chart fields are typed `unknown` on purpose (the pipeline decides their shape), so
@@ -17,14 +17,8 @@ const toCount = (value: unknown): number =>
 export const ACCENT = "#6366F1";
 export const NEUTRAL_GREY = "#9CA3AF";
 
-/** Same bands the pipeline uses to turn a 0..100 risk score into a severity. */
-export const riskColor = (score: number): string => {
-  if (score >= 80) return SEVERITY_COLORS.Critical.hex;
-  if (score >= 61) return SEVERITY_COLORS.High.hex;
-  if (score >= 41) return SEVERITY_COLORS.Moderate.hex;
-  if (score >= 21) return SEVERITY_COLORS.Low.hex;
-  return SEVERITY_COLORS.Safe.hex;
-};
+/** Same bands the pipeline uses to turn a 0..100 risk score into a severity (a score of 80 is High, 81 Critical). */
+export const riskColor = (score: number): string => riskHex(score);
 
 /** Normalises "critical" / "CRITICAL" / "Critical" to the shared severity vocabulary. */
 export const normalizeSeverity = (value: unknown): SafetySeverity | null => {

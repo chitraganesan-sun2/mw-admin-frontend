@@ -49,13 +49,19 @@ export default function ChartCard({
   const headingId = useId();
 
   return (
-    <section aria-labelledby={headingId} className="bg-white rounded-xl p-5 flex flex-col min-w-0">
-      <div className="flex items-center gap-2 mb-4">
-        <Icon aria-hidden="true" size={16} color={iconColor} className="shrink-0" />
-        <h3 id={headingId} className="text-base font-semibold m-0">
+    <section aria-labelledby={headingId} className="relative flex min-w-0 flex-col rounded-2xl border border-stroke bg-white p-4 sm:p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <span
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
+          style={{ background: `${iconColor}1A` }}
+          aria-hidden="true"
+        >
+          <Icon size={16} color={iconColor} />
+        </span>
+        <h3 id={headingId} className="m-0 text-base font-semibold text-dark">
           {title}
         </h3>
-        {note ? <span className="ml-auto text-xs text-gray-medium">{note}</span> : null}
+        {note ? <span className="ml-auto text-xs text-[#6B7280]">{note}</span> : null}
       </div>
 
       {isLoading ? (
@@ -72,27 +78,31 @@ export default function ChartCard({
           {summary ? <p className="sr-only">{summary}</p> : null}
           <div aria-hidden="true">{children}</div>
           {table ? (
-            <table className="sr-only">
-              <caption>{`${title} data`}</caption>
-              <thead>
-                <tr>
-                  {table.columns.map((column) => (
-                    <th key={column} scope="col">
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {table.rows.map((row, i) => (
-                  <tr key={i}>
-                    {row.map((cell, j) => (
-                      <td key={j}>{cell}</td>
+            // The wrapper does the visually-hidden clipping: a `sr-only` class on the <table> itself leaves it
+            // at its natural width, which stretched the whole page sideways (and, on phones, the layout viewport).
+            <div className="sr-only">
+              <table>
+                <caption>{`${title} data`}</caption>
+                <thead>
+                  <tr>
+                    {table.columns.map((column) => (
+                      <th key={column} scope="col">
+                        {column}
+                      </th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {table.rows.map((row, i) => (
+                    <tr key={i}>
+                      {row.map((cell, j) => (
+                        <td key={j}>{cell}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : null}
           {footer}
         </>

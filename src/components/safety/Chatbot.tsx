@@ -115,7 +115,7 @@ export default function Chatbot({ reportId }: { reportId: number }) {
   const canSend = !!input.trim() && !tooLong && !isLoading;
 
   return (
-    <section aria-label="Chat about this report" className="bg-white rounded-xl border border-gray-100 flex flex-col h-[600px] max-h-[80vh] min-w-0">
+    <section aria-label="Chat about this report" className="bg-white rounded-2xl border border-stroke flex flex-col h-[600px] max-h-[80vh] min-w-0">
       <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100">
         <span className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center shrink-0" aria-hidden="true">
           <FiCpu size={16} />
@@ -157,7 +157,7 @@ export default function Chatbot({ reportId }: { reportId: number }) {
               <div
                 className={clsx(
                   "text-sm px-3 py-2 min-w-0 whitespace-pre-wrap break-words leading-relaxed",
-                  mine && "bg-indigo-500 text-white rounded-2xl rounded-br-sm",
+                  mine && "bg-primary text-dark rounded-2xl rounded-br-sm",
                   !mine && !m.isError && "bg-gray-100 text-gray-800 rounded-2xl rounded-bl-sm",
                   m.isError && "bg-red-50 text-red-800 border border-red-200 rounded-2xl rounded-bl-sm"
                 )}
@@ -241,7 +241,7 @@ export default function Chatbot({ reportId }: { reportId: number }) {
             aria-invalid={tooLong}
             aria-describedby={`${uid}-count`}
             placeholder="Ask about findings, risk or patterns"
-            className="flex-1 min-w-0 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            className="flex-1 min-w-0 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {

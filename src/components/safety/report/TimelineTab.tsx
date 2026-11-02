@@ -85,7 +85,7 @@ export default function TimelineTab({ timeline, transcript, flagged }: Props) {
               <li
                 key={index}
                 className={clsx(
-                  "bg-white rounded-xl border p-4 border-l-4",
+                  "bg-white rounded-2xl border border-stroke border p-4 border-l-4",
                   isFlagged ? "border-red-200 border-l-red-500 bg-red-50/40" : "border-gray-100 border-l-gray-200"
                 )}
               >

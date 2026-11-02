@@ -36,7 +36,7 @@ export default function FindingFilters({ value, onChange, categories, total, sho
   const label = "text-xs font-medium text-gray-600";
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-4 mb-4">
+    <div className="bg-white rounded-2xl border border-stroke p-4 mb-4">
       <div className="flex flex-wrap gap-3 items-end">
         <div className={`${field} min-w-[220px]`}>
           <label htmlFor={`${uid}-search`} className={label}>

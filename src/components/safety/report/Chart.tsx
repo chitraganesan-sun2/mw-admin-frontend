@@ -46,7 +46,7 @@ interface ChartCardProps {
 
 export function ChartCard({ title, icon, note, children }: ChartCardProps) {
   return (
-    <section className="bg-white rounded-xl border border-gray-100 p-5 min-w-0">
+    <section className="bg-white rounded-2xl border border-stroke p-5 min-w-0">
       <h3 className="flex items-center gap-2 text-base font-semibold text-gray-800 mb-3">
         {icon}
         {title}

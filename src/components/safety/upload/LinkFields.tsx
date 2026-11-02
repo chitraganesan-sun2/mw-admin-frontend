@@ -20,7 +20,7 @@ export default function LinkFields({ value, onChange }: LinkFieldsProps) {
   return (
     <Collapse
       ghost
-      className="border border-gray-200 rounded-xl bg-white"
+      className="border border-stroke rounded-2xl bg-white"
       items={[
         {
           key: "links",

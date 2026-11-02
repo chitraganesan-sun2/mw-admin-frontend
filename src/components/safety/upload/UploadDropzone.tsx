@@ -46,8 +46,8 @@ export default function UploadDropzone({ extensions, hint, prompt, onFiles }: Up
         if (files.length) onFiles(files);
       }}
       className={clsx(
-        "flex flex-col items-center justify-center gap-1 text-center rounded-xl border-2 border-dashed px-4 py-10 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F2937]",
-        isDragging ? "border-[#1F2937] bg-gray-50" : "border-gray-300 hover:bg-gray-50"
+        "flex flex-col items-center justify-center gap-1 text-center rounded-xl border-2 border-dashed px-4 py-10 cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        isDragging ? "border-primary bg-[#F0FBFF]" : "border-gray-300 hover:bg-gray-50"
       )}
     >
       <input
