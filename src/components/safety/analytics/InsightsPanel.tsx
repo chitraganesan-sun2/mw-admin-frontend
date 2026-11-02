@@ -127,14 +127,14 @@ export default function InsightsPanel() {
   const llmError = typeof insights?.llm_error === "string" ? insights.llm_error : "";
 
   return (
-    <section aria-labelledby="safety-insights-heading" className="bg-white rounded-2xl border border-stroke p-5">
+    <section aria-labelledby="safety-insights-heading" className="rounded-2xl border border-stroke bg-white p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <h3 id="safety-insights-heading" className="text-base font-semibold m-0">
-            Insights
+          <h3 id="safety-insights-heading" className="m-0 text-base font-semibold text-dark">
+            Written insights
           </h3>
-          <p className="text-xs text-gray-medium m-0 mt-1">
-            A written summary of the analytics, with anomalies and recommended actions.
+          <p className="m-0 mt-1 text-sm text-[#4F4F4F]">
+            Generate a written summary of this data, with anomalies and recommended actions.
           </p>
         </div>
         <Button
@@ -193,11 +193,7 @@ export default function InsightsPanel() {
             ) : null}
             {text ? <InsightsBody text={text} /> : <p className="text-sm text-gray-medium m-0">No insights available.</p>}
           </>
-        ) : (
-          <p className="text-sm text-gray-medium text-center py-6 m-0">
-            Select &quot;Generate insights&quot; for a written explanation of this data.
-          </p>
-        )}
+        ) : null}
       </div>
     </section>
   );

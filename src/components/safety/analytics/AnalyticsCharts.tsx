@@ -36,21 +36,29 @@ import {
   toStatusSlices,
 } from "./analyticsData";
 
+/** The sections the charts are split into. */
+export const CHART_GROUPS = [
+  { id: "overview", label: "Overview" },
+  { id: "detections", label: "Detections" },
+  { id: "trends", label: "Trends" },
+] as const;
+
+export type ChartGroupId = (typeof CHART_GROUPS)[number]["id"];
+
 /** Charts the page can show or hide (the choice is remembered per browser). */
 export const CHART_LIST = [
-  { id: "severity", label: "Severity" },
-  { id: "risk-hist", label: "Risk distribution" },
-  { id: "top-cats", label: "Top categories" },
-  { id: "context", label: "Context types" },
-  { id: "confidence", label: "Confidence" },
-  { id: "status", label: "Analysis status" },
-  { id: "ml-agreement", label: "ML agreement" },
-  { id: "ml-calibration", label: "ML calibration" },
-  { id: "trend", label: "Risk trend" },
-  { id: "volume", label: "Volume" },
-  { id: "avg-risk-day", label: "Average risk per day" },
-  { id: "risk-weekday", label: "Risk by weekday" },
-  { id: "severity-trend", label: "Severity trend" },
+  { id: "severity", label: "Severity", group: "overview" },
+  { id: "risk-hist", label: "Risk distribution", group: "overview" },
+  { id: "status", label: "Analysis status", group: "overview" },
+  { id: "top-cats", label: "Top categories", group: "detections" },
+  { id: "context", label: "Context types", group: "detections" },
+  { id: "confidence", label: "Confidence", group: "detections" },
+  { id: "ml-agreement", label: "ML agreement", group: "detections" },
+  { id: "trend", label: "Risk trend", group: "trends" },
+  { id: "volume", label: "Volume", group: "trends" },
+  { id: "avg-risk-day", label: "Average risk per day", group: "trends" },
+  { id: "risk-weekday", label: "Risk by weekday", group: "trends" },
+  { id: "severity-trend", label: "Severity trend", group: "trends" },
 ] as const;
 
 export type ChartId = (typeof CHART_LIST)[number]["id"];
@@ -69,6 +77,8 @@ type Props = {
   analytics: SafetyAnalyticsSummary;
   history: HistoryState;
   isVisible: (id: ChartId) => boolean;
+  /** Which section to draw. */
+  group: ChartGroupId;
 };
 
 const wholeNumber = (value: number | string) => String(Math.round(Number(value)));
@@ -130,14 +140,17 @@ const donutChart = (labels: string[], values: number[], colors: string[], center
   return { series: values, options };
 };
 
-export default function AnalyticsCharts({ analytics, history, isVisible }: Props) {
+export default function AnalyticsCharts({ analytics, history, isVisible, group }: Props) {
+  const show = (id: ChartId) => isVisible(id) && CHART_LIST.find((c) => c.id === id)?.group === group;
+
   // ── Summary-derived (always available once the analytics call succeeded) ───
   const severity = useMemo(() => toSeverityCounts(analytics.severity_distribution), [analytics]);
   const riskHist = useMemo(() => toBuckets(analytics.risk_score_histogram), [analytics]);
   const confHist = useMemo(() => toBuckets(analytics.confidence_histogram), [analytics]);
   const allCategories = useMemo(() => toCategoryBuckets(analytics.top_categories), [analytics]);
   const topCategories = useMemo(() => allCategories.slice(0, 8), [allCategories]);
-  const contexts = useMemo(() => toContextBuckets(analytics.context_type_totals), [analytics]);
+  const allContexts = useMemo(() => toContextBuckets(analytics.context_type_totals), [analytics]);
+  const contexts = useMemo(() => allContexts.slice(0, 8), [allContexts]);
   const statuses = useMemo(() => toStatusSlices(analytics.status_distribution), [analytics]);
   const ml = useMemo(() => toMlAgreement(analytics.ml_agreement_totals), [analytics]);
 
@@ -159,8 +172,8 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
   const severityTotal = severity.reduce((sum, s) => sum + s.count, 0);
   const mlRate = ml?.rate != null ? `${(ml.rate * 100).toFixed(1)}%` : null;
   const mlFooter = mlRate ? (
-    <p className="text-sm text-gray-medium text-center mt-2 mb-0">
-      Agreement rate: <strong className="text-dark">{mlRate}</strong>
+    <p className="mb-0 mt-2 text-center text-sm text-[#4F4F4F]">
+      Agreement rate: <strong className="text-dark">{mlRate}</strong> of findings
     </p>
   ) : null;
 
@@ -168,8 +181,14 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
   const dailyHasData = daily.some((d) => d.count > 0);
 
   return (
-    <div className="grid gap-5 grid-cols-[repeat(auto-fit,minmax(min(100%,360px),1fr))]">
-      {isVisible("severity") && (
+    <div
+      className={
+        group === "overview"
+          ? "grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2 xl:grid-cols-3 lg:[&>*:last-child:nth-child(odd)]:col-span-2 xl:[&>*:last-child:nth-child(odd)]:col-span-1"
+          : "grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2 lg:[&>*:last-child:nth-child(odd)]:col-span-2"
+      }
+    >
+      {show("severity") && (
         <ChartCard
           title="Severity distribution"
           icon={FiShield}
@@ -182,18 +201,19 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
           }}
         >
           {(() => {
-            const { series, options } = barChart({
-              name: "Reports",
-              labels: severity.map((s) => s.severity),
-              values: severity.map((s) => s.count),
-              colors: severity.map((s) => SEVERITY_COLORS[s.severity].hex),
-            });
-            return <ApexChart type="bar" series={series} options={options} />;
+            const nonZero = severity.filter((x) => x.count > 0);
+            const { series, options } = donutChart(
+              nonZero.map((x) => x.severity),
+              nonZero.map((x) => x.count),
+              nonZero.map((x) => SEVERITY_COLORS[x.severity].hex),
+              "Reports"
+            );
+            return <ApexChart type="donut" series={series} options={options} />;
           })()}
         </ChartCard>
       )}
 
-      {isVisible("risk-hist") && (
+      {show("risk-hist") && (
         <ChartCard
           title="Risk score distribution"
           icon={FiBarChart2}
@@ -214,7 +234,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
         </ChartCard>
       )}
 
-      {isVisible("top-cats") && (
+      {show("top-cats") && (
         <ChartCard
           title="Top risk categories"
           icon={FiTrendingUp}
@@ -241,15 +261,15 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
         </ChartCard>
       )}
 
-      {isVisible("context") && (
+      {show("context") && (
         <ChartCard
           title="Context types"
           icon={FiLayers}
           iconColor={ACCENT}
-          note="Findings by conversation context"
+          note={allContexts.length > contexts.length ? `Top ${contexts.length} of ${allContexts.length}` : "Findings by conversation context"}
           isEmpty={contexts.length === 0}
           emptyText="No findings have a context type yet."
-          table={bucketTable(["Context type", "Findings"], contexts)}
+          table={bucketTable(["Context type", "Findings"], allContexts)}
         >
           {(() => {
             const { series, options } = barChart({
@@ -264,7 +284,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
         </ChartCard>
       )}
 
-      {isVisible("confidence") && (
+      {show("confidence") && (
         <ChartCard
           title="Detection confidence"
           icon={FiCpu}
@@ -286,7 +306,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
         </ChartCard>
       )}
 
-      {isVisible("status") && (
+      {show("status") && (
         <ChartCard
           title="Analysis status"
           icon={FiPieChart}
@@ -307,7 +327,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
         </ChartCard>
       )}
 
-      {isVisible("ml-agreement") && (
+      {show("ml-agreement") && ml && (
         <ChartCard
           title="ML and rule agreement"
           icon={FiCpu}
@@ -346,52 +366,12 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
         </ChartCard>
       )}
 
-      {isVisible("ml-calibration") && (
-        <ChartCard
-          title="ML calibration"
-          icon={FiCpu}
-          iconColor={SEVERITY_COLORS.Moderate.hex}
-          note="Findings by ML outcome"
-          isEmpty={!ml}
-          emptyText="The ML classifier hasn't weighed in on any findings yet."
-          table={
-            ml
-              ? {
-                  columns: ["Outcome", "Findings"],
-                  rows: [
-                    ["ML agrees with rules", ml.agreed],
-                    ["ML disagrees", ml.disagreed],
-                    ["No ML signal", ml.noSignal],
-                  ],
-                }
-              : undefined
-          }
-          footer={mlFooter}
-        >
-          {ml &&
-            (() => {
-              const rows = [
-                { label: "ML agrees with rules", value: ml.agreed, color: SEVERITY_COLORS.Safe.hex },
-                { label: "ML disagrees", value: ml.disagreed, color: SEVERITY_COLORS.High.hex },
-                { label: "No ML signal", value: ml.noSignal, color: NEUTRAL_GREY },
-              ].filter((r) => r.value > 0);
-              const { series, options } = barChart({
-                name: "Findings",
-                labels: rows.map((r) => r.label),
-                values: rows.map((r) => r.value),
-                colors: rows.map((r) => r.color),
-                horizontal: true,
-              });
-              return <ApexChart type="bar" series={series} options={options} height={Math.max(180, rows.length * 60 + 50)} />;
-            })()}
-        </ChartCard>
-      )}
-
-      {isVisible("trend") && (
+      {show("trend") && (
         <ChartCard
           title="Risk score trend"
           icon={FiTrendingUp}
           iconColor={ACCENT}
+          className="lg:col-span-2"
           note={historyNote ?? "Last 20 analyses"}
           {...historyProps}
           isEmpty={trend.length < 2}
@@ -424,6 +404,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
               annotations: {
                 yaxis: [
                   { y: 80, borderColor: SEVERITY_COLORS.Critical.hex, strokeDashArray: 4, opacity: 0.5 },
+                  { y: 60, borderColor: SEVERITY_COLORS.High.hex, strokeDashArray: 4, opacity: 0.5 },
                   { y: 40, borderColor: SEVERITY_COLORS.Moderate.hex, strokeDashArray: 4, opacity: 0.5 },
                 ],
               },
@@ -433,7 +414,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
         </ChartCard>
       )}
 
-      {isVisible("volume") && (
+      {show("volume") && (
         <ChartCard
           title="Analysis volume"
           icon={FiFileText}
@@ -459,7 +440,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
         </ChartCard>
       )}
 
-      {isVisible("avg-risk-day") && (
+      {show("avg-risk-day") && (
         <ChartCard
           title="Average risk per day"
           icon={FiActivity}
@@ -486,6 +467,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
               annotations: {
                 yaxis: [
                   { y: 80, borderColor: SEVERITY_COLORS.Critical.hex, strokeDashArray: 4, opacity: 0.5 },
+                  { y: 60, borderColor: SEVERITY_COLORS.High.hex, strokeDashArray: 4, opacity: 0.5 },
                   { y: 40, borderColor: SEVERITY_COLORS.Moderate.hex, strokeDashArray: 4, opacity: 0.5 },
                 ],
               },
@@ -494,7 +476,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
         </ChartCard>
       )}
 
-      {isVisible("risk-weekday") && (
+      {show("risk-weekday") && (
         <ChartCard
           title="Risk by weekday"
           icon={FiCalendar}
@@ -529,7 +511,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible }: Props
         </ChartCard>
       )}
 
-      {isVisible("severity-trend") && (
+      {show("severity-trend") && (
         <ChartCard
           title="Severity trend"
           icon={FiShield}
