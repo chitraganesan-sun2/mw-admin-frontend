@@ -4,17 +4,16 @@ import React, { useCallback, useEffect, useMemo, useState, type ReactNode } from
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Empty, Skeleton } from "antd";
+import { Button, Checkbox, Empty, Popover, Segmented, Skeleton } from "antd";
 import {
   FiActivity,
   FiAlertTriangle,
   FiCheckCircle,
-  FiEye,
-  FiEyeOff,
   FiFileText,
   FiRefreshCw,
   FiSearch,
   FiShield,
+  FiSliders,
 } from "react-icons/fi";
 import { getSafetyAnalytics, listSafetyReports } from "@/api/safety";
 import { showToast } from "@/components/common/Toast";
@@ -25,9 +24,15 @@ import { formatDisplayDateTime } from "@/utils/displayDateTime";
 import { LiveStatus, SafetyPage } from "@/components/safety/ui/SafetyPage";
 import { StatCard } from "@/components/safety/ui/StatCard";
 import { formatRisk } from "@/components/safety/severity";
-import AnalyticsCharts, { CHART_LIST, ChartId } from "@/components/safety/analytics/AnalyticsCharts";
+import AnalyticsCharts, { CHART_GROUPS, CHART_LIST, ChartGroupId, ChartId } from "@/components/safety/analytics/AnalyticsCharts";
+import Highlights from "@/components/safety/analytics/Highlights";
 import InsightsPanel from "@/components/safety/analytics/InsightsPanel";
-import { toHistoryPoints, toSeverityCounts } from "@/components/safety/analytics/analyticsData";
+import {
+  buildHighlights,
+  toCategoryBuckets,
+  toHistoryPoints,
+  toSeverityCounts,
+} from "@/components/safety/analytics/analyticsData";
 
 const HIDDEN_CHARTS_KEY = "safety_analytics_hidden_charts";
 // The list endpoint's maximum page size; trend charts are drawn from the most recent reports.
@@ -91,6 +96,7 @@ export default function SafetyAnalyticsPage() {
   }, []);
 
   const isVisible = useCallback((id: ChartId) => !hidden.includes(id), [hidden]);
+  const [section, setSection] = useState<ChartGroupId>("overview");
 
   const toggleChart = (id: ChartId) => {
     setHidden((current) => {
@@ -117,6 +123,12 @@ export default function SafetyAnalyticsPage() {
   const analytics = analyticsQuery.data;
   const historyPoints = useMemo(() => toHistoryPoints(historyQuery.data?.reports), [historyQuery.data]);
   const isRefreshing = analyticsQuery.isFetching || historyQuery.isFetching;
+
+  const highlights = useMemo(
+    () => (analytics ? buildHighlights(toCategoryBuckets(analytics.top_categories), historyPoints) : []),
+    [analytics, historyPoints]
+  );
+  const shownIn = (group: ChartGroupId) => CHART_LIST.filter((c) => c.group === group && !hidden.includes(c.id)).length;
 
   const kpis = useMemo<Kpi[]>(() => {
     if (!analytics) return [];
@@ -224,54 +236,86 @@ export default function SafetyAnalyticsPage() {
             </div>
           ) : (
             <>
-              <InsightsPanel />
-
-              <section aria-labelledby="safety-chart-toggles" className="rounded-2xl border border-stroke bg-white px-4 py-3 sm:px-5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 id="safety-chart-toggles" className="m-0 mr-1 text-sm font-semibold text-dark">
-                    Show charts
-                  </h3>
-                  {CHART_LIST.map(({ id, label }) => {
-                    const on = isVisible(id);
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        aria-pressed={on}
-                        onClick={() => toggleChart(id)}
-                        className={`inline-flex min-h-[32px] items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-                          on
-                            ? "border-primary bg-[#E0F7FE] text-[#046A8A]"
-                            : "border-stroke bg-white text-[#6B7280] hover:bg-gray-50"
-                        }`}
-                      >
-                        {on ? <FiEye aria-hidden="true" size={12} /> : <FiEyeOff aria-hidden="true" size={12} />}
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-
-              {hidden.length === CHART_LIST.length ? (
-                <div className="flex flex-col items-center gap-3 rounded-2xl border border-stroke bg-white p-10 text-center">
-                  <p className="m-0 text-sm text-[#4F4F4F]">All charts are hidden.</p>
-                  <Button onClick={showAllCharts}>Show all charts</Button>
+              {historyQuery.isLoading ? (
+                <div className="rounded-2xl border border-stroke bg-white p-5" aria-busy="true" aria-label="Loading highlights">
+                  <Skeleton active title={false} paragraph={{ rows: 2 }} />
                 </div>
               ) : (
-                <AnalyticsCharts
-                  analytics={analytics}
-                  isVisible={isVisible}
-                  history={{
-                    points: historyPoints,
-                    isLoading: historyQuery.isLoading,
-                    isError: historyQuery.isError && !historyQuery.data,
-                    onRetry: () => historyQuery.refetch(),
-                    loaded: historyQuery.data?.reports.length ?? 0,
-                    total: historyQuery.data?.total ?? 0,
-                  }}
-                />
+                <Highlights items={highlights} />
               )}
+
+              <InsightsPanel />
+
+              <section aria-labelledby="safety-charts-heading" className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h3 id="safety-charts-heading" className="m-0 text-base font-semibold text-dark">
+                    Charts
+                  </h3>
+                  <Popover
+                    trigger="click"
+                    placement="bottomRight"
+                    title="Choose which charts to show"
+                    content={
+                      <div className="flex max-h-[38vh] w-[min(88vw,320px)] flex-col gap-3 overflow-y-auto">
+                        {CHART_GROUPS.map((group) => (
+                          <fieldset key={group.id} className="m-0 min-w-0 border-0 p-0">
+                            <legend className="mb-1 p-0 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                              {group.label}
+                            </legend>
+                            <div className="flex flex-col gap-1">
+                              {CHART_LIST.filter((c) => c.group === group.id).map(({ id, label }) => (
+                                <Checkbox key={id} checked={isVisible(id)} onChange={() => toggleChart(id)}>
+                                  {label}
+                                </Checkbox>
+                              ))}
+                            </div>
+                          </fieldset>
+                        ))}
+                        {hidden.length > 0 ? (
+                          <Button size="small" onClick={showAllCharts}>
+                            Show all charts
+                          </Button>
+                        ) : null}
+                      </div>
+                    }
+                  >
+                    <Button icon={<FiSliders aria-hidden="true" />}>
+                      Customise{hidden.length > 0 ? ` (${hidden.length} hidden)` : ""}
+                    </Button>
+                  </Popover>
+                </div>
+
+                <div className="max-w-full overflow-x-auto">
+                  <Segmented
+                    aria-label="Chart section"
+                    size="large"
+                    value={section}
+                    onChange={(value) => setSection(value as ChartGroupId)}
+                    options={CHART_GROUPS.map((g) => ({ value: g.id, label: g.label }))}
+                  />
+                </div>
+
+                {shownIn(section) === 0 ? (
+                  <div className="flex flex-col items-center gap-3 rounded-2xl border border-stroke bg-white p-10 text-center">
+                    <p className="m-0 text-sm text-[#4F4F4F]">All the charts in this section are hidden.</p>
+                    <Button onClick={showAllCharts}>Show all charts</Button>
+                  </div>
+                ) : (
+                  <AnalyticsCharts
+                    group={section}
+                    analytics={analytics}
+                    isVisible={isVisible}
+                    history={{
+                      points: historyPoints,
+                      isLoading: historyQuery.isLoading,
+                      isError: historyQuery.isError && !historyQuery.data,
+                      onRetry: () => historyQuery.refetch(),
+                      loaded: historyQuery.data?.reports.length ?? 0,
+                      total: historyQuery.data?.total ?? 0,
+                    }}
+                  />
+                )}
+              </section>
             </>
           )}
         </div>

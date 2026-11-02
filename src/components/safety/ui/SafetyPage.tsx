@@ -30,6 +30,7 @@ export const SAFETY_THEME: ThemeConfig = {
       cellPaddingInline: 12,
     },
     Pagination: { itemActiveBg: "#E0F7FE" },
+    Segmented: { itemSelectedBg: "#09BAEE", itemSelectedColor: "#121212", trackBg: "#EEF1F5", itemColor: "#4F4F4F" },
     Select: { optionSelectedBg: "#E0F7FE" },
   },
 };

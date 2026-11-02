@@ -23,6 +23,7 @@ type ChartCardProps = {
   /** The chart's data as a table for assistive tech (visually hidden). */
   table?: ChartTable;
   footer?: ReactNode;
+  className?: string;
   children?: ReactNode;
 };
 
@@ -44,12 +45,13 @@ export default function ChartCard({
   summary,
   table,
   footer,
+  className,
   children,
 }: ChartCardProps) {
   const headingId = useId();
 
   return (
-    <section aria-labelledby={headingId} className="relative flex min-w-0 flex-col rounded-2xl border border-stroke bg-white p-4 sm:p-5">
+    <section aria-labelledby={headingId} className={`relative flex min-w-0 flex-col rounded-2xl border border-stroke bg-white p-4 sm:p-5 ${className ?? ""}`}>
       <div className="mb-4 flex items-center gap-2">
         <span
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"

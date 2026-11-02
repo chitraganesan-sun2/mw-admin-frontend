@@ -212,3 +212,84 @@ export const countAxis = (maxValue: number) => {
     ? { min: 0, max, tickAmount: max, decimalsInFloat: 0 }
     : { min: 0, forceNiceScale: true, decimalsInFloat: 0 };
 };
+
+// ── "At a glance" highlights ─────────────────────────────────────────────────
+
+export type Highlight = {
+  key: string;
+  label: string;
+  value: string;
+  hint: string;
+  /** "bad" is a change for the worse, "good" for the better, "neutral" carries no judgement. */
+  tone: "good" | "bad" | "neutral";
+  direction?: "up" | "down" | "flat";
+};
+
+const average = (points: HistoryPoint[]): number | null =>
+  points.length ? points.reduce((sum, p) => sum + p.score, 0) / points.length : null;
+
+/** Four plain-language takeaways drawn from the same data as the charts, so the page leads with an answer. */
+export const buildHighlights = (categories: Bucket[], points: HistoryPoint[]): Highlight[] => {
+  const out: Highlight[] = [];
+
+  if (categories.length) {
+    const total = categories.reduce((sum, c) => sum + c.count, 0);
+    out.push({
+      key: "top-category",
+      label: "Most common concern",
+      value: categories[0].label,
+      hint: `${categories[0].count.toLocaleString()} findings, ${Math.round((categories[0].count / total) * 100)}% of all flagged passages`,
+      tone: "neutral",
+    });
+  }
+
+  const today = dayjs().startOf("day");
+  const thisWeek = points.filter((p) => !p.at.isBefore(today.subtract(6, "day")));
+  const lastWeek = points.filter((p) => !p.at.isBefore(today.subtract(13, "day")) && p.at.isBefore(today.subtract(6, "day")));
+
+  const nowAvg = average(thisWeek);
+  const prevAvg = average(lastWeek);
+  if (nowAvg !== null) {
+    const delta = prevAvg === null ? null : nowAvg - prevAvg;
+    const direction = delta === null || Math.abs(delta) < 1 ? "flat" : delta > 0 ? "up" : "down";
+    out.push({
+      key: "risk-week",
+      label: "Average risk, last 7 days",
+      value: nowAvg.toFixed(1),
+      hint:
+        delta === null
+          ? "No analyses in the 7 days before to compare with"
+          : direction === "flat"
+            ? "About the same as the 7 days before"
+            : `${Math.abs(delta).toFixed(1)} points ${delta > 0 ? "higher" : "lower"} than the 7 days before`,
+      tone: direction === "up" ? "bad" : direction === "down" ? "good" : "neutral",
+      direction,
+    });
+  }
+
+  if (thisWeek.length || lastWeek.length) {
+    const diff = thisWeek.length - lastWeek.length;
+    out.push({
+      key: "volume-week",
+      label: "Analyses, last 7 days",
+      value: thisWeek.length.toLocaleString(),
+      hint: diff === 0 ? "Same as the 7 days before" : `${Math.abs(diff).toLocaleString()} ${diff > 0 ? "more" : "fewer"} than the 7 days before`,
+      tone: "neutral",
+      direction: diff === 0 ? "flat" : diff > 0 ? "up" : "down",
+    });
+  }
+
+  const weekday = buildWeekday(points).filter((w) => w.analyses >= 3);
+  if (weekday.length) {
+    const worst = weekday.reduce((a, b) => (b.avgRisk > a.avgRisk ? b : a));
+    out.push({
+      key: "worst-weekday",
+      label: "Highest-risk weekday",
+      value: worst.day,
+      hint: `Average risk ${worst.avgRisk} across ${worst.analyses.toLocaleString()} analyses`,
+      tone: "neutral",
+    });
+  }
+
+  return out;
+};
