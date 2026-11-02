@@ -70,9 +70,11 @@ test("the support dashboard and access-denied page are open to any signed-in acc
 });
 
 test("login only ever navigates to a known landing page", () => {
-  assert.equal(safeHomePath("/volunteer", "admin"), "/volunteer");
+  assert.equal(safeHomePath("/dashboard", "admin"), "/dashboard");
   assert.equal(safeHomePath("/support", "support"), "/support");
   assert.equal(safeHomePath("https://evil.example/", "support"), "/support");
-  assert.equal(safeHomePath("//evil.example", "admin"), "/volunteer");
+  assert.equal(safeHomePath("//evil.example", "admin"), "/dashboard");
+  // A real page that is not a landing page is still refused.
+  assert.equal(safeHomePath("/volunteer", "admin"), "/dashboard");
   assert.equal(safeHomePath(undefined, "superuser"), "/access-denied");
 });
