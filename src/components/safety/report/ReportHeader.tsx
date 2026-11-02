@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FiArrowLeft } from "react-icons/fi";
-import { SEVERITY_COLORS, formatRisk } from "../severity";
+import { FiAlertOctagon, FiArrowLeft } from "react-icons/fi";
+import { SEVERITY_COLORS, formatRisk, needsAttention } from "../severity";
 import { SeverityTag, StatusTag } from "../SeverityTag";
 import { formatDisplayDateTime } from "@/utils/displayDateTime";
 import { reportedUserHref } from "@/utils/reportLinks";
@@ -18,16 +18,16 @@ function LinkedRecords({ report }: { report: SafetyReport }) {
     report.learner_id && { label: "Learner", id: report.learner_id, href: learnerHref },
   ].filter(Boolean) as { label: string; id: string; href: string | null }[];
 
-  if (!items.length) return <p className="text-sm text-gray-500">Not linked to a session, volunteer or learner.</p>;
+  if (!items.length) return <p className="m-0 text-sm text-[#6B7280]">Not linked to a session, volunteer or learner.</p>;
 
   return (
-    <dl className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+    <dl className="m-0 flex flex-wrap gap-x-5 gap-y-1 text-sm">
       {items.map((item) => (
-        <div key={item.label} className="flex gap-1.5 min-w-0">
-          <dt className="text-gray-500">{item.label}</dt>
-          <dd className="font-medium text-gray-800 break-all">
+        <div key={item.label} className="flex min-w-0 gap-1.5">
+          <dt className="text-[#6B7280]">{item.label}</dt>
+          <dd className="m-0 break-all font-medium text-dark">
             {item.href ? (
-              <Link href={item.href} className="text-blue-700 hover:underline">
+              <Link href={item.href} className="text-[#046A8A] hover:underline">
                 {item.id}
               </Link>
             ) : (
@@ -50,32 +50,38 @@ export default function ReportHeader({
   onToggleChat: () => void;
 }) {
   const score = typeof report.risk_score === "number" ? report.risk_score : null;
-  const color = SEVERITY_COLORS[normalizeSeverity(report.severity) ?? scoreSeverity(score)].hex;
+  const severity = normalizeSeverity(report.severity) ?? scoreSeverity(score);
+  // No score yet (still analysing, or failed): a neutral dash rather than a green "safe" one.
+  const color = score == null ? "#9CA3AF" : SEVERITY_COLORS[severity].hex;
+  const attention = String(report.status).toUpperCase() === "COMPLETED" && needsAttention(severity);
 
   return (
-    <header className="bg-white rounded-xl border border-gray-100 p-5 mb-5 flex flex-col gap-4">
+    <header className="flex flex-col gap-4 rounded-2xl border border-stroke bg-white p-4 sm:p-5">
       <div>
-        <Link href="/safety" className="inline-flex items-center gap-1.5 text-sm text-blue-700 hover:underline">
+        <Link
+          href="/safety"
+          className="inline-flex min-h-[32px] items-center gap-1.5 text-sm font-medium text-[#046A8A] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
           <FiArrowLeft aria-hidden="true" />
           Back to reports
         </Link>
       </div>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-xl font-semibold text-gray-900">Analysis report #{report.id}</h1>
-          <p className="text-sm text-gray-600 break-all mt-0.5" title={report.filename}>
+        <div className="min-w-0 flex-1 basis-64">
+          <h2 className="m-0 text-xl font-semibold text-dark sm:text-2xl">Analysis report #{report.id}</h2>
+          <p className="m-0 mt-1 break-all text-sm text-[#4F4F4F]" title={report.filename}>
             {report.filename}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Analysed {formatDisplayDateTime(report.created_at)}</p>
+          <p className="m-0 mt-1 text-xs text-[#6B7280]">Analysed {formatDisplayDateTime(report.created_at)}</p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <div className="text-3xl font-bold leading-none" style={{ color }} aria-label={`Risk score ${formatRisk(score)}`}>
+        <div className="flex items-center gap-4 rounded-2xl bg-[#F8FAFC] px-4 py-3">
+          <div className="text-center">
+            <div className="text-3xl font-bold leading-none tabular-nums" style={{ color }} aria-label={`Risk score ${formatRisk(score)}`}>
               {score != null ? score.toFixed(0) : "-"}
             </div>
-            <div className="text-xs text-gray-500 mt-1">Risk score</div>
+            <div className="mt-1 text-xs text-[#6B7280]">Risk score</div>
           </div>
           <div className="flex flex-col items-start gap-1.5">
             <SeverityTag severity={report.severity} />
@@ -83,6 +89,20 @@ export default function ReportHeader({
           </div>
         </div>
       </div>
+
+      {attention ? (
+        <div
+          role="note"
+          className="flex items-start gap-2.5 rounded-xl border px-3.5 py-3 text-sm"
+          style={{ background: "#FFF7ED", borderColor: "#FED7AA", color: "#9A3412" }}
+        >
+          <FiAlertOctagon className="mt-0.5 shrink-0" size={18} aria-hidden="true" />
+          <p className="m-0">
+            <strong className="font-semibold">{severity} risk.</strong> This conversation needs a safeguarding review. Check the
+            findings and evidence below, and email the report to the safeguarding team if action is needed.
+          </p>
+        </div>
+      ) : null}
 
       <LinkedRecords report={report} />
 

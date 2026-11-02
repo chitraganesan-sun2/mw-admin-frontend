@@ -1,22 +1,33 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Empty, Skeleton } from "antd";
-import { FiEye, FiEyeOff, FiRefreshCw } from "react-icons/fi";
+import {
+  FiActivity,
+  FiAlertTriangle,
+  FiCheckCircle,
+  FiEye,
+  FiEyeOff,
+  FiFileText,
+  FiRefreshCw,
+  FiSearch,
+  FiShield,
+} from "react-icons/fi";
 import { getSafetyAnalytics, listSafetyReports } from "@/api/safety";
 import { showToast } from "@/components/common/Toast";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { formatDisplayDateTime } from "@/utils/displayDateTime";
-import SafetyTabs from "@/components/safety/SafetyTabs";
-import { SEVERITY_COLORS, formatRisk } from "@/components/safety/severity";
+import { LiveStatus, SafetyPage } from "@/components/safety/ui/SafetyPage";
+import { StatCard } from "@/components/safety/ui/StatCard";
+import { formatRisk } from "@/components/safety/severity";
 import AnalyticsCharts, { CHART_LIST, ChartId } from "@/components/safety/analytics/AnalyticsCharts";
 import InsightsPanel from "@/components/safety/analytics/InsightsPanel";
-import { riskColor, toHistoryPoints, toSeverityCounts } from "@/components/safety/analytics/analyticsData";
+import { toHistoryPoints, toSeverityCounts } from "@/components/safety/analytics/analyticsData";
 
 const HIDDEN_CHARTS_KEY = "safety_analytics_hidden_charts";
 // The list endpoint's maximum page size; trend charts are drawn from the most recent reports.
@@ -43,7 +54,14 @@ const writeHiddenCharts = (ids: ChartId[]) => {
 const formatNumber = (value: unknown): string =>
   typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "0";
 
-type Kpi = { label: string; value: string; color?: string; hint?: string };
+type Kpi = {
+  label: string;
+  value: string;
+  hint?: string;
+  icon: ReactNode;
+  tone?: "neutral" | "info" | "good" | "warn" | "danger";
+  emphasis?: boolean;
+};
 
 export default function SafetyAnalyticsPage() {
   const { setHeaderOptions } = useComponentStore();
@@ -104,69 +122,76 @@ export default function SafetyAnalyticsPage() {
     if (!analytics) return [];
     const severity = Object.fromEntries(toSeverityCounts(analytics.severity_distribution).map((s) => [s.severity, s.count]));
     const avg = typeof analytics.avg_risk_score === "number" ? analytics.avg_risk_score : null;
+    const attention = (severity.High ?? 0) + (severity.Critical ?? 0);
     return [
-      { label: "Total analysed", value: formatNumber(analytics.total_reports) },
+      { label: "Total analysed", value: formatNumber(analytics.total_reports), icon: <FiFileText size={16} />, tone: "info" },
       {
         label: "High and critical",
-        value: formatNumber((severity.High ?? 0) + (severity.Critical ?? 0)),
-        color: SEVERITY_COLORS.High.hex,
+        value: formatNumber(attention),
         hint: "Reports rated High or Critical",
+        icon: <FiAlertTriangle size={16} />,
+        tone: attention > 0 ? "warn" : "neutral",
+        emphasis: attention > 0,
       },
       {
         label: "Average risk score",
         value: formatRisk(avg),
-        color: avg === null ? undefined : riskColor(avg),
         hint: "Out of 100",
+        icon: <FiActivity size={16} />,
+        tone: avg !== null && avg > 60 ? "warn" : "neutral",
       },
       {
         label: "Safe and low",
         value: formatNumber((severity.Safe ?? 0) + (severity.Low ?? 0)),
-        color: SEVERITY_COLORS.Safe.hex,
         hint: "Reports rated Safe or Low",
+        icon: <FiCheckCircle size={16} />,
+        tone: "good",
       },
-      { label: "Total findings", value: formatNumber(analytics.total_findings), hint: "Flagged passages across all reports" },
+      {
+        label: "Total findings",
+        value: formatNumber(analytics.total_findings),
+        hint: "Flagged passages across all reports",
+        icon: <FiSearch size={16} />,
+      },
       {
         label: "High confidence",
         value: formatNumber(analytics.high_confidence_count),
         hint: "Reports with detections at 75% confidence or higher",
+        icon: <FiShield size={16} />,
       },
     ];
   }, [analytics]);
 
   return (
-    <div className="p-6">
-      <SafetyTabs />
-
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <div>
-          <h2 className="text-lg font-semibold m-0">Analytics</h2>
-          <p className="text-sm text-gray-medium m-0">
-            Charts and insights across all analyses
-            {analyticsQuery.dataUpdatedAt ? ` - updated ${formatDisplayDateTime(analyticsQuery.dataUpdatedAt)}` : ""}
-          </p>
-        </div>
+    <SafetyPage
+      title="Analytics"
+      description={`Charts and insights across all analyses${
+        analyticsQuery.dataUpdatedAt ? ` · updated ${formatDisplayDateTime(analyticsQuery.dataUpdatedAt)}` : ""
+      }`}
+      status={<LiveStatus analysing={0} />}
+      actions={
         <Button icon={<FiRefreshCw aria-hidden="true" />} loading={isRefreshing} onClick={refreshAll}>
           Refresh
         </Button>
-      </div>
-
+      }
+    >
       {analyticsQuery.isLoading ? (
-        <div aria-busy="true" aria-label="Loading analytics" className="space-y-5">
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div aria-busy="true" aria-label="Loading analytics" className="flex flex-col gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6">
             {Array.from({ length: 6 }, (_, i) => (
-              <div key={i} className="bg-white rounded-xl p-4">
+              <div key={i} className="rounded-2xl border border-stroke bg-white p-4">
                 <Skeleton active title={false} paragraph={{ rows: 2 }} />
               </div>
             ))}
           </div>
-          <div className="bg-white rounded-xl p-5">
+          <div className="rounded-2xl border border-stroke bg-white p-5">
             <Skeleton active paragraph={{ rows: 6 }} />
           </div>
         </div>
       ) : !analytics ? (
-        <div role="alert" className="bg-white rounded-xl p-10 flex flex-col items-center gap-3 text-center">
-          <p className="text-base font-medium m-0">Couldn&apos;t load the analytics.</p>
-          <p className="text-sm text-gray-medium m-0">
+        <div role="alert" className="flex flex-col items-center gap-3 rounded-2xl border border-stroke bg-white p-10 text-center">
+          <p className="m-0 text-base font-medium text-dark">Couldn&apos;t load the analytics.</p>
+          <p className="m-0 text-sm text-[#4F4F4F]">
             {getApiErrorMessage(analyticsQuery.error, "The safety service didn't respond. Please try again.")}
           </p>
           <Button type="primary" loading={analyticsQuery.isFetching} onClick={() => analyticsQuery.refetch()}>
@@ -174,23 +199,24 @@ export default function SafetyAnalyticsPage() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-5">
-          <section aria-label="Summary" className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="flex flex-col gap-4 sm:gap-5">
+          <section aria-label="Summary" className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6">
             {kpis.map((kpi) => (
-              <div key={kpi.label} className="bg-white rounded-xl p-4 min-w-0" title={kpi.hint}>
-                <div className="text-xs font-medium text-gray-medium">{kpi.label}</div>
-                <div className="text-2xl font-bold mt-1" style={kpi.color ? { color: kpi.color } : undefined}>
-                  {kpi.value}
-                </div>
-              </div>
+              <StatCard
+                key={kpi.label}
+                label={kpi.label}
+                value={kpi.value}
+                hint={kpi.hint}
+                icon={kpi.icon}
+                tone={kpi.tone}
+                emphasis={kpi.emphasis}
+              />
             ))}
           </section>
 
           {Number(analytics.total_reports) === 0 ? (
-            <div className="bg-white rounded-xl p-10">
-              <Empty
-                description="No analyses yet. Charts and insights appear once a report has been analysed."
-              >
+            <div className="rounded-2xl border border-stroke bg-white p-10">
+              <Empty description="No analyses yet. Charts and insights appear once a report has been analysed.">
                 <Link href="/safety/upload">
                   <Button type="primary">Start a new analysis</Button>
                 </Link>
@@ -200,9 +226,9 @@ export default function SafetyAnalyticsPage() {
             <>
               <InsightsPanel />
 
-              <section aria-labelledby="safety-chart-toggles" className="bg-white rounded-xl px-5 py-3">
+              <section aria-labelledby="safety-chart-toggles" className="rounded-2xl border border-stroke bg-white px-4 py-3 sm:px-5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 id="safety-chart-toggles" className="text-sm font-semibold m-0 mr-1">
+                  <h3 id="safety-chart-toggles" className="m-0 mr-1 text-sm font-semibold text-dark">
                     Show charts
                   </h3>
                   {CHART_LIST.map(({ id, label }) => {
@@ -213,10 +239,10 @@ export default function SafetyAnalyticsPage() {
                         type="button"
                         aria-pressed={on}
                         onClick={() => toggleChart(id)}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                        className={`inline-flex min-h-[32px] items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                           on
-                            ? "bg-[#1F2937] text-white border-[#1F2937]"
-                            : "bg-white text-gray-medium border-stroke hover:bg-gray-50"
+                            ? "border-primary bg-[#E0F7FE] text-[#046A8A]"
+                            : "border-stroke bg-white text-[#6B7280] hover:bg-gray-50"
                         }`}
                       >
                         {on ? <FiEye aria-hidden="true" size={12} /> : <FiEyeOff aria-hidden="true" size={12} />}
@@ -228,8 +254,8 @@ export default function SafetyAnalyticsPage() {
               </section>
 
               {hidden.length === CHART_LIST.length ? (
-                <div className="bg-white rounded-xl p-10 flex flex-col items-center gap-3 text-center">
-                  <p className="text-sm text-gray-medium m-0">All charts are hidden.</p>
+                <div className="flex flex-col items-center gap-3 rounded-2xl border border-stroke bg-white p-10 text-center">
+                  <p className="m-0 text-sm text-[#4F4F4F]">All charts are hidden.</p>
                   <Button onClick={showAllCharts}>Show all charts</Button>
                 </div>
               ) : (
@@ -250,6 +276,6 @@ export default function SafetyAnalyticsPage() {
           )}
         </div>
       )}
-    </div>
+    </SafetyPage>
   );
 }

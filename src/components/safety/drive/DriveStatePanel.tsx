@@ -14,7 +14,7 @@ export default function DriveStatePanel({ icon, title, description, tone = "neut
   return (
     <div
       role={tone === "error" ? "alert" : undefined}
-      className="flex flex-col items-center text-center gap-3 px-4 py-10 bg-white border border-gray-200 rounded-xl"
+      className="flex flex-col items-center text-center gap-3 px-4 py-10 bg-white border border-stroke rounded-2xl"
     >
       <div
         className={`flex items-center justify-center w-14 h-14 rounded-full text-2xl ${

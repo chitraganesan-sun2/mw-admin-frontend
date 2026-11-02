@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Alert, Button, Input, Modal, Select, Skeleton, Table, Tooltip } from "antd";
+import { Alert, Button, Checkbox, Input, Modal, Pagination, Select, Skeleton, Table, Tooltip } from "antd";
 import type { TableColumnsType } from "antd";
 import dayjs from "dayjs";
 import {
@@ -16,6 +16,7 @@ import {
   FiCpu,
   FiDownload,
   FiFileText,
+  FiFilter,
   FiGitMerge,
   FiPlus,
   FiRefreshCw,
@@ -36,14 +37,18 @@ import {
   getSafetyAnalytics,
   listSafetyReports,
 } from "@/api/safety";
-import SafetyTabs from "@/components/safety/SafetyTabs";
-import { SeverityTag, StatusTag } from "@/components/safety/SeverityTag";
+import { RiskMeter, SeverityBadge, StatusBadge } from "@/components/safety/ui/Badges";
+import { Panel } from "@/components/safety/ui/Panel";
+import { LiveStatus, SafetyPage } from "@/components/safety/ui/SafetyPage";
+import { StatCard } from "@/components/safety/ui/StatCard";
 import {
   SEVERITY_COLORS,
   SEVERITY_ORDER,
+  SEVERITY_TONE,
   STATUS_LABELS,
   formatRisk,
   isInFlight,
+  needsAttention,
   severityRank,
 } from "@/components/safety/severity";
 
@@ -71,30 +76,6 @@ const ROW_INTERACTIVE = "a, button, input, label, .ant-checkbox-wrapper, .ant-ta
 
 type DatePreset = "all" | "today" | "yesterday" | "custom";
 
-// Risk-score band -> severity colour, mirroring the pipeline's own score bands.
-const riskColor = (score?: number | null): string => {
-  if (typeof score !== "number") return "#9CA3AF";
-  if (score >= 80) return SEVERITY_COLORS.Critical.hex;
-  if (score >= 61) return SEVERITY_COLORS.High.hex;
-  if (score >= 41) return SEVERITY_COLORS.Moderate.hex;
-  if (score >= 21) return SEVERITY_COLORS.Low.hex;
-  return SEVERITY_COLORS.Safe.hex;
-};
-
-const RiskBar = ({ score }: { score?: number | null }) => (
-  <div className="flex items-center gap-2 min-w-[110px]">
-    <div className="h-1.5 w-16 rounded-full bg-gray-100 shrink-0" aria-hidden>
-      <div
-        className="h-full rounded-full"
-        style={{ width: `${Math.min(100, Math.max(0, score ?? 0))}%`, background: riskColor(score) }}
-      />
-    </div>
-    <span className="text-xs font-semibold tabular-nums" style={{ color: riskColor(score) }}>
-      {typeof score === "number" ? score.toFixed(0) : "-"}
-    </span>
-  </div>
-);
-
 // Severity counts keyed by our canonical names (the pipeline's casing is not relied on).
 const severityCounts = (distribution?: Record<string, number> | null): Record<SafetySeverity, number> => {
   const counts = Object.fromEntries(SEVERITY_ORDER.map((s) => [s, 0])) as Record<SafetySeverity, number>;
@@ -106,33 +87,6 @@ const severityCounts = (distribution?: Record<string, number> | null): Record<Sa
 };
 
 const percent = (part: number, whole: number) => (whole > 0 ? `${Math.round((part / whole) * 100)}%` : "-");
-
-const KpiCard = ({
-  title,
-  value,
-  hint,
-  icon,
-  color,
-}: {
-  title: string;
-  value: React.ReactNode;
-  hint: string;
-  icon: React.ReactNode;
-  color: string;
-}) => (
-  <div className="rounded-xl border border-gray-100 bg-white p-4 flex flex-col gap-1">
-    <div className="flex items-center justify-between gap-2">
-      <span className="text-sm text-gray-500">{title}</span>
-      <span style={{ color }} aria-hidden>
-        {icon}
-      </span>
-    </div>
-    <span className="text-2xl font-semibold tabular-nums" style={{ color }}>
-      {value}
-    </span>
-    <span className="text-xs text-gray-400">{hint}</span>
-  </div>
-);
 
 // CSV cells beginning with = + - @ would be run as formulas by spreadsheets; a leading quote defuses them.
 const csvCell = (value: unknown): string => {
@@ -191,6 +145,7 @@ export default function SafetyReportsPage() {
   const [severityFilter, setSeverityFilter] = useState<"all" | SafetySeverity>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | string>("all");
   const [datePreset, setDatePreset] = useState<DatePreset>("all");
+  const [filtersOpen, setFiltersOpen] = useState(false); // phones only: the filters fold away to save room
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -298,6 +253,13 @@ export default function SafetyReportsPage() {
   const clientFilterActive =
     search.trim() !== "" || severityFilter !== "all" || statusFilter !== "all" || datePreset !== "all";
   const anyFilterActive = clientFilterActive || debouncedSession !== "";
+  const activeFilterCount = [
+    search.trim() !== "",
+    debouncedSession !== "",
+    severityFilter !== "all",
+    statusFilter !== "all",
+    datePreset !== "all",
+  ].filter(Boolean).length;
 
   const clearFilters = () => {
     setSearch("");
@@ -408,15 +370,60 @@ export default function SafetyReportsPage() {
 
   // ── Table ──────────────────────────────────────────────────────────────────
 
+  const toggleSelected = (id: number, checked: boolean) =>
+    setSelectedKeys((keys) => (checked ? (keys.includes(id) ? keys : [...keys, id]) : keys.filter((k) => k !== id)));
+
+  const linkEntries = (record: SafetyReportRow) =>
+    [
+      ["Session", record.session_id],
+      ["Volunteer", record.volunteer_id],
+      ["Learner", record.learner_id],
+    ].filter(([, value]) => value) as [string, string][];
+
+  // Date over time on two lines, so the column stays narrow enough for the whole table to fit.
+  const DateCell = ({ value }: { value: string | null }) => {
+    const [day, time] = (formatDisplayDateTime(value) || "").split(", ");
+    return (
+      <span className="block whitespace-nowrap text-xs leading-snug text-[#4F4F4F]">
+        <span className="block text-dark">{day || "–"}</span>
+        {time ? <span className="block">{time}</span> : null}
+      </span>
+    );
+  };
+
+  const RowActions = ({ record }: { record: SafetyReportRow }) => (
+    <div className="flex gap-1">
+      <Tooltip title={record.status === "COMPLETED" ? "Download PDF" : "The PDF is available once the analysis completes"}>
+        <Button
+          type="text"
+          icon={<FiFileText />}
+          aria-label={`Download PDF for report ${record.id}`}
+          loading={downloadingId === record.id}
+          disabled={record.status !== "COMPLETED"}
+          onClick={() => handleDownloadPdf(record.id)}
+        />
+      </Tooltip>
+      <Tooltip title="Delete report">
+        <Button
+          type="text"
+          danger
+          icon={<FiTrash2 />}
+          aria-label={`Delete report ${record.id}`}
+          onClick={() => setDeleteTarget(record)}
+        />
+      </Tooltip>
+    </div>
+  );
+
   const columns: TableColumnsType<SafetyReportRow> = useMemo(
     () => [
       {
         title: "ID",
         dataIndex: "id",
         key: "id",
-        width: 80,
+        width: 72,
         sorter: (a, b) => a.id - b.id,
-        render: (id: number) => <span className="font-mono text-xs text-gray-500">#{id}</span>,
+        render: (id: number) => <span className="font-mono text-xs text-[#4F4F4F]">#{id}</span>,
       },
       {
         title: "File name",
@@ -427,49 +434,49 @@ export default function SafetyReportsPage() {
           <Link
             href={`/safety/report/${record.id}`}
             title={filename}
-            className="block max-w-[260px] truncate font-medium text-gray-800 hover:underline"
+            className="block max-w-[190px] truncate font-medium text-dark hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary xl:max-w-[260px]"
           >
             {filename || "Untitled"}
           </Link>
         ),
       },
       {
-        title: "Risk score",
+        title: "Risk",
         dataIndex: "risk_score",
         key: "risk_score",
+        width: 118,
         sorter: (a, b) => (a.risk_score ?? -1) - (b.risk_score ?? -1),
-        render: (score: number | null) => <RiskBar score={score} />,
+        render: (score: number | null) => <RiskMeter score={score} />,
       },
       {
         title: "Severity",
         dataIndex: "severity",
         key: "severity",
+        width: 116,
         sorter: (a, b) => severityRank(a.severity) - severityRank(b.severity),
-        render: (severity: string | null) => <SeverityTag severity={severity} />,
+        render: (severity: string | null) => <SeverityBadge severity={severity} />,
       },
       {
         title: "Status",
         dataIndex: "status",
         key: "status",
-        render: (status: string) => <StatusTag status={status} />,
+        width: 124,
+        render: (status: string) => <StatusBadge status={status} />,
       },
       {
         title: "Linked to",
         key: "links",
-        responsive: ["lg"],
+        width: 150,
+        responsive: ["xl"],
         render: (_: unknown, record) => {
-          const links = [
-            ["Session", record.session_id],
-            ["Volunteer", record.volunteer_id],
-            ["Learner", record.learner_id],
-          ].filter(([, value]) => value) as [string, string][];
-          if (!links.length) return <span className="text-gray-400">-</span>;
+          const links = linkEntries(record);
+          if (!links.length) return <span className="text-[#6B7280]">–</span>;
           return (
-            <div className="flex flex-col gap-0.5 text-xs text-gray-600">
+            <div className="flex flex-col gap-0.5 text-xs text-[#4F4F4F]">
               {links.map(([label, value]) => (
                 <Tooltip key={label} title={`${label} ID: ${value}`}>
-                  <span className="block max-w-[180px] truncate">
-                    <span className="text-gray-400">{label}:</span> {value}
+                  <span className="block max-w-[140px] truncate">
+                    <span className="text-[#6B7280]">{label}:</span> {value}
                   </span>
                 </Tooltip>
               ))}
@@ -481,40 +488,19 @@ export default function SafetyReportsPage() {
         title: "Date",
         dataIndex: "created_at",
         key: "created_at",
+        width: 118,
         sorter: (a, b) => dayjs(a.created_at ?? 0).valueOf() - dayjs(b.created_at ?? 0).valueOf(),
-        render: (value: string | null) => (
-          <span className="text-xs text-gray-600 whitespace-nowrap">{formatDisplayDateTime(value)}</span>
-        ),
+        render: (value: string | null) => <DateCell value={value} />,
       },
       {
         title: "Actions",
         key: "actions",
-        width: 110,
-        render: (_: unknown, record) => (
-          <div className="flex gap-1">
-            <Tooltip title={record.status === "COMPLETED" ? "Download PDF" : "The PDF is available once the analysis completes"}>
-              <Button
-                type="text"
-                icon={<FiFileText />}
-                aria-label={`Download PDF for report ${record.id}`}
-                loading={downloadingId === record.id}
-                disabled={record.status !== "COMPLETED"}
-                onClick={() => handleDownloadPdf(record.id)}
-              />
-            </Tooltip>
-            <Tooltip title="Delete report">
-              <Button
-                type="text"
-                danger
-                icon={<FiTrash2 />}
-                aria-label={`Delete report ${record.id}`}
-                onClick={() => setDeleteTarget(record)}
-              />
-            </Tooltip>
-          </div>
-        ),
+        width: 96,
+        fixed: "right",
+        render: (_: unknown, record) => <RowActions record={record} />,
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [downloadingId, handleDownloadPdf]
   );
 
@@ -523,10 +509,10 @@ export default function SafetyReportsPage() {
       <FiShield className="text-3xl text-gray-300" aria-hidden />
       {anyFilterActive ? (
         <>
-          <p className="font-medium text-gray-700">
+          <p className="m-0 font-medium text-dark">
             {rows.length === 0 && debouncedSession ? "No reports found for this session" : "No reports match your filters"}
           </p>
-          <p className="max-w-sm text-sm text-gray-500">
+          <p className="m-0 max-w-sm text-sm text-[#4F4F4F]">
             {clientFilterActive && rows.length > 0
               ? "Search, severity, status and date only look at the reports loaded on this page. Try another page or a larger page size."
               : "Try a different session ID, or clear the filters."}
@@ -535,8 +521,8 @@ export default function SafetyReportsPage() {
         </>
       ) : (
         <>
-          <p className="font-medium text-gray-700">No reports yet</p>
-          <p className="max-w-sm text-sm text-gray-500">
+          <p className="m-0 font-medium text-dark">No reports yet</p>
+          <p className="m-0 max-w-sm text-sm text-[#4F4F4F]">
             Analyse a call recording, video or transcript to see its safety report here.
           </p>
           <Link href="/safety/upload">
@@ -549,24 +535,117 @@ export default function SafetyReportsPage() {
     </div>
   );
 
-  const controlLabel = "block text-xs font-medium text-gray-600 mb-1";
+  const controlLabel = "mb-1 block text-xs font-medium text-[#4F4F4F]";
   const selectedCount = selectedKeys.length;
+  const analysingCount = rows.filter((r) => isInFlight(r.status)).length;
+  const updatedAt = reportsQuery.dataUpdatedAt ? dayjs(reportsQuery.dataUpdatedAt).format("h:mm:ss A") : null;
+  const tableLoading = reportsQuery.isLoading || (reportsQuery.isFetching && reportsQuery.isPlaceholderData);
+
+  const handlePageChange = (nextPage: number, nextSize?: number) => {
+    if (nextSize && nextSize !== pageSize) {
+      setPageSize(nextSize);
+      setPage(1);
+    } else {
+      setPage(nextPage);
+    }
+  };
+
+  // Phones: one card per report, with the facts an admin triages on (severity, risk, status) up front.
+  const reportCards = (
+    <div className="md:hidden" aria-busy={tableLoading}>
+      {tableLoading && !filteredRows.length ? (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-stroke p-4">
+              <Skeleton active paragraph={{ rows: 2 }} />
+            </div>
+          ))}
+        </div>
+      ) : filteredRows.length === 0 ? (
+        emptyState
+      ) : (
+        <ul className="m-0 list-none space-y-3 p-0" aria-label="Reports">
+          {filteredRows.map((record) => {
+            const links = linkEntries(record);
+            const attention = needsAttention(record.severity);
+            return (
+              <li
+                key={record.id}
+                className={`rounded-2xl border bg-white p-3.5 ${attention ? "border-l-4" : "border-stroke"}`}
+                style={
+                  attention
+                    ? { borderColor: "#E0E0E0", borderLeftColor: SEVERITY_TONE[record.severity as SafetySeverity].dot }
+                    : undefined
+                }
+              >
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    checked={selectedKeys.includes(record.id)}
+                    onChange={(e) => toggleSelected(record.id, e.target.checked)}
+                    aria-label={`Select report ${record.id}`}
+                    className="mt-0.5"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/safety/report/${record.id}`}
+                      className="block break-words font-medium leading-snug text-dark hover:underline"
+                    >
+                      {record.filename || "Untitled"}
+                    </Link>
+                    <p className="m-0 mt-0.5 text-xs text-[#4F4F4F]">
+                      #{record.id} · {formatDisplayDateTime(record.created_at) || "–"}
+                    </p>
+                  </div>
+                  <SeverityBadge severity={record.severity} />
+                </div>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pl-8">
+                  <RiskMeter score={record.risk_score} barClassName="w-24" />
+                  <StatusBadge status={record.status} />
+                </div>
+                {links.length ? (
+                  <p className="m-0 mt-2 break-words pl-8 text-xs text-[#4F4F4F]">
+                    {links.map(([label, value]) => `${label}: ${value}`).join(" · ")}
+                  </p>
+                ) : null}
+                <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#EEF1F5] pt-2.5 pl-8">
+                  <Link
+                    href={`/safety/report/${record.id}`}
+                    className="inline-flex min-h-[40px] items-center text-sm font-medium text-[#046A8A] hover:underline"
+                  >
+                    Open report
+                  </Link>
+                  <RowActions record={record} />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {reportsQuery.data && total > 0 ? (
+        <div className="mt-4 flex flex-col items-center gap-2">
+          <Pagination
+            simple
+            current={page}
+            pageSize={pageSize}
+            total={total}
+            showSizeChanger={false}
+            onChange={(p) => handlePageChange(p)}
+          />
+          <p className="m-0 text-xs text-[#4F4F4F]" aria-live="polite">
+            {total} {total === 1 ? "report" : "reports"} in total
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
 
   return (
-    <div className="p-6">
-      <SafetyTabs />
-
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-800">Reports</h2>
-          <p className="text-sm text-gray-500">All analyses. Open any row for its full report.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {hasProcessing && (
-            <span className="text-xs text-gray-500" role="status">
-              Updating while analyses run
-            </span>
-          )}
+    <SafetyPage
+      title="Reports"
+      description="Every analysis, newest first. High and Critical reports are marked so they stand out. Open any row for its full report."
+      status={<LiveStatus analysing={analysingCount} updatedAt={updatedAt} />}
+      actions={
+        <>
           <Button icon={<FiRefreshCw className={reportsQuery.isFetching ? "animate-spin" : ""} />} onClick={refreshAll}>
             Refresh
           </Button>
@@ -575,13 +654,12 @@ export default function SafetyReportsPage() {
               New analysis
             </Button>
           </Link>
-        </div>
-      </div>
-
+        </>
+      }
+    >
       {/* KPI cards + severity chart */}
       {analyticsQuery.isError && !analytics ? (
         <Alert
-          className="mb-5"
           type="error"
           showIcon
           message="Couldn't load the summary figures."
@@ -592,105 +670,144 @@ export default function SafetyReportsPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 mb-5">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 lg:col-span-2 content-start">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="grid grid-cols-2 content-start gap-3 sm:grid-cols-3 sm:gap-4">
             {analyticsQuery.isLoading || !analytics ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="rounded-xl border border-gray-100 bg-white p-4">
+                <div key={i} className="rounded-2xl border border-stroke bg-white p-4">
                   <Skeleton active paragraph={{ rows: 1 }} />
                 </div>
               ))
             ) : (
               <>
-                <KpiCard
-                  title="Analysed reports"
+                <StatCard
+                  label="Needs attention"
+                  value={highRisk}
+                  hint={highRisk > 0 ? `High or Critical · ${percent(highRisk, analysed)} of analysed` : "No High or Critical reports"}
+                  icon={<FiAlertTriangle size={16} />}
+                  tone={highRisk > 0 ? "danger" : "good"}
+                  emphasis={highRisk > 0}
+                />
+                <StatCard
+                  label="Analysed reports"
                   value={analysed}
                   hint="completed analyses"
-                  icon={<FiFileText size={20} />}
-                  color="#3B82F6"
+                  icon={<FiFileText size={16} />}
+                  tone="info"
                 />
-                <KpiCard
-                  title="High / critical risk"
-                  value={highRisk}
-                  hint={`${percent(highRisk, analysed)} of analysed`}
-                  icon={<FiAlertTriangle size={20} />}
-                  color={SEVERITY_COLORS.High.hex}
-                />
-                <KpiCard
-                  title="Average risk score"
+                <StatCard
+                  label="Average risk score"
                   value={formatRisk(analytics.avg_risk_score)}
                   hint="out of 100"
-                  icon={<FiBarChart2 size={20} />}
-                  color={riskColor(analytics.avg_risk_score)}
+                  icon={<FiBarChart2 size={16} />}
                 />
-                <KpiCard
-                  title="Safe / low risk"
+                <StatCard
+                  label="Safe / low risk"
                   value={safeLow}
                   hint={`${percent(safeLow, analysed)} of analysed`}
-                  icon={<FiCheckCircle size={20} />}
-                  color={SEVERITY_COLORS.Safe.hex}
+                  icon={<FiCheckCircle size={16} />}
+                  tone="good"
                 />
-                <KpiCard
-                  title="Total findings"
+                <StatCard
+                  label="Total findings"
                   value={analytics.total_findings ?? 0}
                   hint="across all reports"
-                  icon={<FiActivity size={20} />}
-                  color="#6366F1"
+                  icon={<FiActivity size={16} />}
                 />
-                <KpiCard
-                  title="High-confidence detections"
+                <StatCard
+                  label="High-confidence detections"
                   value={analytics.high_confidence_count ?? 0}
                   hint={
                     analytics.total_findings
                       ? `${percent(analytics.high_confidence_count ?? 0, analytics.total_findings)} of all findings`
                       : "findings with 75% confidence or more"
                   }
-                  icon={<FiCpu size={20} />}
-                  color="#0EA5E9"
+                  icon={<FiCpu size={16} />}
                 />
               </>
             )}
           </div>
 
-          <section className="rounded-xl border border-gray-100 bg-white p-4" aria-label="Severity distribution">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Severity distribution</h3>
+          <Panel title="Severity distribution" id="safety-severity-chart">
             {analyticsQuery.isLoading || !analytics ? (
               <Skeleton active paragraph={{ rows: 4 }} />
             ) : chartSeverities.length === 0 ? (
-              <p className="py-10 text-center text-sm text-gray-500">No analysed reports yet.</p>
+              <p className="m-0 py-10 text-center text-sm text-[#4F4F4F]">No analysed reports yet.</p>
             ) : (
-              <>
-                <Chart
-                  options={chartOptions}
-                  series={chartSeverities.map((s) => counts[s])}
-                  type="donut"
-                  height={200}
-                />
-                <ul className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-600">
-                  {chartSeverities.map((s) => (
-                    <li key={s} className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-1.5">
-                        <span
-                          className="inline-block h-2.5 w-2.5 rounded-full"
-                          style={{ background: SEVERITY_COLORS[s].hex }}
-                          aria-hidden
-                        />
-                        {s}
-                      </span>
-                      <span className="tabular-nums font-medium">{counts[s]}</span>
-                    </li>
-                  ))}
+              <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center lg:flex-col xl:flex-row">
+                <div className="w-full max-w-[200px] shrink-0">
+                  <Chart
+                    options={chartOptions}
+                    series={chartSeverities.map((s) => counts[s])}
+                    type="donut"
+                    height={190}
+                  />
+                </div>
+                <ul className="m-0 grid w-full list-none grid-cols-1 gap-y-1.5 p-0 text-sm text-[#4F4F4F]">
+                  {SEVERITY_ORDER.slice()
+                    .reverse()
+                    .map((s) => (
+                      <li key={s} className="flex items-center justify-between gap-3">
+                        <span className="flex items-center gap-2">
+                          <span
+                            className="inline-block h-2.5 w-2.5 rounded-full"
+                            style={{ background: SEVERITY_COLORS[s].hex }}
+                            aria-hidden
+                          />
+                          {s}
+                        </span>
+                        <span className="tabular-nums font-medium text-dark">
+                          {counts[s]}
+                          <span className="ml-1.5 text-xs font-normal text-[#6B7280]">{percent(counts[s], analysed)}</span>
+                        </span>
+                      </li>
+                    ))}
                 </ul>
-              </>
+              </div>
             )}
-          </section>
+          </Panel>
         </div>
       )}
 
-      {/* History table */}
-      <section className="rounded-xl border border-gray-100 bg-white p-4" aria-label="Analysis history">
-        <div className="flex flex-wrap items-end gap-3 mb-3">
-          <div className="min-w-[200px] flex-1">
+      {/* History */}
+      <Panel
+        id="safety-history"
+        aria-label="Analysis history"
+        title="Analysis history"
+        description={
+          reportsQuery.data
+            ? clientFilterActive
+              ? `Showing ${filteredRows.length} of ${rows.length} reports on this page (${total} in total). Search, severity, status and date filter this page only.`
+              : `${total} ${total === 1 ? "report" : "reports"}${debouncedSession ? " for this session" : ""}`
+            : undefined
+        }
+        actions={
+          selectedCount === 0 ? (
+            <Button icon={<FiDownload />} onClick={handleExport} disabled={!filteredRows.length}>
+              Export CSV
+            </Button>
+          ) : undefined
+        }
+      >
+        <div className="mb-3 md:hidden">
+          <Button
+            block
+            icon={<FiFilter />}
+            aria-expanded={filtersOpen}
+            aria-controls="safety-filters"
+            onClick={() => setFiltersOpen((open) => !open)}
+          >
+            {filtersOpen ? "Hide filters" : "Filters"}
+            {activeFilterCount > 0 ? ` (${activeFilterCount} active)` : ""}
+          </Button>
+        </div>
+        <div
+          id="safety-filters"
+          className={`mb-4 grid-cols-2 gap-3 md:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)_repeat(3,minmax(0,1fr))_auto] lg:items-end ${
+            filtersOpen ? "grid" : "hidden"
+          }`}
+        >
+          <div className="col-span-2 lg:col-span-1">
             <label htmlFor="safety-search" className={controlLabel}>
               Search by file name
             </label>
@@ -703,7 +820,7 @@ export default function SafetyReportsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="min-w-[200px]">
+          <div className="col-span-2 lg:col-span-1">
             <label htmlFor="safety-session" className={controlLabel}>
               Session ID
             </label>
@@ -715,7 +832,7 @@ export default function SafetyReportsPage() {
               onChange={(e) => setSessionInput(e.target.value)}
             />
           </div>
-          <div className="w-[150px]">
+          <div>
             <label htmlFor="safety-severity" className={controlLabel}>
               Severity
             </label>
@@ -730,7 +847,7 @@ export default function SafetyReportsPage() {
               ]}
             />
           </div>
-          <div className="w-[150px]">
+          <div>
             <label htmlFor="safety-status" className={controlLabel}>
               Status
             </label>
@@ -745,7 +862,7 @@ export default function SafetyReportsPage() {
               ]}
             />
           </div>
-          <div className="w-[150px]">
+          <div className="col-span-2 lg:col-span-1">
             <label htmlFor="safety-date" className={controlLabel}>
               Date
             </label>
@@ -779,43 +896,37 @@ export default function SafetyReportsPage() {
             </>
           )}
           {anyFilterActive && (
-            <Button type="link" onClick={clearFilters}>
-              Clear filters
-            </Button>
+            <div className="col-span-2 lg:col-span-1">
+              <Button className="w-full lg:w-auto" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            </div>
           )}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-3 min-h-[32px]">
-          <p className="text-xs text-gray-500">
-            {reportsQuery.data
-              ? clientFilterActive
-                ? `Showing ${filteredRows.length} of ${rows.length} reports on this page (${total} in total). Search, severity, status and date filter this page only.`
-                : `${total} ${total === 1 ? "report" : "reports"}${debouncedSession ? " for this session" : ""}`
-              : " "}
-          </p>
-          <div className="flex flex-wrap items-center gap-2">
-            {selectedCount > 0 && <span className="text-sm font-medium text-gray-700">{selectedCount} selected</span>}
-            {selectedCount === 2 && (
-              <Button
-                icon={<FiGitMerge />}
-                onClick={() => router.push(`/safety/compare?ids=${selectedKeys.join(",")}`)}
-              >
-                Compare
-              </Button>
-            )}
-            <Button icon={<FiDownload />} onClick={handleExport} disabled={!filteredRows.length && !selectedCount}>
-              {selectedCount > 0 ? "Export selected" : "Export CSV"}
-            </Button>
-            {selectedCount > 0 && (
-              <>
-                <Button danger icon={<FiTrash2 />} onClick={() => setBulkDeleteOpen(true)}>
-                  Delete selected
+        {selectedCount > 0 && (
+          <div
+            className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#BAE6FD] bg-[#F0F9FF] px-3 py-2"
+            role="region"
+            aria-label="Selected reports"
+          >
+            <span className="text-sm font-medium text-dark">{selectedCount} selected</span>
+            <div className="flex flex-wrap items-center gap-2">
+              {selectedCount === 2 && (
+                <Button icon={<FiGitMerge />} onClick={() => router.push(`/safety/compare?ids=${selectedKeys.join(",")}`)}>
+                  Compare
                 </Button>
-                <Button type="text" icon={<FiX />} aria-label="Clear selection" onClick={() => setSelectedKeys([])} />
-              </>
-            )}
+              )}
+              <Button icon={<FiDownload />} onClick={handleExport}>
+                Export selected
+              </Button>
+              <Button danger icon={<FiTrash2 />} onClick={() => setBulkDeleteOpen(true)}>
+                Delete selected
+              </Button>
+              <Button type="text" icon={<FiX />} aria-label="Clear selection" onClick={() => setSelectedKeys([])} />
+            </div>
           </div>
-        </div>
+        )}
 
         {reportsQuery.isError && reportsQuery.data && (
           <Alert
@@ -834,8 +945,8 @@ export default function SafetyReportsPage() {
         {reportsQuery.isError && !reportsQuery.data ? (
           <div className="flex flex-col items-center gap-3 py-12 text-center" role="alert">
             <FiAlertTriangle className="text-3xl text-red-400" aria-hidden />
-            <p className="font-medium text-gray-700">Couldn&apos;t load the reports.</p>
-            <p className="max-w-sm text-sm text-gray-500">
+            <p className="m-0 font-medium text-dark">Couldn&apos;t load the reports.</p>
+            <p className="m-0 max-w-sm text-sm text-[#4F4F4F]">
               {getApiErrorMessage(reportsQuery.error, "The safety service may be unavailable. Please try again.")}
             </p>
             <Button type="primary" icon={<FiRefreshCw />} onClick={() => reportsQuery.refetch()}>
@@ -843,45 +954,55 @@ export default function SafetyReportsPage() {
             </Button>
           </div>
         ) : (
-          <Table<SafetyReportRow>
-            rowKey="id"
-            columns={columns}
-            dataSource={filteredRows}
-            loading={reportsQuery.isLoading || (reportsQuery.isFetching && reportsQuery.isPlaceholderData)}
-            scroll={{ x: 900 }}
-            locale={{ emptyText: emptyState }}
-            rowSelection={{
-              selectedRowKeys: selectedKeys,
-              preserveSelectedRowKeys: true,
-              onChange: (keys) => setSelectedKeys(keys as number[]),
-            }}
-            onRow={(record) => ({
-              className: "cursor-pointer",
-              onClick: (event) => {
-                if ((event.target as HTMLElement).closest(ROW_INTERACTIVE)) return;
-                router.push(`/safety/report/${record.id}`);
-              },
-            })}
-            pagination={{
-              current: page,
-              pageSize,
-              total,
-              showSizeChanger: true,
-              pageSizeOptions: PAGE_SIZE_OPTIONS,
-              showTotal: (t, range) => `${range[0]}-${range[1]} of ${t}`,
-            }}
-            onChange={(pagination) => {
-              const nextSize = pagination.pageSize ?? pageSize;
-              if (nextSize !== pageSize) {
-                setPageSize(nextSize);
-                setPage(1);
-              } else {
-                setPage(pagination.current ?? 1);
-              }
-            }}
-          />
+          <>
+            {reportCards}
+            <div className="hidden md:block">
+              <Table<SafetyReportRow>
+                rowKey="id"
+                columns={columns}
+                dataSource={filteredRows}
+                loading={tableLoading}
+                scroll={{ x: 760 }}
+                locale={{ emptyText: emptyState }}
+                rowClassName={(record) =>
+                  record.severity === "Critical"
+                    ? "[&>td:first-child]:shadow-[inset_3px_0_0_#EF4444]"
+                    : record.severity === "High"
+                      ? "[&>td:first-child]:shadow-[inset_3px_0_0_#F97316]"
+                      : ""
+                }
+                rowSelection={{
+                  selectedRowKeys: selectedKeys,
+                  preserveSelectedRowKeys: true,
+                  onChange: (keys) => setSelectedKeys(keys as number[]),
+                }}
+                onRow={(record) => ({
+                  className: "cursor-pointer",
+                  onClick: (event) => {
+                    if ((event.target as HTMLElement).closest(ROW_INTERACTIVE)) return;
+                    router.push(`/safety/report/${record.id}`);
+                  },
+                })}
+                pagination={{
+                  current: page,
+                  pageSize,
+                  total,
+                  showSizeChanger: true,
+                  pageSizeOptions: PAGE_SIZE_OPTIONS,
+                  showTotal: (t, range) => `${range[0]}-${range[1]} of ${t}`,
+                  itemRender: (_page, type, original) =>
+                    type === "prev" || type === "next"
+                      ? React.cloneElement(original as React.ReactElement<{ "aria-label"?: string }>, {
+                          "aria-label": type === "prev" ? "Previous page" : "Next page",
+                        })
+                      : original,
+                }}
+                onChange={(pagination) => handlePageChange(pagination.current ?? 1, pagination.pageSize)}
+              />
+            </div>
+          </>
         )}
-      </section>
+      </Panel>
 
       {/* Declarative modals: antd's static Modal.confirm throws on this app's React version. */}
       <Modal
@@ -917,6 +1038,6 @@ export default function SafetyReportsPage() {
           undone.
         </p>
       </Modal>
-    </div>
+    </SafetyPage>
   );
 }

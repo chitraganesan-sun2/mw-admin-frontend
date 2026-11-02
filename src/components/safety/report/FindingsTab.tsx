@@ -75,7 +75,7 @@ function FindingCard({ finding, index }: { finding: ReportFinding; index: number
   const ml = finding.ml;
 
   return (
-    <article className="bg-white rounded-xl border border-gray-100 border-l-4 overflow-hidden" style={{ borderLeftColor: color }}>
+    <article className="bg-white rounded-2xl border border-stroke border-l-4 overflow-hidden" style={{ borderLeftColor: color }}>
       <button
         type="button"
         className="w-full text-left p-4 flex items-start gap-3 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"

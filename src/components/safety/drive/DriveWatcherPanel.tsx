@@ -52,7 +52,7 @@ export default function DriveWatcherPanel() {
   return (
     <section
       aria-labelledby="drive-watcher-heading"
-      className={`bg-white border border-gray-200 rounded-xl p-4 sm:p-5 border-l-4 ${
+      className={`bg-white border border-stroke rounded-2xl p-4 sm:p-5 border-l-4 ${
         watcher?.running ? "border-l-emerald-500" : "border-l-gray-300"
       }`}
     >

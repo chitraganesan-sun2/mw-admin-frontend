@@ -21,11 +21,11 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section className={clsx("bg-white rounded-xl border border-gray-100 p-5 min-w-0", className)}>
+    <section className={clsx("min-w-0 rounded-2xl border border-stroke bg-white p-4 sm:p-5", className)}>
       {(title || extra) && (
-        <div className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
           {icon}
-          {title && <h3 className="text-base font-semibold text-gray-800">{title}</h3>}
+          {title && <h3 className="m-0 text-base font-semibold text-dark">{title}</h3>}
           {extra && <div className="ml-auto">{extra}</div>}
         </div>
       )}
@@ -104,7 +104,7 @@ export function CategoryPills({ categories }: { categories: string[] }) {
 
 /** Empty / "nothing matches" state inside a tab. */
 export function EmptyNote({ children }: { children: ReactNode }) {
-  return <div className="bg-white rounded-xl border border-gray-100 p-8 text-center text-gray-500">{children}</div>;
+  return <div className="rounded-2xl border border-stroke bg-white p-8 text-center text-sm text-[#4F4F4F]">{children}</div>;
 }
 
 /** Whole-page problem (report not found, load failed) with the way back. */

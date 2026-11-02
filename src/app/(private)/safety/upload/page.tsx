@@ -9,7 +9,7 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { getHeaderIcon } from "@/layouts/helper";
 import { analyzeAudio, analyzeTranscriptFile, analyzeTranscriptText, analyzeVideo } from "@/api/safety";
 import { getApiErrorMessage } from "@/utils/apiError";
-import SafetyTabs from "@/components/safety/SafetyTabs";
+import { LiveStatus, SafetyPage } from "@/components/safety/ui/SafetyPage";
 import LinkFields from "@/components/safety/upload/LinkFields";
 import TranscriptInput from "@/components/safety/upload/TranscriptInput";
 import UploadDropzone from "@/components/safety/upload/UploadDropzone";
@@ -224,19 +224,17 @@ export default function SafetyUploadPage() {
   }, [busy]);
 
   return (
-    <div className="p-6">
-      <SafetyTabs />
+    <SafetyPage
+      title="New analysis"
+      description="Scan a recording or transcript for grooming patterns. Each file becomes its own report, and a failed analysis never blocks the rest of the queue."
+      status={<LiveStatus analysing={items.filter((item) => item.status === "uploading").length} />}
+    >
+      <section className="rounded-2xl border border-stroke bg-white p-4 sm:p-6" aria-labelledby="safety-upload-heading">
+        <h3 id="safety-upload-heading" className="m-0 mb-3 text-base font-semibold text-dark">
+          What are you analysing?
+        </h3>
 
-      <section className="bg-white rounded-xl p-6 mb-6" aria-labelledby="safety-upload-heading">
-        <h2 id="safety-upload-heading" className="text-lg font-semibold mt-0 mb-1">
-          New analysis
-        </h2>
-        <p className="text-sm text-gray-500 mt-0 mb-4">
-          Scan a recording or transcript for grooming patterns. Each file becomes its own report, and a failed analysis
-          never blocks the rest of the queue.
-        </p>
-
-        <div role="group" aria-label="Input type" className="flex flex-wrap gap-2 mb-5">
+        <div role="group" aria-label="Input type" className="mb-5 flex flex-wrap gap-2">
           {MODES.map((option) => (
             <button
               key={option.kind}
@@ -244,10 +242,10 @@ export default function SafetyUploadPage() {
               aria-pressed={mode === option.kind}
               onClick={() => setMode(option.kind)}
               className={clsx(
-                "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors",
+                "inline-flex min-h-[40px] items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                 mode === option.kind
-                  ? "bg-[#1F2937] text-white border-[#1F2937]"
-                  : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                  ? "border-primary bg-[#E0F7FE] text-[#046A8A]"
+                  : "border-stroke bg-white text-[#4F4F4F] hover:bg-gray-50"
               )}
             >
               {option.icon}
@@ -260,7 +258,7 @@ export default function SafetyUploadPage() {
           <TranscriptInput onAdd={addTranscript} />
         ) : (
           <>
-            <p className="text-sm text-gray-600 mt-0 mb-3">{MODE_COPY[mode].description}</p>
+            <p className="m-0 mb-3 text-sm text-[#4F4F4F]">{MODE_COPY[mode].description}</p>
             <UploadDropzone
               key={mode}
               extensions={FILE_RULES[mode].extensions}
@@ -290,15 +288,13 @@ export default function SafetyUploadPage() {
         )}
       </section>
 
-      <div className="mb-6">
-        <LinkFields value={links} onChange={setLinks} />
-      </div>
+      <LinkFields value={links} onChange={setLinks} />
 
-      <section className="bg-white rounded-xl p-6" aria-labelledby="safety-queue-heading">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-          <h2 id="safety-queue-heading" className="text-lg font-semibold m-0">
+      <section className="rounded-2xl border border-stroke bg-white p-4 sm:p-6" aria-labelledby="safety-queue-heading">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+          <h3 id="safety-queue-heading" className="m-0 text-base font-semibold text-dark">
             Queue{items.length > 0 ? ` (${items.length})` : ""}
-          </h2>
+          </h3>
           <div className="flex flex-wrap items-center gap-2">
             {acceptedCount > 0 && <Button onClick={clearAccepted}>Clear submitted</Button>}
             <Button type="primary" disabled={unstartedCount === 0} onClick={startAnalysis}>
@@ -308,17 +304,17 @@ export default function SafetyUploadPage() {
         </div>
 
         {items.length === 0 ? (
-          <p className="text-sm text-gray-500 my-6 text-center">
+          <p className="my-6 text-center text-sm text-[#6B7280]">
             Nothing queued yet. Add files or a transcript above, then start the analysis.
           </p>
         ) : (
-          <ul className="list-none m-0 p-0">
+          <ul className="m-0 list-none p-0">
             {items.map((item) => (
               <UploadQueueItem key={item.key} item={item} onRemove={remove} onRetry={retry} />
             ))}
           </ul>
         )}
       </section>
-    </div>
+    </SafetyPage>
   );
 }
