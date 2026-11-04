@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { showToast } from "@/components/common/Toast";
 import { getApiErrorMessage } from "@/utils/apiError";
+import { formatAge } from "@/utils/moment";
 
 dayjs.extend(customParseFormat);
 
@@ -132,6 +133,7 @@ const LearnerProfileDetails = () => {
           : learnerDetails?.learner_personal_info?.learner_date_of_birth
         : "-",
     },
+    { title: "Age", value: formatAge(learnerDetails?.learner_personal_info?.learner_date_of_birth) },
     { title: "Email", value: getValue(learnerDetails?.email) },
     { title: "Phone Number", value: getValue(learnerDetails?.phone_number) },
     { title: "Zip Code", value: getValue(learnerDetails?.zip_code) },

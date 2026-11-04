@@ -15,6 +15,14 @@ export const calculateAge = (dob?: string | null): number | null => {
     return age < 1 ? 0 : age;
 };
 
+// Profile-view label: "26 years", "1 year", "Less than 1 year", or "-" with no usable DOB.
+export const formatAge = (dob?: string | null): string => {
+    const age = calculateAge(dob);
+    if (age === null) return "-";
+    if (age === 0) return "Less than 1 year";
+    return `${age} ${age === 1 ? "year" : "years"}`;
+};
+
 // One display format for dates across the admin console. Tables used three ("28 Sep
 // 2026", "28th Sep, 2026", "28-Sep-2026"), two of them force-lowercased ("28th sep, 2026").
 export const DISPLAY_DATE_FORMAT = "DD MMM YYYY";

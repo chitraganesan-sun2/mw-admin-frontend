@@ -18,6 +18,7 @@ const { Panel } = Collapse;
 import noImage from "@/assets/images/no-image.webp";
 import { showToast } from "@/components/common/Toast";
 import { getApiErrorMessage } from "@/utils/apiError";
+import { formatAge } from "@/utils/moment";
 
 const getValue = (val: any) => val || "-";
 const getFormattedValue = (val?: string) => formatString(val || "") || "-";
@@ -110,6 +111,7 @@ const VolunteerProfileDetails = () => {
       title: "Date of Birth",
       value: volunteerDateOfBirth,
     },
+    { title: "Age", value: formatAge(volunteerDetails?.date_of_birth) },
     { title: "Email", value: getValue(volunteerDetails?.email_address) },
     { title: "Phone Number", value: getValue(volunteerDetails?.phone_number) },
     { title: "Zip Code", value: getValue(volunteerDetails?.zip_code) },

@@ -4,6 +4,7 @@ import ViewModal from "@/components/common/Modals/ViewModal";
 import React, { useState } from "react";
 import { endpoints } from "@/api/constants";
 import { downloadFile } from "@/utils/downloadFile";
+import { formatAge } from "@/utils/moment";
 
 export type QA = { question: string; answer: string };
 
@@ -162,6 +163,7 @@ export default function ApplicationDetailsModal({
                 <Field label="Email Address" value={data.basicInfo.email} />
                 <Field label="Phone Number" value={data.basicInfo.phoneNo} />
                 <Field label="Date of Birth" value={data.basicInfo.dob} />
+                <Field label="Age" value={formatAge(data.basicInfo.dob)} />
                 <Field label="Country of Residence" value={data.basicInfo.country} />
                 <Field label="State" value={data.basicInfo.state} />
                 <Field
