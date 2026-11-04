@@ -98,6 +98,47 @@ export default function MatchingPage() {
   const [matchesPage, setMatchesPage] = useState(1);
   const [matchesPageSize, setMatchesPageSize] = useState(15);
 
+  // Fetch all learners and volunteers for name lookup
+  const { data: allLearnersMap = {} } = useQuery({
+    queryKey: ["all-learners-map"],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: "1",
+        size: "1000", // Fetch a large number to get most users
+      });
+      const res: any = await GET_API(`${endpoints.learner.getAllLearners}?${params.toString()}`);
+      const learners = res?.data?.items || [];
+      const map: Record<string, string> = {};
+      learners.forEach((l: any) => {
+        map[l.learner_id] = l.learner_full_name || l.learner_id;
+      });
+      return map;
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  const { data: allVolunteersMap = {} } = useQuery({
+    queryKey: ["all-volunteers-map"],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: "1",
+        size: "1000", // Fetch a large number to get most users
+      });
+      const res: any = await GET_API(`${endpoints.volunteer.getAllVolunteers}?${params.toString()}`);
+      const volunteers = res?.data?.items || [];
+      const map: Record<string, string> = {};
+      volunteers.forEach((v: any) => {
+        const name =
+          v.volunteer_first_name && v.volunteer_last_name
+            ? `${v.volunteer_first_name} ${v.volunteer_last_name}`
+            : v.volunteer_id;
+        map[v.volunteer_id] = name;
+      });
+      return map;
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
   const {
     data: matchesData,
     isLoading: isMatchesLoading,
@@ -145,20 +186,18 @@ export default function MatchingPage() {
       title: "Learner",
       dataIndex: "learner_id",
       key: "learner_id",
-      render: (_: string | null, record: any) => {
-        const name = record.learner_full_name || record.learner_name;
-        return name || record.learner_id || "—";
+      render: (learnerId: string | null) => {
+        if (!learnerId) return "—";
+        return allLearnersMap[learnerId] || learnerId;
       },
     },
     {
       title: "Volunteer",
       dataIndex: "volunteer_id",
       key: "volunteer_id",
-      render: (_: string | null, record: any) => {
-        const firstName = record.volunteer_first_name || "";
-        const lastName = record.volunteer_last_name || "";
-        const fullName = `${firstName} ${lastName}`.trim();
-        return fullName || record.volunteer_name || record.volunteer_id || "—";
+      render: (volunteerId: string | null) => {
+        if (!volunteerId) return "—";
+        return allVolunteersMap[volunteerId] || volunteerId;
       },
     },
     {
