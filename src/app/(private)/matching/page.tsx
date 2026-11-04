@@ -142,16 +142,24 @@ export default function MatchingPage() {
 
   const columns = [
     {
-      title: "Learner ID",
+      title: "Learner",
       dataIndex: "learner_id",
       key: "learner_id",
-      render: (id: string | null) => id || "—",
+      render: (_: string | null, record: any) => {
+        const name = record.learner_full_name || record.learner_name;
+        return name || record.learner_id || "—";
+      },
     },
     {
-      title: "Volunteer ID",
+      title: "Volunteer",
       dataIndex: "volunteer_id",
       key: "volunteer_id",
-      render: (id: string | null) => id || "—",
+      render: (_: string | null, record: any) => {
+        const firstName = record.volunteer_first_name || "";
+        const lastName = record.volunteer_last_name || "";
+        const fullName = `${firstName} ${lastName}`.trim();
+        return fullName || record.volunteer_name || record.volunteer_id || "—";
+      },
     },
     {
       title: "Analytical",
