@@ -142,7 +142,7 @@ export default function WingTimePage() {
         render: (_: unknown, r: AdminWingTime) => <span className={cell}>{whenInHostZone(r)}</span>,
       },
       {
-        title: "Signed Up",
+        title: "Registered",
         key: "capacity",
         className: "p-6 w-[100px] whitespace-nowrap",
         render: (_: unknown, r: AdminWingTime) => (

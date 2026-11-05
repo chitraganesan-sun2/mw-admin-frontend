@@ -67,7 +67,7 @@ export default function DriveWatcherPanel() {
             ) : null}
           </h2>
           <p className="text-sm text-gray-500 mt-1 mb-0">
-            When running, new files in the connected Drive are imported and analysed automatically. This is shared by
+            When running, new files in the connected Drive are imported and analyzed automatically. This is shared by
             everyone who uses Safety Monitoring.
           </p>
         </div>

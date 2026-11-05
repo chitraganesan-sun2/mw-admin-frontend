@@ -212,7 +212,7 @@ export default function SafetyComparePage() {
 
   useEffect(() => {
     if (listQuery.error) {
-      showToast({ type: "error", message: getApiErrorMessage(listQuery.error, "Couldn't load the report list.") });
+      showToast({ type: "error", message: getApiErrorMessage(listQuery.error, "Couldn't load the report list. Please try again.") });
     }
   }, [listQuery.error]);
 
@@ -295,14 +295,14 @@ export default function SafetyComparePage() {
         }),
       },
       {
-        label: "Words analysed",
+        label: "Words analyzed",
         cells: ready.map((c) => {
           const words = statsOf(c.report as SafetyReport).word_count;
           return typeof words === "number" ? words.toLocaleString() : "-";
         }),
       },
       { label: "Timeline segments", cells: ready.map((c) => count(c.report?.timeline)) },
-      { label: "Analysed", cells: ready.map((c) => formatDisplayDateTime(c.report?.created_at)) },
+      { label: "Analyzed", cells: ready.map((c) => formatDisplayDateTime(c.report?.created_at)) },
     ];
     return rows;
   }, [ready]);
@@ -398,7 +398,7 @@ export default function SafetyComparePage() {
             className="mt-4"
             type="error"
             showIcon
-            message={getApiErrorMessage(listQuery.error, "Couldn't load the report list.")}
+            message={getApiErrorMessage(listQuery.error, "Couldn't load the report list. Please try again.")}
             action={
               <Button size="small" onClick={() => listQuery.refetch()}>
                 Try again

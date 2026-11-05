@@ -161,15 +161,15 @@ export default function DonationDetailsModal({
                 <p className="text-[20px] font-medium text-[#000000]">Donation Preferences</p>
                 <div className="grid md:grid-cols-2 gap-x-12 gap-y-5 mt-4">
                   <Field label="Name Visibility" value={data.preferences.nameVisibility} />
-                  <Field label="Show my name on the donor wall" value={data.preferences.showOnDonorWall} />
-                  <Field label="Dedication (Optional)" value={data.preferences.dedication} />
+                  <Field label="Name on donor wall" value={data.preferences.showOnDonorWall} />
+                  <Field label="Dedication (optional)" value={data.preferences.dedication} />
                   <Field label="Campaign/Fund Designation" value={data.preferences.campaign} />
-                  <Field label="Cover processing fees" value={data.preferences.coverFees} />
-                  <Field label="How did you hear about us? (Optional)" value={data.preferences.hearAboutUs} />
+                  <Field label="Covers processing fees" value={data.preferences.coverFees} />
+                  <Field label="How did you hear about us? (optional)" value={data.preferences.hearAboutUs} />
                 </div>
                 {data.preferences.message && (
                   <div className="pt-2">
-                    <p className="text-sm text-[#4F4F4F]">Leave a Message (Optional)</p>
+                    <p className="text-sm text-[#4F4F4F]">Leave a Message (optional)</p>
                     <p className="mt-2 text-[#121212] text-sm leading-6">{data.preferences.message}</p>
                   </div>
                 )}

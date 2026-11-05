@@ -113,7 +113,7 @@ function GoogleDriveContent() {
     mutationFn: getDriveAuthUrl,
     onSuccess: ({ auth_url }) => {
       if (!isGoogleConsentUrl(auth_url)) {
-        showToast({ type: "error", message: "Couldn't start the connection. The sign-in address wasn't recognised." });
+        showToast({ type: "error", message: "Couldn't start the connection. The sign-in address wasn't recognized." });
         return;
       }
       window.location.assign(auth_url);
@@ -145,7 +145,7 @@ function GoogleDriveContent() {
       try {
         const result = await importDriveFile(file.id, file.name, file.mimeType);
         setImports((prev) => ({ ...prev, [file.id]: { state: "success", reportId: result.id } }));
-        showToast({ type: "success", message: `"${file.name}" was imported and is being analysed.` });
+        showToast({ type: "success", message: `"${file.name}" was imported and is being analyzed.` });
       } catch (err) {
         const message = getApiErrorMessage(err, "Couldn't import this file. Please try again.");
         setImports((prev) => ({ ...prev, [file.id]: { state: "error", message } }));
@@ -187,7 +187,7 @@ function GoogleDriveContent() {
           <DriveStatePanel
             tone="error"
             icon={<FiWifiOff />}
-            title="Google Drive isn't connected anymore"
+            title="Google Drive isn't connected any more"
             description="The connection was removed since this page loaded. Connect again to keep importing files."
             actions={connectButton}
           />
@@ -198,7 +198,7 @@ function GoogleDriveContent() {
           tone="error"
           icon={<FiAlertTriangle />}
           title={kind === "unavailable" ? "The safety service isn't responding" : "Couldn't load files from Google Drive"}
-          description={getApiErrorMessage(filesQuery.error, "Something went wrong while loading your files.")}
+          description={getApiErrorMessage(filesQuery.error, "Couldn't load your files. Please try again.")}
           actions={<RetryButton onClick={() => filesQuery.refetch()} loading={filesQuery.isFetching} />}
         />
       );

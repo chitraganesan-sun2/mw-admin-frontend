@@ -39,7 +39,7 @@ const MODE_COPY: Record<Exclude<UploadKind, "transcript-text">, { prompt: string
   },
   video: {
     prompt: "Click or drag video files here",
-    description: "The audio track is extracted automatically, then analysed.",
+    description: "The audio track is extracted automatically, then analyzed.",
   },
   "transcript-file": {
     prompt: "Click or drag .txt transcripts here",
@@ -231,7 +231,7 @@ export default function SafetyUploadPage() {
     >
       <section className="rounded-2xl border border-stroke bg-white p-4 sm:p-6" aria-labelledby="safety-upload-heading">
         <h3 id="safety-upload-heading" className="m-0 mb-3 text-base font-semibold text-dark">
-          What are you analysing?
+          What are you analyzing?
         </h3>
 
         <div role="group" aria-label="Input type" className="mb-5 flex flex-wrap gap-2">

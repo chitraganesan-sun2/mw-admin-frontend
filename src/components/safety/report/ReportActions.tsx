@@ -14,7 +14,7 @@ import { formatRisk, isInFlight } from "../severity";
 type EmailKind = "alert" | "summary" | "admin";
 
 const EMAIL_KINDS: { value: EmailKind; label: string; description: string }[] = [
-  { value: "alert", label: "Parent alert", description: "A short, parent-friendly notice that a conversation raised safety concerns." },
+  { value: "alert", label: "Guardian alert", description: "A short, plain-language notice for guardians that a conversation raised safety concerns." },
   { value: "summary", label: "Summary", description: "The analysis summary with the main findings." },
   { value: "admin", label: "Full report", description: "The complete report for the safeguarding team, including the evidence quoted." },
 ];

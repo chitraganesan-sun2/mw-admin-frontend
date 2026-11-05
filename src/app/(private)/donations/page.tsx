@@ -301,7 +301,7 @@ export default function DonationsPage() {
       {isError ? (
         <ErrorMsg />
       ) : !isLoading && !isFetching && data.length === 0 ? (
-        <div className="w-full py-10 text-center text-[#6B7280]">No records available</div>
+        <div className="w-full py-10 text-center text-[#6B7280]">No donations yet.</div>
       ) : (
         <Table
           key="donations"

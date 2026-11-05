@@ -43,7 +43,7 @@ export const showToast = ({
 };
 
 export const callbackToast = (
-    { apiCall, loadingMsg = "Processing...", successMsg = "Success!", errorMsg = "Something went wrong!" }:
+    { apiCall, loadingMsg = "Working on it...", successMsg = "Done.", errorMsg = "Couldn't complete that. Please try again." }:
     { apiCall: Promise<any>, loadingMsg?: string, successMsg?: string, errorMsg?: string }
 ) => {
     return toast.promise(apiCall, {

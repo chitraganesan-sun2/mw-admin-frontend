@@ -110,7 +110,7 @@ export default function AnalyticsTab({ report, model }: { report: SafetyReport; 
     <div className="flex flex-col gap-4">
       <dl className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
         <StatCard label="Risk score" value={report.risk_score != null ? report.risk_score.toFixed(1) : "-"} />
-        <StatCard label="Words analysed" value={wordCount ?? "-"} />
+        <StatCard label="Words analyzed" value={wordCount ?? "-"} />
         <StatCard label="Flagged sentences" value={flaggedSentences} />
         <StatCard label="Unique categories" value={uniqueCategories} />
         <StatCard label="High-confidence matches" value={highConfidence} hint="75% confidence or more" />

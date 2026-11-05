@@ -222,7 +222,7 @@ export default function LearnersPage() {
         onClose={() => setIsDeleteAlertOpen(false)}
         onPrimaryAction={handleModalConfirm}
         title="Delete Learner"
-        description="Are you sure you want to delete this learner? Once deleted, it cannot be undone, and this action is irreversible. All associated data will be permanently removed, and you won't be able to recover it. Please confirm if you wish to proceed."
+        description="Delete this learner? This permanently removes their profile and all associated data. It can't be undone."
         primaryActionText="Yes, Delete"
         isLoading={isDeleteAlertLoading}
       />

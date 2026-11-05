@@ -64,7 +64,7 @@ export default function TutorialLinksPage() {
       form.resetFields();
       showToast({ message: "Tutorial link created" });
     },
-    onError: mutationError("Failed to create tutorial link"),
+    onError: mutationError("Couldn't create the tutorial link. Please try again."),
   });
 
   const updateMutation = useMutation({
@@ -77,7 +77,7 @@ export default function TutorialLinksPage() {
       form.resetFields();
       showToast({ message: "Tutorial link updated" });
     },
-    onError: mutationError("Failed to update tutorial link"),
+    onError: mutationError("Couldn't update the tutorial link. Please try again."),
   });
 
   const deleteMutation = useMutation({
@@ -86,7 +86,7 @@ export default function TutorialLinksPage() {
       queryClient.invalidateQueries({ queryKey: ["tutorial-links"] });
       showToast({ message: "Tutorial link deleted" });
     },
-    onError: mutationError("Failed to delete tutorial link"),
+    onError: mutationError("Couldn't delete the tutorial link. Please try again."),
   });
 
   const handleSubmit = (values: any) => {
@@ -218,7 +218,7 @@ export default function TutorialLinksPage() {
             ]} />
           </Form.Item>
           <Form.Item name="description" label="Description (optional)">
-            <Input.TextArea placeholder="Brief description..." rows={2} />
+            <Input.TextArea placeholder="Add a short description (optional)" rows={2} />
           </Form.Item>
           <Button type="primary" htmlType="submit" loading={createMutation.isPending || updateMutation.isPending} block>
             {editingLink ? "Update" : "Create"}

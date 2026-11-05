@@ -14,7 +14,7 @@ const SUGGESTED = [
   "What are the main risk factors?",
   "Were any meeting requests detected?",
   "Is there evidence of secrecy patterns?",
-  "Summarise the explicit content found.",
+  "Summarize the explicit content found.",
   "Which sentences had the highest confidence?",
 ];
 

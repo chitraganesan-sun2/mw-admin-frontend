@@ -15,7 +15,7 @@ function EvidenceCard({ item }: { item: ReportFinding }) {
   return (
     <article className="bg-white rounded-2xl border border-stroke border-l-4 p-4 flex flex-col gap-3" style={{ borderLeftColor: color }}>
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <CategoryPills categories={item.categories.length ? item.categories : ["uncategorised"]} />
+        <CategoryPills categories={item.categories.length ? item.categories : ["uncategorized"]} />
         <span className="flex flex-wrap items-center gap-1.5">
           <Pill tone="gray">{fmtPct(item.confidence)} confidence</Pill>
           <SeverityTag severity={item.severity} />

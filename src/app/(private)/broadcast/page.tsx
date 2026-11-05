@@ -457,7 +457,7 @@ const Broadcast = () => {
           <TextEditor
             value={message}
             onChange={handleSelectMessage}
-            placeholder="Type details here"
+            placeholder="Write your message here"
           />
           {errors.message && (
             <div className="text-red-500 text-xs mt-1">{errors.message}</div>

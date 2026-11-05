@@ -85,7 +85,7 @@ function FindingCard({ finding, index }: { finding: ReportFinding; index: number
       >
         <span className="text-xs font-semibold text-gray-400 pt-1 shrink-0">#{index + 1}</span>
         <span className="flex-1 min-w-0 flex flex-col gap-1.5">
-          <CategoryPills categories={finding.categories.length ? finding.categories : ["uncategorised"]} />
+          <CategoryPills categories={finding.categories.length ? finding.categories : ["uncategorized"]} />
           <span className="text-sm text-gray-700 break-words">{`“${preview}”`}</span>
           <span className="flex flex-wrap gap-1.5 items-center">
             <Pill tone="gray">{fmtPct(finding.confidence)} confidence</Pill>

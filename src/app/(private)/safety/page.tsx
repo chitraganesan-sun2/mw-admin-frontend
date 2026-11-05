@@ -523,7 +523,7 @@ export default function SafetyReportsPage() {
         <>
           <p className="m-0 font-medium text-dark">No reports yet</p>
           <p className="m-0 max-w-sm text-sm text-[#4F4F4F]">
-            Analyse a call recording, video or transcript to see its safety report here.
+            Analyze a call recording, video or transcript to see its safety report here.
           </p>
           <Link href="/safety/upload">
             <Button type="primary" icon={<FiPlus />}>
@@ -662,7 +662,7 @@ export default function SafetyReportsPage() {
         <Alert
           type="error"
           showIcon
-          message="Couldn't load the summary figures."
+          message="Couldn't load the summary figures. Please try again."
           action={
             <Button size="small" onClick={() => analyticsQuery.refetch()}>
               Retry
@@ -683,13 +683,13 @@ export default function SafetyReportsPage() {
                 <StatCard
                   label="Needs attention"
                   value={highRisk}
-                  hint={highRisk > 0 ? `High or Critical · ${percent(highRisk, analysed)} of analysed` : "No High or Critical reports"}
+                  hint={highRisk > 0 ? `High or Critical · ${percent(highRisk, analysed)} of analyzed` : "No High or Critical reports"}
                   icon={<FiAlertTriangle size={16} />}
                   tone={highRisk > 0 ? "danger" : "good"}
                   emphasis={highRisk > 0}
                 />
                 <StatCard
-                  label="Analysed reports"
+                  label="Analyzed reports"
                   value={analysed}
                   hint="completed analyses"
                   icon={<FiFileText size={16} />}
@@ -704,7 +704,7 @@ export default function SafetyReportsPage() {
                 <StatCard
                   label="Safe / low risk"
                   value={safeLow}
-                  hint={`${percent(safeLow, analysed)} of analysed`}
+                  hint={`${percent(safeLow, analysed)} of analyzed`}
                   icon={<FiCheckCircle size={16} />}
                   tone="good"
                 />
@@ -732,7 +732,7 @@ export default function SafetyReportsPage() {
             {analyticsQuery.isLoading || !analytics ? (
               <Skeleton active paragraph={{ rows: 4 }} />
             ) : chartSeverities.length === 0 ? (
-              <p className="m-0 py-10 text-center text-sm text-[#4F4F4F]">No analysed reports yet.</p>
+              <p className="m-0 py-10 text-center text-sm text-[#4F4F4F]">No analyzed reports yet.</p>
             ) : (
               <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center lg:flex-col xl:flex-row">
                 <div className="w-full max-w-[200px] shrink-0">

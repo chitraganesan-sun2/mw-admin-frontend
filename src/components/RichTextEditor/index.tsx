@@ -17,7 +17,7 @@ interface TextEditorProps {
 const TextEditor: React.FC<TextEditorProps> = ({
   value,
   onChange,
-  placeholder = "Type your message here...",
+  placeholder = "Write your message here",
   className = "",
   height = "200px",
 }) => {

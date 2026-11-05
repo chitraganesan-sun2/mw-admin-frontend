@@ -10,6 +10,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { showToast } from "../common/Toast";
 import { safeHomePath } from "@/constants/access";
+import { getApiErrorMessage } from "@/utils/apiError";
 
 const Login = () => {
   const [loginFormData, setloginFormData] = useState<any>({});
@@ -29,7 +30,7 @@ const Login = () => {
     e?.preventDefault();
     if (loading) return;
     const { username, password } = loginFormData;
-    if (!username || !password) return showToast({ message: "Please enter both username and password", type: "error" });
+    if (!username || !password) return showToast({ message: "Username and password are required", type: "error" });
 
     let payload = { username, password };
 
@@ -39,7 +40,7 @@ const Login = () => {
         const jwt = res?.data?.jwt;
         if (res?.status !== 200 || !jwt) {
           setLoading(false);
-          return showToast({ message: "Log in failed. Unexpected server response.", type: "error" });
+          return showToast({ message: "Couldn't log in. Please try again.", type: "error" });
         }
         Cookies.set("token", jwt, {
           expires: 1,
@@ -55,10 +56,10 @@ const Login = () => {
       .catch((err) => {
         const errorMessage =
           err?.status === 401
-            ? "Invalid username or password"
+            ? "Incorrect username or password."
             : err?.status === 403
               ? "This account has been disabled. Please contact an admin."
-              : "Something went wrong";
+              : getApiErrorMessage(err, "Couldn't log in. Please try again.");
         showToast({ message: errorMessage, type: "error" });
         setLoading(false);
       });

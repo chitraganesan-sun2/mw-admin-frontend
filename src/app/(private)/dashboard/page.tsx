@@ -80,7 +80,7 @@ export default function DashboardPage() {
       ) : null}
 
       {!hasAnything ? (
-        <p className="text-dark">There&apos;s nothing to summarise for your account yet. Use the menu to open a section.</p>
+        <p className="text-dark">There&apos;s nothing to summarize for your account yet. Use the menu to open a section.</p>
       ) : null}
 
       {attention.length > 0 ? (

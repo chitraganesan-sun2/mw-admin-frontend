@@ -108,7 +108,7 @@ export default function SafetyReportPage() {
             <h3 className="m-0 text-base font-semibold text-dark">Analysis in progress</h3>
             <Progress percent={100} status="active" showInfo={false} />
             <p className="m-0 text-sm text-[#4F4F4F]">
-              The conversation is still being analysed. This page checks every few seconds and shows the results as soon as they are ready, so you can leave it open.
+              The conversation is still being analyzed. This page checks every few seconds and shows the results as soon as they are ready, so you can leave it open.
             </p>
             {statusQuery.isError && (
               <Alert type="warning" showIcon message="Couldn't check the progress just now. Still trying." />
@@ -137,7 +137,7 @@ export default function SafetyReportPage() {
                   { label: "Findings", value: model.findings.length, icon: <FiAlertTriangle size={16} /> },
                   { label: "Evidence items", value: model.evidence.length, icon: <FiFileText size={16} /> },
                   {
-                    label: "Words analysed",
+                    label: "Words analyzed",
                     value: typeof model.stats.word_count === "number" ? model.stats.word_count.toLocaleString() : "-",
                     icon: <FiType size={16} />,
                   },

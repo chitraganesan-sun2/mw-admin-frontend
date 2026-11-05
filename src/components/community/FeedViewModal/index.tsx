@@ -178,7 +178,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
         showToast({ message: errorMessage, type: "error" });
       }
     } catch (error) {
-      showToast({ message: "An error occurred", type: "error" });
+      showToast({ message: "Couldn't complete that action. Please try again.", type: "error" });
     } finally {
       setLoadingState(false);
     }
@@ -242,7 +242,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
         onClose={() => setIsDeleteAlertOpen(false)}
         onPrimaryAction={handleDeleteEvent}
         title="Delete Post"
-        description="Are you sure you want to delete this post? Once deleted, it cannot be undone, and this action is irreversible."
+        description="Delete this post? It can't be undone."
         isLoading={isDeleteAlertLoading}
       />
       <AlertModal

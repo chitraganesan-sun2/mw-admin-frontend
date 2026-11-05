@@ -21,7 +21,7 @@ const Select = ({
         showSearch={props.showSearch}
         notFoundContent={
           <p className="text-center py-2 font-medium text-gray-700">
-            {isLoading ? <Spin size="small" /> : "No Data"}
+            {isLoading ? <Spin size="small" /> : "No options found"}
           </p>
         }
         className={`w-full text-sm h-fit rounded-xl hover:bg-[#f4f7fb] !bg-[#f4f7fb] !border border-stroke font-poppins ${inputClassName}`}

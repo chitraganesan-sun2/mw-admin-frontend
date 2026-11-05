@@ -25,7 +25,7 @@ export default function AccessDenied() {
         </p>
       </div>
       <Link href={home}>
-        <Button title="Back to my dashboard" btnVariant="primary" />
+        <Button title="Back to My Dashboard" btnVariant="primary" />
       </Link>
     </div>
   );

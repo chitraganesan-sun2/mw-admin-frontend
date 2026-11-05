@@ -58,7 +58,7 @@ export const isInFlight = (status?: string | null): boolean =>
   String(status ?? "").toUpperCase() === "PROCESSING";
 
 export const STATUS_LABELS: Record<string, { label: string; tag: string }> = {
-  PROCESSING: { label: "Analysing", tag: "processing" },
+  PROCESSING: { label: "Analyzing", tag: "processing" },
   COMPLETED: { label: "Completed", tag: "success" },
   FAILED: { label: "Failed", tag: "error" },
 };

@@ -48,7 +48,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     const apiError: ApiError = {
-      message: "An unexpected error occurred",
+      message: "Something went wrong. Please try again.",
       status: error.response?.status || 500,
       data: error.response?.data,
     };
@@ -57,7 +57,7 @@ axiosInstance.interceptors.response.use(
       // Server responded with error status
       switch (error.response.status) {
         case 401:
-          apiError.message = "Unauthorized access";
+          apiError.message = "Please log in again.";
           // Session expired/invalid, or the token isn't an admin token — force a
           // clean re-login instead of leaving the admin console silently broken
           // (every subsequent call would just fail the same way). Guard against
@@ -75,24 +75,24 @@ axiosInstance.interceptors.response.use(
         case 403:
           // Unlike 401, the admin's session is still valid here - they're just
           // not allowed to do this one thing. Surface it, don't force a logout.
-          apiError.message = "Access forbidden";
+          apiError.message = "You don't have permission to do that.";
           showToast({ type: "error", message: "You don't have permission to do that." });
           break;
         case 404:
-          apiError.message = "Resource not found";
+          apiError.message = "We couldn't find that.";
           break;
         case 422:
-          apiError.message = "Validation error";
+          apiError.message = "Please check the details and try again.";
           break;
         case 500:
-          apiError.message = "Internal server error";
+          apiError.message = "Something went wrong on our end. Please try again.";
           break;
         default:
-          apiError.message = "Something went wrong";
+          apiError.message = "Something went wrong. Please try again.";
       }
     } else if (error.request) {
       // Request made but no response received
-      apiError.message = "No response from server";
+      apiError.message = "Couldn't reach the server. Check your connection and try again.";
     }
 
     return Promise.reject(apiError);

@@ -84,7 +84,7 @@ export default function SafetyAnalyticsPage() {
 
   useEffect(() => {
     if (analyticsQuery.error) {
-      showToast({ type: "error", message: getApiErrorMessage(analyticsQuery.error, "Couldn't load the analytics.") });
+      showToast({ type: "error", message: getApiErrorMessage(analyticsQuery.error, "Couldn't load the analytics. Please try again.") });
     }
   }, [analyticsQuery.error]);
 
@@ -116,7 +116,7 @@ export default function SafetyAnalyticsPage() {
     // when it fails while older data is still on screen (with no data its charts show the error).
     const [, history] = await Promise.all([analyticsQuery.refetch(), historyQuery.refetch()]);
     if (history.isError && history.data) {
-      showToast({ type: "error", message: getApiErrorMessage(history.error, "Couldn't refresh the report history.") });
+      showToast({ type: "error", message: getApiErrorMessage(history.error, "Couldn't refresh the report history. Please try again.") });
     }
   };
 
@@ -136,7 +136,7 @@ export default function SafetyAnalyticsPage() {
     const avg = typeof analytics.avg_risk_score === "number" ? analytics.avg_risk_score : null;
     const attention = (severity.High ?? 0) + (severity.Critical ?? 0);
     return [
-      { label: "Total analysed", value: formatNumber(analytics.total_reports), icon: <FiFileText size={16} />, tone: "info" },
+      { label: "Total analyzed", value: formatNumber(analytics.total_reports), icon: <FiFileText size={16} />, tone: "info" },
       {
         label: "High and critical",
         value: formatNumber(attention),
@@ -228,7 +228,7 @@ export default function SafetyAnalyticsPage() {
 
           {Number(analytics.total_reports) === 0 ? (
             <div className="rounded-2xl border border-stroke bg-white p-10">
-              <Empty description="No analyses yet. Charts and insights appear once a report has been analysed.">
+              <Empty description="No analyses yet. Charts and insights appear once a report has been analyzed.">
                 <Link href="/safety/upload">
                   <Button type="primary">Start a new analysis</Button>
                 </Link>
@@ -280,7 +280,7 @@ export default function SafetyAnalyticsPage() {
                     }
                   >
                     <Button icon={<FiSliders aria-hidden="true" />}>
-                      Customise{hidden.length > 0 ? ` (${hidden.length} hidden)` : ""}
+                      Customize{hidden.length > 0 ? ` (${hidden.length} hidden)` : ""}
                     </Button>
                   </Popover>
                 </div>

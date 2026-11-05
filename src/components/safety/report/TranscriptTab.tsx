@@ -105,7 +105,7 @@ export default function TranscriptTab({
               ? `${flaggedPassages} flagged ${flaggedPassages === 1 ? "passage" : "passages"} highlighted. Underlined words are the matched pattern.`
               : "No flagged passages could be located in the transcript text."}
           </span>
-          <ul className="flex flex-wrap items-center gap-3" aria-label="Highlight colours">
+          <ul className="flex flex-wrap items-center gap-3" aria-label="Highlight colors">
             {SEVERITY_ORDER.filter((s) => s !== "Safe").map((s) => (
               <li key={s} className="flex items-center gap-1.5 text-xs">
                 <span className="inline-block w-3 h-3 rounded-sm" style={{ background: `${SEVERITY_COLORS[s].hex}55`, border: `1px solid ${SEVERITY_COLORS[s].hex}` }} />

@@ -194,7 +194,7 @@ export default function MatchingPage() {
       key: "session_status",
       render: (sessionStatus: string | null) => {
         if (!sessionStatus) {
-          return <Tag color="default">No Sessions Yet</Tag>;
+          return <Tag color="default">No sessions yet.</Tag>;
         }
         const colorByStatus: Record<string, string> = {
           accepted: "green",
@@ -227,7 +227,7 @@ export default function MatchingPage() {
     <div className="p-6">
       <div className="bg-white rounded-xl p-6 mb-6 flex flex-wrap items-end gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Match on behalf of</label>
+          <label className="block text-sm font-medium mb-1">Match on Behalf Of</label>
           <Select
             value={side}
             onChange={(v) => {
@@ -236,8 +236,8 @@ export default function MatchingPage() {
             }}
             style={{ width: 160 }}
             options={[
-              { value: "learner", label: "A Learner" },
-              { value: "volunteer", label: "A Volunteer" },
+              { value: "learner", label: "Learner" },
+              { value: "volunteer", label: "Volunteer" },
             ]}
           />
         </div>

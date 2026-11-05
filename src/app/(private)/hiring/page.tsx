@@ -401,7 +401,7 @@ export default function HiringPage() {
       {isError ? (
         <ErrorMsg />
       ) : !isLoading && !isFetching && pagedData.length === 0 ? (
-        <div className="w-full py-10 text-center text-[#6B7280]">No records available</div>
+        <div className="w-full py-10 text-center text-[#6B7280]">No applications yet.</div>
       ) : (
         <Table
           key="hiring-applications"

@@ -173,7 +173,7 @@ export default function AccountsPage() {
         ) : (
           <Popconfirm
             title={`Disable ${a.username}?`}
-            description="They are signed out immediately and can't log in until you enable the account again."
+            description="They're logged out immediately and can't log in until you enable the account again."
             okText="Disable"
             okButtonProps={{ danger: true }}
             disabled={isMe}
@@ -218,7 +218,7 @@ export default function AccountsPage() {
           rowKey="user_id"
           loading={isLoading}
           pagination={{ pageSize: 15, hideOnSinglePage: true }}
-          locale={{ emptyText: "No accounts." }}
+          locale={{ emptyText: "No accounts yet." }}
           scroll={{ x: "max-content" }}
         />
       )}

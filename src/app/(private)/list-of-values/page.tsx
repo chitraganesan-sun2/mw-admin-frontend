@@ -76,7 +76,7 @@ export default function ListOfValuesPage() {
       form.resetFields();
       showToast({ message: "Value created" });
     },
-    onError: mutationError("Failed to create value"),
+    onError: mutationError("Couldn't create the value. Please try again."),
   });
 
   const updateMutation = useMutation({
@@ -89,7 +89,7 @@ export default function ListOfValuesPage() {
       form.resetFields();
       showToast({ message: "Value updated" });
     },
-    onError: mutationError("Failed to update value"),
+    onError: mutationError("Couldn't update the value. Please try again."),
   });
 
   const deleteMutation = useMutation({
@@ -98,7 +98,7 @@ export default function ListOfValuesPage() {
       queryClient.invalidateQueries({ queryKey: ["lov", activeTab] });
       showToast({ message: "Value deleted" });
     },
-    onError: mutationError("Failed to delete value"),
+    onError: mutationError("Couldn't delete the value. Please try again."),
   });
 
   const handleSubmit = (values: any) => {

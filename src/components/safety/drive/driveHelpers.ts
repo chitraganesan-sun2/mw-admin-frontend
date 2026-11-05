@@ -69,7 +69,7 @@ export const driveErrorKind = (err: any): DriveErrorKind => {
 
 const CALLBACK_REASONS: Record<string, string> = {
   access_denied: "Access was declined on the Google sign-in screen.",
-  missing_code: "Google didn't send back an authorisation code.",
+  missing_code: "Google didn't send back an authorization code.",
   token_exchange_failed: "The connection couldn't be completed with Google.",
 };
 

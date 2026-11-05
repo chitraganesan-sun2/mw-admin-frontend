@@ -71,7 +71,7 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
         showToast({ message: errorMessage, type: "error" });
       }
     } catch (error) {
-      showToast({ message: "An error occurred", type: "error" });
+      showToast({ message: "Couldn't complete that action. Please try again.", type: "error" });
     } finally {
       setLoading(false);
     }
