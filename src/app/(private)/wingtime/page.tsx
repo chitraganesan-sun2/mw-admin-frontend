@@ -109,7 +109,7 @@ export default function WingTimePage() {
     setCompleting(true);
     try {
       await POST_API(endpoints.wingtime.complete(reviewing.wingtime_id), {});
-      showToast({ message: "WingTime marked as completed." });
+      showToast({ message: "WingTime marked as completed" });
       setReviewing(null);
     } catch (error) {
       showToast({ message: getApiErrorMessage(error, "Couldn't mark it completed. Please try again."), type: "error" });

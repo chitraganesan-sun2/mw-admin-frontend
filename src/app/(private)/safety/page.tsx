@@ -279,7 +279,7 @@ export default function SafetyReportsPage() {
     onSuccess: (_data, id) => {
       rowCache.current.delete(id);
       setSelectedKeys((keys) => keys.filter((k) => k !== id));
-      showToast({ type: "success", message: `Report #${id} deleted.` });
+      showToast({ type: "success", message: `Report #${id} deleted` });
       invalidateAll();
     },
     onError: (err) => {
@@ -339,7 +339,7 @@ export default function SafetyReportsPage() {
       return;
     }
     saveCsv(toExport);
-    showToast({ type: "success", message: `Exported ${toExport.length} ${toExport.length === 1 ? "report" : "reports"}.` });
+    showToast({ type: "success", message: `Exported ${toExport.length} ${toExport.length === 1 ? "report" : "reports"}` });
   };
 
   // ── KPIs ───────────────────────────────────────────────────────────────────
@@ -651,7 +651,7 @@ export default function SafetyReportsPage() {
           </Button>
           <Link href="/safety/upload">
             <Button type="primary" icon={<FiPlus />}>
-              New analysis
+              New Analysis
             </Button>
           </Link>
         </>
@@ -681,7 +681,7 @@ export default function SafetyReportsPage() {
             ) : (
               <>
                 <StatCard
-                  label="Needs attention"
+                  label="Needs Attention"
                   value={highRisk}
                   hint={highRisk > 0 ? `High or Critical · ${percent(highRisk, analysed)} of analyzed` : "No High or Critical reports"}
                   icon={<FiAlertTriangle size={16} />}
@@ -728,7 +728,7 @@ export default function SafetyReportsPage() {
             )}
           </div>
 
-          <Panel title="Severity distribution" id="safety-severity-chart">
+          <Panel title="Severity Distribution" id="safety-severity-chart">
             {analyticsQuery.isLoading || !analytics ? (
               <Skeleton active paragraph={{ rows: 4 }} />
             ) : chartSeverities.length === 0 ? (
@@ -772,8 +772,8 @@ export default function SafetyReportsPage() {
       {/* History */}
       <Panel
         id="safety-history"
-        aria-label="Analysis history"
-        title="Analysis history"
+        aria-label="Analysis History"
+        title="Analysis History"
         description={
           reportsQuery.data
             ? clientFilterActive

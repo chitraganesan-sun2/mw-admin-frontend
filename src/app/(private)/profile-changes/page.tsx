@@ -136,7 +136,7 @@ export default function ProfileChangesPage() {
         render: (_: unknown, r: Row) => <span className={`${cell} capitalize`}>{r.role}</span>,
       },
       {
-        title: "Fields changed",
+        title: "Fields Changed",
         dataIndex: "change_count",
         key: "change_count",
         className: "p-6 w-[160px]",
@@ -188,7 +188,7 @@ export default function ProfileChangesPage() {
       />
       <div className="w-full mb-4 flex items-center justify-between gap-4">
         <h2 className="text-[20px] font-medium text-[#121212] !font-poppins">Profile Changes</h2>
-        <div className="flex gap-2" role="tablist" aria-label="Request status">
+        <div className="flex gap-2" role="tablist" aria-label="Request Status">
           {TABS.map((tab) => (
             <button
               key={tab.key}

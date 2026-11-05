@@ -126,7 +126,7 @@ export default function SafetyReportPage() {
         )}
 
         {!inFlight && !completed && !failed && (
-          <Alert type="info" showIcon message={`This report has status "${report.status}", so its results can't be shown.`} />
+          <Alert type="info" showIcon message={"This report isn't ready to view yet."} />
         )}
 
         {completed && (

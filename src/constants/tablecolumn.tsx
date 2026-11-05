@@ -573,7 +573,7 @@ export const getHiringColumns = (
     ),
   },
   {
-    title: "Submission date",
+    title: "Submission Date",
     dataIndex: "submission_date",
     key: "submission_date",
     // Server-paginated and already newest-first; a client sorter only reordered the visible page.

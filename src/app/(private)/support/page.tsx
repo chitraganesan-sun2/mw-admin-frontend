@@ -10,10 +10,10 @@ import { canAccessPath } from "@/constants/access";
 // Support landing page: shortcuts to the application queues this account can work on. The links
 // shown come from the server's permission list for the account, like the sidebar.
 const QUEUES = [
-  { href: "/volunteer", title: "Volunteer applications", text: "Review volunteers and approve or decline their applications." },
-  { href: "/learner", title: "Learner applications", text: "Review learners and approve or decline their applications." },
-  { href: "/hiring", title: "Careers applications", text: "Read careers applications and download resumes." },
-  { href: "/profile-changes", title: "Profile changes", text: "Approve or decline edits members have requested to their profile." },
+  { href: "/volunteer", title: "Volunteer Applications", text: "Review volunteers and approve or reject their applications." },
+  { href: "/learner", title: "Learner Applications", text: "Review learners and approve or reject their applications." },
+  { href: "/hiring", title: "Careers Applications", text: "Read careers applications and download resumes." },
+  { href: "/profile-changes", title: "Profile Changes", text: "Approve or reject edits members have requested to their profile." },
 ];
 
 export default function SupportDashboard() {

@@ -190,7 +190,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible, group }
     >
       {show("severity") && (
         <ChartCard
-          title="Severity distribution"
+          title="Severity Distribution"
           icon={FiShield}
           iconColor={SEVERITY_COLORS.High.hex}
           isEmpty={severityTotal === 0}

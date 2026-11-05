@@ -154,7 +154,7 @@ export default function SkillsTab() {
       key: "status",
       render: (s: string) => <Tag color={STATUS_META[s]?.color}>{STATUS_META[s]?.label || s}</Tag>,
     },
-    { title: "Added by", dataIndex: "source", key: "source", render: (s: string) => SOURCE_LABEL[s] || s },
+    { title: "Added By", dataIndex: "source", key: "source", render: (s: string) => SOURCE_LABEL[s] || s },
     {
       title: "Created",
       dataIndex: "created_at",

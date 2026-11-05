@@ -145,7 +145,7 @@ export default function AnalyticsTab({ report, model }: { report: SafetyReport; 
         )}
 
         {derived.severity.length > 0 && (
-          <ChartCard title="Severity distribution" icon={<FiPieChart className="text-indigo-500" aria-hidden="true" />}>
+          <ChartCard title="Severity Distribution" icon={<FiPieChart className="text-indigo-500" aria-hidden="true" />}>
             <Chart
               type="donut"
               summary={`Findings by severity: ${describe(derived.severity.map((s) => s.label), derived.severity.map((s) => s.value))}`}

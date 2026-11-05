@@ -184,7 +184,7 @@ export default function ApplicationDetailsModal({
                 />
                 {data.basicInfo.compensationExpectation && (
                   <Field
-                    label="Compensation Expectation (earlier form)"
+                    label="Compensation Expectation (older application form)"
                     value={data.basicInfo.compensationExpectation}
                   />
                 )}

@@ -84,7 +84,7 @@ export default function DashboardPage() {
       ) : null}
 
       {attention.length > 0 ? (
-        <Section title="Needs attention" hint="Work waiting for someone on the team">
+        <Section title="Needs Attention" hint="Work waiting for someone on the team">
           <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
             {attention.map((item) => (
               <AttentionCard key={item.key} item={item} />
@@ -94,7 +94,7 @@ export default function DashboardPage() {
       ) : null}
 
       {members || donations || hiring ? (
-        <Section title="Key numbers">
+        <Section title="Key Numbers">
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
             {members ? (
               <>
@@ -132,7 +132,7 @@ export default function DashboardPage() {
       ) : null}
 
       {email ? (
-        <Section title="System health">
+        <Section title="System Health">
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
             <StatCard
               label="Notification emails, last 7 days"

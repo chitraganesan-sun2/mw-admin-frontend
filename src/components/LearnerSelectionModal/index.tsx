@@ -87,7 +87,7 @@ const SelectionModal = ({
       <div className="bg-white border border-stroke  w-full rounded-2xl p-5 flex flex-col gap-5">
         <div className="flex items-center justify-between border-b border-stroke pb-5">
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-medium ">Select Items</h1>
+            <h1 className="text-xl font-medium ">Select Learners</h1>
             <div
               className={`text-sm font-medium w-fit rounded-full px-2 py-1 ${selectedColor}`}
             >

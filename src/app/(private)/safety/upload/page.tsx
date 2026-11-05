@@ -225,7 +225,7 @@ export default function SafetyUploadPage() {
 
   return (
     <SafetyPage
-      title="New analysis"
+      title="New Analysis"
       description="Scan a recording or transcript for grooming patterns. Each file becomes its own report, and a failed analysis never blocks the rest of the queue."
       status={<LiveStatus analysing={items.filter((item) => item.status === "uploading").length} />}
     >

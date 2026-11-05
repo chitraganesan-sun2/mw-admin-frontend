@@ -334,10 +334,10 @@ export default function SafetyComparePage() {
 
   return (
     <SafetyPage
-      title="Compare reports"
+      title="Compare Reports"
       description={`Pick two to ${MAX_REPORTS} completed reports to compare them side by side. The selection is saved in the page link.`}
     >
-      <section aria-label="Choose reports" className="rounded-2xl border border-stroke bg-white p-4 sm:p-5">
+      <section aria-label="Choose Reports" className="rounded-2xl border border-stroke bg-white p-4 sm:p-5">
         <div className={GRID}>
           {slots.map((id, index) => {
             const fieldId = `compare-report-${index}`;
@@ -464,7 +464,7 @@ export default function SafetyComparePage() {
             ))}
           </section>
 
-          <Section title="Metrics comparison">
+          <Section title="Metrics Comparison">
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
@@ -495,7 +495,7 @@ export default function SafetyComparePage() {
             </div>
           </Section>
 
-          <Section title="Category breakdown">
+          <Section title="Category Breakdown">
             {categoryRows.shown.length === 0 ? (
               <p className="text-sm text-gray-medium m-0">None of the selected reports has detected categories.</p>
             ) : (
@@ -549,7 +549,7 @@ export default function SafetyComparePage() {
             )}
           </Section>
 
-          <Section title="Key evidence">
+          <Section title="Key Evidence">
             <p className="text-xs text-gray-medium mt-0 mb-4">
               The {EVIDENCE_PER_REPORT} highest-confidence passages from each report.
             </p>

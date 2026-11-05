@@ -35,7 +35,7 @@ interface LogRow {
   error?: string | null;
 }
 
-const TYPE_LABEL: Record<string, string> = { volunteer: "Volunteer applications", learner: "Learner applications" };
+const TYPE_LABEL: Record<string, string> = { volunteer: "Volunteer Applications", learner: "Learner Applications" };
 const EVENT_LABEL: Record<string, string> = {
   submitted: "New application",
   status_changed: "Status change",
@@ -244,7 +244,7 @@ export default function NotificationsPage() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-2">
-        <h2 className="text-2xl font-semibold">Email notifications</h2>
+        <h2 className="text-2xl font-semibold">Email Notifications</h2>
         <Button type="primary" onClick={openAdd}>
           + Add recipient
         </Button>
@@ -269,7 +269,7 @@ export default function NotificationsPage() {
         />
       )}
 
-      <h3 className="text-lg font-medium mt-10 mb-3">Recent notifications</h3>
+      <h3 className="text-lg font-medium mt-10 mb-3">Recent Notifications</h3>
       <Table
         dataSource={log}
         columns={logColumns}

@@ -359,7 +359,7 @@ const Broadcast = () => {
             name="location"
             inputType="select"
             options={allLocations}
-            placeholder="Select Location"
+            placeholder="Select a location"
             value={location}
             onChange={(value) => handleSelectLocation(value as string)}
           />
@@ -373,7 +373,7 @@ const Broadcast = () => {
             name="language"
             inputType="select"
             options={allLanguages}
-            placeholder="Select language"
+            placeholder="Select a language"
             value={language}
             onChange={(value) => handleSelectLanguage(value as string)}
           />
@@ -384,7 +384,7 @@ const Broadcast = () => {
         {allVolunteers.length > 0 && (
           <div>
             <ClickInput
-              label="Select Volunteers"
+              label="Select volunteers"
               selectedItems={volunteers.length}
               availableItems={allVolunteers.length}
               onClick={handleSelectVolunteers}
@@ -411,7 +411,7 @@ const Broadcast = () => {
         {allLearners.length > 0 && (
           <div>
             <ClickInput
-              label="Select Learners"
+              label="Select learners"
               selectedItems={learners.length}
               availableItems={allLearners?.length}
               onClick={handleSelectLearners}

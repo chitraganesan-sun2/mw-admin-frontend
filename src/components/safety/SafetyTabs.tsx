@@ -9,7 +9,7 @@ import { FiBarChart2, FiFileText, FiGitMerge, FiHardDrive, FiUploadCloud } from 
 // strip scrolls sideways (instead of wrapping onto three rows) and keeps the active tab in view.
 const TABS = [
   { href: "/safety", label: "Reports", icon: FiFileText },
-  { href: "/safety/upload", label: "New analysis", icon: FiUploadCloud },
+  { href: "/safety/upload", label: "New Analysis", icon: FiUploadCloud },
   { href: "/safety/analytics", label: "Analytics", icon: FiBarChart2 },
   { href: "/safety/compare", label: "Compare", icon: FiGitMerge },
   { href: "/safety/google-drive", label: "Google Drive", icon: FiHardDrive },

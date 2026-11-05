@@ -171,9 +171,9 @@ const LearnerProfileDetails = () => {
     {
       title: "Education and Hobbies",
       details: [
-        { title: "Name of the Academy", value: learnerDetails?.current_school },
+        { title: "School or Academy Name", value: learnerDetails?.current_school },
         { title: "Grade or Education Level", value: learnerDetails?.grade_or_education_level },
-        { title: "Program or IEP or 504 Plan", value: learnerDetails?.program_iep_504_plan },
+        { title: "Program, IEP or 504 Plan", value: learnerDetails?.program_iep_504_plan },
         {
           title: "Cultural/Religious Considerations",
           value: learnerDetails?.cultural_religious_considerations,
@@ -232,7 +232,7 @@ const LearnerProfileDetails = () => {
       ],
     },
     {
-      title: "Learner Special Needs",
+      title: "Learner Support Needs",
       details: [
         {
           title: "Type of Developmental Disability",

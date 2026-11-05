@@ -125,7 +125,7 @@ export default function MatchingPage() {
       if (res?.data?.status === "no_match_found") {
         showToast({ type: "info", message: "No eligible candidate found for this match." });
       } else {
-        showToast({ type: "success", message: "Match triggered successfully." });
+        showToast({ type: "success", message: "Match triggered successfully" });
       }
     },
     onError: (err) => {
@@ -161,19 +161,19 @@ export default function MatchingPage() {
       },
     },
     {
-      title: "Analytical",
+      title: "Analytical Score",
       dataIndex: "analytical_score",
       key: "analytical_score",
       render: (v: number) => v?.toFixed(1),
     },
     {
-      title: "Compatibility",
+      title: "Compatibility Score",
       dataIndex: "compatibility_score",
       key: "compatibility_score",
       render: (v: number) => v?.toFixed(2),
     },
     {
-      title: "Combined",
+      title: "Combined Score",
       dataIndex: "combined_score",
       key: "combined_score",
       render: (v: number) => v?.toFixed(1),
