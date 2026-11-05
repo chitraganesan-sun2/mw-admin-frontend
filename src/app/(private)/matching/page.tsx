@@ -98,47 +98,6 @@ export default function MatchingPage() {
   const [matchesPage, setMatchesPage] = useState(1);
   const [matchesPageSize, setMatchesPageSize] = useState(15);
 
-  // Fetch all learners and volunteers for name lookup
-  const { data: allLearnersMap = {} } = useQuery({
-    queryKey: ["all-learners-map"],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: "1",
-        size: "1000", // Fetch a large number to get most users
-      });
-      const res: any = await GET_API(`${endpoints.learner.getAllLearners}?${params.toString()}`);
-      const learners = res?.data?.items || [];
-      const map: Record<string, string> = {};
-      learners.forEach((l: any) => {
-        map[l.learner_id] = l.learner_full_name || l.learner_id;
-      });
-      return map;
-    },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-  });
-
-  const { data: allVolunteersMap = {} } = useQuery({
-    queryKey: ["all-volunteers-map"],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: "1",
-        size: "1000", // Fetch a large number to get most users
-      });
-      const res: any = await GET_API(`${endpoints.volunteer.getAllVolunteers}?${params.toString()}`);
-      const volunteers = res?.data?.items || [];
-      const map: Record<string, string> = {};
-      volunteers.forEach((v: any) => {
-        const name =
-          v.volunteer_first_name && v.volunteer_last_name
-            ? `${v.volunteer_first_name} ${v.volunteer_last_name}`
-            : v.volunteer_id;
-        map[v.volunteer_id] = name;
-      });
-      return map;
-    },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-  });
-
   const {
     data: matchesData,
     isLoading: isMatchesLoading,
@@ -186,18 +145,19 @@ export default function MatchingPage() {
       title: "Learner",
       dataIndex: "learner_id",
       key: "learner_id",
-      render: (learnerId: string | null) => {
+      render: (learnerId: string | null, record: any) => {
         if (!learnerId) return "—";
-        return allLearnersMap[learnerId] || learnerId;
+        // Name comes from the API; the id stays visible (small) so a deleted/unnamed user is still traceable.
+        return record.learner_name || <span className="text-gray-500 text-xs break-all">{learnerId}</span>;
       },
     },
     {
       title: "Volunteer",
       dataIndex: "volunteer_id",
       key: "volunteer_id",
-      render: (volunteerId: string | null) => {
+      render: (volunteerId: string | null, record: any) => {
         if (!volunteerId) return "—";
-        return allVolunteersMap[volunteerId] || volunteerId;
+        return record.volunteer_name || <span className="text-gray-500 text-xs break-all">{volunteerId}</span>;
       },
     },
     {
