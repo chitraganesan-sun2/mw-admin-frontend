@@ -20,6 +20,7 @@ interface Recipient {
   enabled: boolean;
   application_types: string[];
   events: string[];
+  alert_types: string[];
   is_default: boolean;
 }
 
@@ -40,6 +41,10 @@ const EVENT_LABEL: Record<string, string> = {
   submitted: "New application",
   status_changed: "Status change",
   updated: "Application updated",
+};
+const ALERT_LABEL: Record<string, string> = {
+  ai_red_alert: "AI Red alert",
+  message_red_alert: "Inappropriate message alert",
 };
 const OUTCOME_COLOR: Record<string, string> = {
   sent: "green",
@@ -81,11 +86,13 @@ export default function NotificationsPage() {
       recipients: Recipient[];
       application_types: string[];
       events: string[];
+      alert_types: string[];
     },
   });
   const recipients = data?.recipients ?? [];
   const allTypes = data?.application_types ?? ["volunteer", "learner"];
   const allEvents = data?.events ?? ["submitted", "status_changed", "updated"];
+  const allAlerts = data?.alert_types ?? ["ai_red_alert", "message_red_alert"];
 
   const { data: log = [], isLoading: logLoading } = useQuery({
     queryKey: ["notification-log"],
@@ -135,13 +142,13 @@ export default function NotificationsPage() {
   const openAdd = () => {
     setEditing(null);
     setFormKey((k) => k + 1);
-    setFormInitial({ email: "", enabled: true, application_types: allTypes, events: allEvents });
+    setFormInitial({ email: "", enabled: true, application_types: allTypes, events: allEvents, alert_types: [] });
     setIsModalOpen(true);
   };
   const openEdit = (r: Recipient) => {
     setEditing(r);
     setFormKey((k) => k + 1);
-    setFormInitial({ email: r.email, enabled: r.enabled, application_types: r.application_types, events: r.events });
+    setFormInitial({ email: r.email, enabled: r.enabled, application_types: r.application_types, events: r.events, alert_types: r.alert_types ?? [] });
     setIsModalOpen(true);
   };
 
@@ -151,6 +158,7 @@ export default function NotificationsPage() {
       enabled: values.enabled,
       application_types: values.application_types,
       events: values.events,
+      alert_types: values.alert_types ?? [],
     };
     if (editing) updateMutation.mutate({ id: editing.recipient_id, body });
     else createMutation.mutate(body);
@@ -177,7 +185,15 @@ export default function NotificationsPage() {
       title: "Events",
       dataIndex: "events",
       key: "events",
-      render: (events: string[]) => events.map((e) => <Tag key={e}>{EVENT_LABEL[e] || e}</Tag>),
+      render: (events: string[], r: Recipient) =>
+        r.application_types.length ? events.map((e) => <Tag key={e}>{EVENT_LABEL[e] || e}</Tag>) : "-",
+    },
+    {
+      title: "Red alerts",
+      dataIndex: "alert_types",
+      key: "alerts",
+      render: (alerts: string[] = []) =>
+        alerts.length ? alerts.map((a) => <Tag color="red" key={a}>{ALERT_LABEL[a] || a}</Tag>) : "-",
     },
     {
       title: "Enabled",
@@ -251,8 +267,9 @@ export default function NotificationsPage() {
       </div>
       <p className="text-gray-600 mb-6 max-w-3xl">
         These addresses are emailed when a volunteer or learner application is submitted, changes status, or is
-        updated. Changes apply to the next event - nothing needs to be deployed. The support address is the default
-        recipient until you change it.
+        updated, and for the red alerts they tick: an AI Red alert (a session the safety analysis flags) or an
+        Inappropriate message alert (a chat message that trips the safety rules). Changes apply to the next event -
+        nothing needs to be deployed. The support address is the default recipient until you change it.
       </p>
 
       {isError ? (
@@ -303,12 +320,23 @@ export default function NotificationsPage() {
           <Form.Item
             name="application_types"
             label="Applications"
-            rules={[{ required: true, type: "array", min: 1, message: "Choose at least one" }]}
+            dependencies={["alert_types"]}
+            rules={[
+              ({ getFieldValue }) => ({
+                validator: (_, v) =>
+                  (v && v.length) || (getFieldValue("alert_types") || []).length
+                    ? Promise.resolve()
+                    : Promise.reject(new Error("Choose at least one application type or red alert")),
+              }),
+            ]}
           >
             <Checkbox.Group options={allTypes.map((t) => ({ label: TYPE_LABEL[t] || t, value: t }))} />
           </Form.Item>
           <Form.Item name="events" label="Events" rules={[{ required: true, type: "array", min: 1, message: "Choose at least one" }]}>
             <Checkbox.Group options={allEvents.map((e) => ({ label: EVENT_LABEL[e] || e, value: e }))} />
+          </Form.Item>
+          <Form.Item name="alert_types" label="Red alerts">
+            <Checkbox.Group options={allAlerts.map((a) => ({ label: ALERT_LABEL[a] || a, value: a }))} />
           </Form.Item>
           <Form.Item name="enabled" label="Enabled" valuePropName="checked">
             <Switch />
