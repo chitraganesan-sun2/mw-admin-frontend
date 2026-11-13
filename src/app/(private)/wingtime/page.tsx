@@ -15,6 +15,7 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { WINGTIME_ENABLED } from "@/config/wingtime";
 import {
+  RECORDING_STATUS_LABEL,
   WINGTIME_STATUS_LABEL,
   WINGTIME_TABS,
   whenInHostZone,
@@ -41,6 +42,7 @@ export default function WingTimePage() {
   const [approving, setApproving] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [recordingBusy, setRecordingBusy] = useState(false);
 
   useEffect(() => {
     setHeaderOptions({ title: "WingTime", titleIcon: getHeaderIcon(pathname), showSearch: false });
@@ -119,6 +121,29 @@ export default function WingTimePage() {
     }
   };
 
+  const decideRecording = async (action: "publish" | "reject" | "unpublish", acknowledgeFlags = false) => {
+    if (!reviewing) return;
+    setRecordingBusy(true);
+    try {
+      const res: any = await POST_API(
+        endpoints.wingtime.recording(reviewing.wingtime_id, action),
+        action === "publish" ? { acknowledge_flags: acknowledgeFlags } : {}
+      );
+      const messages = {
+        publish: "Recording published. It now appears in Resources.",
+        reject: "Recording won't be published. It stays private in Google Drive.",
+        unpublish: "Recording removed from Resources and its Drive link was turned off.",
+      };
+      showToast({ message: messages[action] });
+      if (res?.data) setReviewing(res.data as AdminWingTime); // keep the dialog open on the new state
+    } catch (error) {
+      showToast({ message: getApiErrorMessage(error, "Couldn't update the recording. Please try again."), type: "error" });
+    } finally {
+      setRecordingBusy(false);
+      refresh();
+    }
+  };
+
   const columns = useMemo(
     () => [
       {
@@ -158,6 +183,16 @@ export default function WingTimePage() {
         render: (_: unknown, r: AdminWingTime) => <span className={cell}>{WINGTIME_STATUS_LABEL[r.status]}</span>,
       },
       {
+        title: "Recording",
+        key: "recording",
+        className: "p-6 w-[160px]",
+        render: (_: unknown, r: AdminWingTime) => (
+          <span className={`${cell} ${r.recording_status === "pending_review" ? "!font-semibold" : ""}`}>
+            {r.recording_status ? RECORDING_STATUS_LABEL[r.recording_status] : "-"}
+          </span>
+        ),
+      },
+      {
         title: "",
         key: "actions",
         className: "!p-0 !w-[170px]",
@@ -192,6 +227,8 @@ export default function WingTimePage() {
         approving={approving}
         rejecting={rejecting}
         completing={completing}
+        recordingBusy={recordingBusy}
+        onRecording={decideRecording}
         onClose={() => setReviewing(null)}
         onApprove={() => decide("approve")}
         onReject={(reason) => decide("reject", reason)}

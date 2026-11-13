@@ -62,6 +62,7 @@ export const endpoints: EndpointProps = {
     reject: (id: string) => `admin/wingtime/${id}/reject`,
     complete: (id: string) => `admin/wingtime/${id}/complete`,
     roster: (id: string) => `admin/wingtime/${id}/roster`,
+    recording: (id: string, action: "publish" | "reject" | "unpublish") => `admin/wingtime/${id}/recording/${action}`,
   },
   profileChanges: {
     list: (status: string, page: number, pageSize: number) =>

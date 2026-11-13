@@ -2,13 +2,22 @@
 
 import { useEffect, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
-import { WINGTIME_STATUS_LABEL, hasEnded, whenInHostZone, type AdminWingTime } from "@/utils/wingtime";
+import {
+  RECORDING_STATUS_LABEL,
+  WINGTIME_STATUS_LABEL,
+  safetyState,
+  hasEnded,
+  whenInHostZone,
+  type AdminWingTime,
+} from "@/utils/wingtime";
 
 type Props = {
   item: AdminWingTime | null;
   approving: boolean;
   rejecting: boolean;
   completing: boolean;
+  recordingBusy: boolean;
+  onRecording: (action: "publish" | "reject" | "unpublish", acknowledgeFlags?: boolean) => void;
   onClose: () => void;
   onApprove: () => void;
   onReject: (reason: string) => void;
@@ -36,6 +45,8 @@ export default function WingTimeReviewModal({
   approving,
   rejecting,
   completing,
+  recordingBusy,
+  onRecording,
   onClose,
   onApprove,
   onReject,
@@ -44,16 +55,22 @@ export default function WingTimeReviewModal({
 }: Props) {
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
+  const [reviewedFlags, setReviewedFlags] = useState(false);
 
   // A reason typed for one WingTime must never carry over to the next one opened.
   const id = item?.wingtime_id;
   useEffect(() => {
     setReason("");
     setError("");
+    setReviewedFlags(false);
   }, [id]);
 
   const pending = item?.status === "pending_approval";
-  const busy = approving || rejecting || completing;
+  const busy = approving || rejecting || completing || recordingBusy;
+  const recording = item?.recording_status ?? null;
+  const safety = item ? safetyState(item) : null;
+  // Publishing waits for the safety analysis, and a flagged session needs the admin's explicit OK.
+  const publishBlocked = safety?.kind === "waiting" || (safety?.kind === "done" && safety.flagged && !reviewedFlags);
 
   const handleReject = () => {
     if (!reason.trim()) {
@@ -123,6 +140,84 @@ export default function WingTimeReviewModal({
                 <p className="text-sm text-gray-dark">
                   <span className="font-medium">Rejection reason:</span> {item.reject_reason}
                 </p>
+              )}
+              {recording && (
+                <div className="rounded-xl border border-[#E5E5E5] p-4 flex flex-col gap-3">
+                  <p className="text-sm font-medium text-gray-dark">Recording: {RECORDING_STATUS_LABEL[recording]}</p>
+                  {recording === "pending_review" && (
+                    <p className="text-xs text-gray-medium">
+                      Children may appear in this recording, so watch it first. It stays private in Google Drive (open it
+                      from the account that organizes WingTimes). Publishing shares it by link and adds it to Resources.
+                    </p>
+                  )}
+                  {safety && (recording === "pending_review" || recording === "unpublished") && (
+                    <div className="text-sm text-gray-dark" aria-live="polite">
+                      {safety.kind === "waiting" && <p>Safety analysis: still running. Publishing unlocks when it finishes.</p>}
+                      {safety.kind === "none" && <p>Safety analysis: no transcript to analyse for this session.</p>}
+                      {safety.kind === "done" && (
+                        <p className={safety.flagged ? "text-red-700 font-medium" : ""}>
+                          Safety analysis: {safety.severity === "none" || safety.severity === "safe" ? "no concerns" : `${safety.severity} severity`}.{" "}
+                          <a href={`/safety/report/${safety.reportId}`} target="_blank" rel="noopener noreferrer" className="underline">
+                            Open the safety report
+                          </a>
+                        </p>
+                      )}
+                      {safety.kind === "done" && safety.flagged && (
+                        <label className="mt-2 flex items-start gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={reviewedFlags}
+                            onChange={(e) => setReviewedFlags(e.target.checked)}
+                            className="mt-1"
+                          />
+                          <span>I have read the safety report and still want to publish this recording.</span>
+                        </label>
+                      )}
+                    </div>
+                  )}
+                  {item.recording_url && (recording === "pending_review" || recording === "published") && (
+                    <a
+                      href={item.recording_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-[#121212] underline"
+                    >
+                      Open recording in Google Drive
+                    </a>
+                  )}
+                  <div className="flex flex-wrap gap-3">
+                    {(recording === "pending_review" || recording === "unpublished") && (
+                      <button
+                        type="button"
+                        onClick={() => onRecording("publish", reviewedFlags)}
+                        disabled={busy || publishBlocked}
+                        className={`${actionBtn} bg-[#DCFCE7] text-success`}
+                      >
+                        {recordingBusy ? "Saving..." : "Publish to Resources"}
+                      </button>
+                    )}
+                    {recording === "pending_review" && (
+                      <button
+                        type="button"
+                        onClick={() => onRecording("reject")}
+                        disabled={busy}
+                        className={`${actionBtn} border border-[#E5E5E5] bg-white text-[#121212]`}
+                      >
+                        Don&apos;t Publish
+                      </button>
+                    )}
+                    {recording === "published" && (
+                      <button
+                        type="button"
+                        onClick={() => onRecording("unpublish")}
+                        disabled={busy}
+                        className={`${actionBtn} border border-[#E5E5E5] bg-white text-[#121212]`}
+                      >
+                        {recordingBusy ? "Saving..." : "Remove from Resources"}
+                      </button>
+                    )}
+                  </div>
+                </div>
               )}
               <div className="flex flex-wrap gap-3">
                 <button

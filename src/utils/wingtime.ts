@@ -2,6 +2,26 @@ import dayjs from "dayjs";
 
 export type WingTimeStatus = "pending_approval" | "approved" | "rejected" | "cancelled" | "completed";
 
+/** Where a session recording is in its life: collected privately, then published to Resources (or not). */
+export type RecordingStatus =
+  | "requested"
+  | "unavailable"
+  | "pending_review"
+  | "publishing"
+  | "published"
+  | "rejected"
+  | "unpublished";
+
+export const RECORDING_STATUS_LABEL: Record<RecordingStatus, string> = {
+  requested: "Waiting for recording",
+  unavailable: "Not recorded",
+  pending_review: "Needs review",
+  publishing: "Publishing...",
+  published: "In Resources",
+  rejected: "Not published",
+  unpublished: "Removed from Resources",
+};
+
 /** A WingTime as the admin API returns it (includes the host id and review trail). */
 export interface AdminWingTime {
   wingtime_id: string;
@@ -27,6 +47,26 @@ export interface AdminWingTime {
   created_at?: string | null;
   reviewed_by?: string | null;
   reviewed_at?: string | null;
+  recording_status?: RecordingStatus | null;
+  recording_url?: string | null;
+  recording_resource_id?: string | null;
+  transcript_status?: string | null;
+  safety_report_id?: number | null;
+  safety?: { status?: string | null; severity?: string | null } | null;
+}
+
+/** What an admin should read from a session's safety analysis before publishing its recording. */
+export type SafetyState =
+  | { kind: "none" } // no transcript to analyse (nobody spoke, or transcription wasn't available)
+  | { kind: "waiting" } // transcript still being collected or the analysis is still running
+  | { kind: "done"; severity: string; flagged: boolean; reportId: number };
+
+export function safetyState(w: Pick<AdminWingTime, "transcript_status" | "safety_report_id" | "safety">): SafetyState {
+  if (w.transcript_status === "requested" || w.transcript_status === "submitting") return { kind: "waiting" };
+  if (w.safety_report_id == null) return { kind: "none" };
+  if (w.safety?.status !== "COMPLETED") return { kind: "waiting" };
+  const severity = (w.safety.severity ?? "none").toLowerCase();
+  return { kind: "done", severity, flagged: severity === "high" || severity === "critical", reportId: w.safety_report_id };
 }
 
 export interface AdminWingTimePage {

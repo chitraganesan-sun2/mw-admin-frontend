@@ -58,6 +58,7 @@ type EndpointProps = {
     reject: (id: string) => string;
     complete: (id: string) => string;
     roster: (id: string) => string;
+    recording: (id: string, action: "publish" | "reject" | "unpublish") => string;
   };
   profileChanges: {
     list: (status: string, page: number, pageSize: number) => string;
