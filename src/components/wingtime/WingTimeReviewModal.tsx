@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import CenterModal from "@/components/common/Modals/CenterModal";
+import RecordingPreview from "@/components/wingtime/RecordingPreview";
 import {
   RECORDING_STATUS_LABEL,
   WINGTIME_STATUS_LABEL,
@@ -176,14 +177,12 @@ export default function WingTimeReviewModal({
                     </div>
                   )}
                   {item.recording_url && (recording === "pending_review" || recording === "published") && (
-                    <a
-                      href={item.recording_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-[#121212] underline"
-                    >
-                      Open recording in Google Drive
-                    </a>
+                    <RecordingPreview
+                      key={item.wingtime_id}
+                      url={item.recording_url}
+                      title={item.topic}
+                      isPrivate={recording === "pending_review"}
+                    />
                   )}
                   <div className="flex flex-wrap gap-3">
                     {(recording === "pending_review" || recording === "unpublished") && (
