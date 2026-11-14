@@ -71,7 +71,8 @@ export default function WingTimeReviewModal({
   const recording = item?.recording_status ?? null;
   const safety = item ? safetyState(item) : null;
   // Publishing waits for the safety analysis, and a flagged session needs the admin's explicit OK.
-  const publishBlocked = safety?.kind === "waiting" || (safety?.kind === "done" && safety.flagged && !reviewedFlags);
+  const publishBlocked =
+    safety?.kind === "waiting" || safety?.kind === "failed" || (safety?.kind === "done" && safety.flagged && !reviewedFlags);
 
   const handleReject = () => {
     if (!reason.trim()) {
@@ -154,6 +155,15 @@ export default function WingTimeReviewModal({
                   {safety && (recording === "pending_review" || recording === "unpublished") && (
                     <div className="text-sm text-gray-dark" aria-live="polite">
                       {safety.kind === "waiting" && <p>Safety analysis: still running. Publishing unlocks when it finishes.</p>}
+                      {safety.kind === "failed" && (
+                        <p className="text-red-700 font-medium">
+                          Safety analysis: it ended with an error, so this recording can&apos;t be published. Open the{" "}
+                          <a href={`/safety/report/${safety.reportId}`} target="_blank" rel="noopener noreferrer" className="underline">
+                            safety report
+                          </a>{" "}
+                          to see why, or reject the recording.
+                        </p>
+                      )}
                       {safety.kind === "none" && <p>Safety analysis: no transcript to analyse for this session.</p>}
                       {safety.kind === "done" && (
                         <p className={safety.flagged ? "text-red-700 font-medium" : ""}>

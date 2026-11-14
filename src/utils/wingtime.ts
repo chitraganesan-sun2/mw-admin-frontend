@@ -59,11 +59,13 @@ export interface AdminWingTime {
 export type SafetyState =
   | { kind: "none" } // no transcript to analyse (nobody spoke, or transcription wasn't available)
   | { kind: "waiting" } // transcript still being collected or the analysis is still running
+  | { kind: "failed"; reportId: number } // the analysis ended in an error: it will not finish by itself
   | { kind: "done"; severity: string; flagged: boolean; reportId: number };
 
 export function safetyState(w: Pick<AdminWingTime, "transcript_status" | "safety_report_id" | "safety">): SafetyState {
   if (w.transcript_status === "requested" || w.transcript_status === "submitting") return { kind: "waiting" };
   if (w.safety_report_id == null) return { kind: "none" };
+  if (w.safety?.status === "FAILED") return { kind: "failed", reportId: w.safety_report_id };
   if (w.safety?.status !== "COMPLETED") return { kind: "waiting" };
   const severity = (w.safety.severity ?? "none").toLowerCase();
   return { kind: "done", severity, flagged: severity === "high" || severity === "critical", reportId: w.safety_report_id };

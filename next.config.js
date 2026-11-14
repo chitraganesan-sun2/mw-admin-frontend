@@ -27,7 +27,7 @@ const csp = [
     // Sentry's ingest domain - without this, every crash-report event is
     // silently blocked by the browser before it ever reaches Sentry (caught the
     // hard way on melody-wings-frontend's own Sentry rollout).
-    `connect-src 'self' https://o4509625850658816.ingest.us.sentry.io${apiOrigin ? " " + apiOrigin : ""}`,
+    `connect-src 'self' https://o4509546502684672.ingest.us.sentry.io${apiOrigin ? " " + apiOrigin : ""}`,
     // Only the click-to-play preview of a recorded WingTime (wingtime/RecordingPreview) is embedded;
     // Safety Monitoring is native, it no longer frames an external dashboard.
     "frame-src https://drive.google.com",
