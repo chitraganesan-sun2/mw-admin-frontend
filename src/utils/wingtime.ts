@@ -62,6 +62,14 @@ export type SafetyState =
   | { kind: "failed"; reportId: number } // the analysis ended in an error: it will not finish by itself
   | { kind: "done"; severity: string; flagged: boolean; reportId: number };
 
+/** Can the admin press Publish? Only after a completed safety analysis (the server refuses otherwise), and a
+ * flagged one also needs the admin's explicit OK. No transcript / no analysis means nothing was checked: not publishable. */
+export function publishBlocked(safety: SafetyState | null, reviewedFlags: boolean): boolean {
+  if (!safety) return true;
+  if (safety.kind !== "done") return true; // none, waiting, failed
+  return safety.flagged && !reviewedFlags;
+}
+
 export function safetyState(w: Pick<AdminWingTime, "transcript_status" | "safety_report_id" | "safety">): SafetyState {
   if (w.transcript_status === "requested" || w.transcript_status === "submitting") return { kind: "waiting" };
   if (w.safety_report_id == null) return { kind: "none" };

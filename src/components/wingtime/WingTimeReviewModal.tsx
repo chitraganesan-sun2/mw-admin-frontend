@@ -7,6 +7,7 @@ import {
   RECORDING_STATUS_LABEL,
   WINGTIME_STATUS_LABEL,
   safetyState,
+  publishBlocked,
   hasEnded,
   whenInHostZone,
   type AdminWingTime,
@@ -70,9 +71,8 @@ export default function WingTimeReviewModal({
   const busy = approving || rejecting || completing || recordingBusy;
   const recording = item?.recording_status ?? null;
   const safety = item ? safetyState(item) : null;
-  // Publishing waits for the safety analysis, and a flagged session needs the admin's explicit OK.
-  const publishBlocked =
-    safety?.kind === "waiting" || safety?.kind === "failed" || (safety?.kind === "done" && safety.flagged && !reviewedFlags);
+  // Publishing needs a completed safety analysis, and a flagged session needs the admin's explicit OK.
+  const publishBlockedNow = publishBlocked(safety, reviewedFlags);
 
   const handleReject = () => {
     if (!reason.trim()) {
@@ -164,7 +164,12 @@ export default function WingTimeReviewModal({
                           to see why, or reject the recording.
                         </p>
                       )}
-                      {safety.kind === "none" && <p>Safety analysis: no transcript to analyse for this session.</p>}
+                      {safety.kind === "none" && (
+                        <p className="text-red-700 font-medium">
+                          Safety analysis: this session has no transcript to check (nobody spoke, or it was unavailable), so
+                          the recording can&apos;t be published. You can reject it.
+                        </p>
+                      )}
                       {safety.kind === "done" && (
                         <p className={safety.flagged ? "text-red-700 font-medium" : ""}>
                           Safety analysis: {safety.severity === "none" || safety.severity === "safe" ? "no concerns" : `${safety.severity} severity`}.{" "}
@@ -199,7 +204,7 @@ export default function WingTimeReviewModal({
                       <button
                         type="button"
                         onClick={() => onRecording("publish", reviewedFlags)}
-                        disabled={busy || publishBlocked}
+                        disabled={busy || publishBlockedNow}
                         className={`${actionBtn} bg-[#DCFCE7] text-success`}
                       >
                         {recordingBusy ? "Saving..." : "Publish to Resources"}
