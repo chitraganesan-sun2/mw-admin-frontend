@@ -10,6 +10,16 @@ const VERBS: Record<string, string> = {
   export: "exported",
   publish: "published",
   login: "signed in",
+  run: "ran",
+  send_test: "sent a test",
+};
+
+// Single-word verbs not in the table above ("reject", "unpublish", "restore"...) get a plain past tense.
+const pastTense = (word: string): string => {
+  if (/^[a-z]+e$/.test(word)) return `${word}d`;
+  if (/^[a-z]+[^aeiou]y$/.test(word)) return `${word.slice(0, -1)}ied`;
+  if (/^[a-z]+$/.test(word)) return `${word}ed`;
+  return word;
 };
 
 const titleCase = (s: string) => s.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -20,7 +30,7 @@ export function describeAction(slug: string): string {
   if (!subject) return "-";
   const verbSlug = rest.join(" ");
   if (!verbSlug) return titleCase(subject);
-  const verb = VERBS[verbSlug] ?? verbSlug.replace(/[_-]+/g, " ");
+  const verb = VERBS[verbSlug] ?? pastTense(verbSlug.replace(/[_-]+/g, " "));
   return `${titleCase(subject)} ${verb}`;
 }
 

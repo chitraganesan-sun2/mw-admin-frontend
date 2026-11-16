@@ -24,6 +24,7 @@ export default function QuickJump() {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const show = () => {
@@ -83,6 +84,9 @@ export default function QuickJump() {
       footer={null}
       closable={false}
       destroyOnClose
+      afterOpenChange={(isOpen) => {
+        if (isOpen) inputRef.current?.focus();
+      }}
       width={520}
       styles={{ body: { padding: 0 } }}
       title={null}
@@ -90,6 +94,7 @@ export default function QuickJump() {
       <div className="flex items-center gap-2 border-b border-stroke px-4 py-3">
         <FiSearch aria-hidden className="text-gray-light" />
         <input
+          ref={inputRef}
           autoFocus
           value={query}
           onChange={(e) => {

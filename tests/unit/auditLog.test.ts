@@ -8,6 +8,8 @@ test("audit action slugs read as sentences", () => {
   assert.equal(describeAction("learner.delete"), "Learner deleted");
   assert.equal(describeAction("mail.send"), "Mail sent");
   assert.equal(describeAction("list_of_values.restore_item"), "List Of Values restore item");
+  assert.equal(describeAction("wingtime_recording.reject"), "Wingtime Recording rejected");
+  assert.equal(describeAction("wingtime_recording.unpublish"), "Wingtime Recording unpublished");
   assert.equal(describeAction("export"), "Export");
   assert.equal(describeAction(""), "-");
 });
