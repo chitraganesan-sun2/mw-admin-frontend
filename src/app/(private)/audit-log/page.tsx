@@ -13,6 +13,8 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { formatDisplayDateTime } from "@/utils/displayDateTime";
 import { describeAction, metadataLines, shortId } from "@/utils/auditLog";
+import { GET_API } from "@/api/request";
+import { endpoints } from "@/api/constants";
 
 // Every privileged change made in this portal (deletes, approvals, bulk mail, exports...), newest
 // first. Admin-only. Read-only: there is nothing to edit here.
@@ -43,6 +45,14 @@ export default function AuditLogPage() {
       }),
     placeholderData: (prev) => prev,
   });
+
+  // Admin ids are opaque; the Accounts list (same permission as this page) turns them into names.
+  const { data: accounts } = useQuery({
+    queryKey: ["staff-accounts"],
+    queryFn: async () => ((await GET_API(endpoints.accounts.list))?.data ?? []) as Array<{ user_id: string; username: string }>,
+    staleTime: 5 * 60 * 1000,
+  });
+  const nameOf = (id: string) => accounts?.find((a) => a.user_id === id)?.username;
 
   const applyFilters = () => {
     setAction(actionDraft.trim() || null);
@@ -78,11 +88,18 @@ export default function AuditLogPage() {
       title: "Who",
       dataIndex: "admin_id",
       key: "admin_id",
-      render: (v: string) => (
-        <span className="font-mono text-xs !normal-case" title={v}>
-          {shortId(v)}
-        </span>
-      ),
+      render: (v: string) => {
+        const name = nameOf(v);
+        return name ? (
+          <span className="!normal-case" title={v}>
+            {name}
+          </span>
+        ) : (
+          <span className="font-mono text-xs !normal-case" title={v}>
+            {shortId(v)}
+          </span>
+        );
+      },
     },
     {
       title: "On",

@@ -190,8 +190,8 @@ export default function AccountsPage() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-2xl font-semibold">Accounts</h2>
+      <div className="flex justify-end items-center mb-2">
+        <h2 className="sr-only">Accounts</h2>
         <Button
           type="primary"
           onClick={() => {

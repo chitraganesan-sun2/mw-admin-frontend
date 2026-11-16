@@ -260,8 +260,8 @@ export default function WingTimePage() {
         participants={roster.data?.participants ?? []}
         onClose={() => setRosterId(null)}
       />
-      <div className="w-full mb-4 flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-[20px] font-medium text-[#121212] !font-poppins">WingTime</h2>
+      <div className="w-full mb-4 flex flex-wrap items-center justify-end gap-4">
+        <h2 className="sr-only">WingTime</h2>
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="WingTime status">
           {WINGTIME_TABS.map((tab) => (
             <button

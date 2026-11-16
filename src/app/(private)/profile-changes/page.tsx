@@ -212,8 +212,8 @@ export default function ProfileChangesPage() {
         onReject={handleReject}
         queue={queue}
       />
-      <div className="w-full mb-4 flex items-center justify-between gap-4">
-        <h2 className="text-[20px] font-medium text-[#121212] !font-poppins">Profile Changes</h2>
+      <div className="w-full mb-4 flex items-center justify-end gap-4">
+        <h2 className="sr-only">Profile Changes</h2>
         <div className="flex gap-2" role="tablist" aria-label="Request Status">
           {TABS.map((tab) => (
             <button
