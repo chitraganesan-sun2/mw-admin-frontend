@@ -123,6 +123,12 @@ export const endpoints: EndpointProps = {
     sessions: "admin/dashboard/sessions",
   },
 
+  // Who did what in the admin portal (admins only), and how sessions are going per the feedback answers.
+  auditLog: "admin/audit-log",
+  feedback: {
+    summary: "admin/feedback/summary",
+  },
+
   // Safety Monitoring (the detection pipeline), reached through the MelodyWings backend.
   safety: {
     reports: "admin/safety/reports",

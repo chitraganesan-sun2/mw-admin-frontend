@@ -13,6 +13,11 @@ interface TableProps {
   handleDelete?: (id: string) => void;
   rootClassName?: string;
   rowKey?: string | ((record: any) => string);
+  // Pass-throughs for antd features pages opt into (expandable detail rows, checkbox selection).
+  expandable?: any;
+  rowSelection?: any;
+  // What to say when there are no rows (the default is antd's generic "No data").
+  emptyText?: React.ReactNode;
 }
 
 // Different admin pages feed this table rows keyed by different id fields
@@ -39,6 +44,9 @@ const Table: React.FC<TableProps> = ({
   onRow,
   rootClassName,
   rowKey,
+  expandable,
+  rowSelection,
+  emptyText,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -86,6 +94,9 @@ const Table: React.FC<TableProps> = ({
         onChange={onChange}
         onRow={keyboardAccessibleOnRow}
         rowKey={rowKey ?? resolveRowKey}
+        expandable={expandable}
+        rowSelection={rowSelection}
+        locale={emptyText ? { emptyText } : undefined}
         showSorterTooltip={false}
         sticky
         scroll={{ x: "max-content" }}

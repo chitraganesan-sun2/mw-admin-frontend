@@ -116,6 +116,10 @@ type EndpointProps = {
     summary: string;
     sessions: string;
   };
+  auditLog: string;
+  feedback: {
+    summary: string;
+  };
   safety: {
     reports: string;
     report: (id: number | string) => string;
