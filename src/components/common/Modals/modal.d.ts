@@ -19,6 +19,8 @@ interface CenterModalProps {
   actionLoading?: boolean;
   acceptLoading?: boolean;
   rejectLoading?: boolean;
+  // Reviewing a list of items one after another: shows "2 of 14" with previous/next (Alt+Left/Right).
+  queue?: { position: number; total: number; onPrev?: () => void; onNext?: () => void };
 }
 
 interface ViewModalProps {

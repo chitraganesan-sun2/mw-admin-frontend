@@ -33,11 +33,12 @@ type Props = {
   onClose: () => void;
   onApprove: () => void;
   onReject: (reason: string) => void;
+  queue?: CenterModalProps["queue"];
 };
 
 const NOT_SET = "Not set";
 
-const ProfileChangeDetailsModal = ({ isOpen, isLoading, isError = false, data, acceptLoading, rejectLoading, onClose, onApprove, onReject }: Props) => {
+const ProfileChangeDetailsModal = ({ isOpen, isLoading, isError = false, data, acceptLoading, rejectLoading, onClose, onApprove, onReject, queue }: Props) => {
   const [reason, setReason] = useState("");
   const isPending = data?.status === "pending" || data?.status === "processing";
 
@@ -69,6 +70,7 @@ const ProfileChangeDetailsModal = ({ isOpen, isLoading, isError = false, data, a
       rejectLoading={rejectLoading}
       onAccept={onApprove}
       onReject={() => onReject(reason.trim())}
+      queue={queue}
     >
       {isError ? (
         <p className="text-sm text-gray-medium">Couldn&apos;t load these changes. Please try again.</p>

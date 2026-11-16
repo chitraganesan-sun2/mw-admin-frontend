@@ -13,6 +13,7 @@ import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { formatDisplayDate } from "@/utils/moment";
+import WaitingBadge from "@/components/common/WaitingBadge";
 
 type Row = {
   request_id: string;
@@ -78,6 +79,15 @@ export default function ProfileChangesPage() {
   }, [isFetching, page, rowCount]);
 
   const closeModal = () => setSelectedId(null);
+  // After deciding a pending request, carry on with the next one in the list instead of closing,
+  // so a queue can be worked through without reopening each row.
+  const advanceFrom = (id: string) => {
+    if (status !== "pending") return closeModal();
+    const list = data?.rows ?? [];
+    const i = list.findIndex((r) => r.request_id === id);
+    const next = i >= 0 ? (list[i + 1] ?? list[i - 1]) : undefined;
+    setSelectedId(next?.request_id ?? null);
+  };
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ["profile-changes"] });
     queryClient.invalidateQueries({ queryKey: ["profile-change"] });
@@ -93,7 +103,7 @@ export default function ProfileChangesPage() {
     try {
       await PUT_API(endpoints.profileChanges.approve(selectedId), {});
       showToast({ message: "Changes approved and applied to the profile." });
-      closeModal();
+      advanceFrom(selectedId);
       refresh();
     } catch (error) {
       showToast({ message: getApiErrorMessage(error, "Couldn't approve the changes. Please try again."), type: "error" });
@@ -109,7 +119,7 @@ export default function ProfileChangesPage() {
     try {
       await PUT_API(endpoints.profileChanges.reject(selectedId), { reason: reason || undefined });
       showToast({ message: "Changes rejected. The profile was left as it was." });
-      closeModal();
+      advanceFrom(selectedId);
       refresh();
     } catch (error) {
       showToast({ message: getApiErrorMessage(error, "Couldn't reject the changes. Please try again."), type: "error" });
@@ -147,7 +157,12 @@ export default function ProfileChangesPage() {
         dataIndex: "created_on",
         key: "created_on",
         className: "p-6 w-[200px] whitespace-nowrap",
-        render: (_: unknown, r: Row) => <span className={cell}>{formatDisplayDate(r.created_on)}</span>,
+        render: (_: unknown, r: Row) => (
+          <span className="flex flex-col items-start gap-1">
+            <span className={cell}>{formatDisplayDate(r.created_on)}</span>
+            {status === "pending" ? <WaitingBadge since={r.created_on} /> : null}
+          </span>
+        ),
       },
       {
         title: "",
@@ -172,6 +187,16 @@ export default function ProfileChangesPage() {
   );
 
   const rows = data?.rows ?? [];
+  const selectedIndex = rows.findIndex((r) => r.request_id === selectedId);
+  const queue =
+    selectedIndex >= 0
+      ? {
+          position: selectedIndex + 1,
+          total: rows.length,
+          onPrev: selectedIndex > 0 ? () => setSelectedId(rows[selectedIndex - 1].request_id) : undefined,
+          onNext: selectedIndex < rows.length - 1 ? () => setSelectedId(rows[selectedIndex + 1].request_id) : undefined,
+        }
+      : undefined;
 
   return (
     <div className="w-full h-auto p-6 animate-fadeIn">
@@ -185,6 +210,7 @@ export default function ProfileChangesPage() {
         onClose={closeModal}
         onApprove={handleApprove}
         onReject={handleReject}
+        queue={queue}
       />
       <div className="w-full mb-4 flex items-center justify-between gap-4">
         <h2 className="text-[20px] font-medium text-[#121212] !font-poppins">Profile Changes</h2>
