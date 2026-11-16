@@ -2,24 +2,17 @@
 import Link from "next/link";
 import Logo from "@/components/common/Logo";
 import SectionCard from "./SectionCard";
-import {
-  CommunityIcon,
-  MailIcon,
-  ResourceIcon,
-  SignOutIcon,
-  DonationIcon,
-  SafetyIcon,
-  DashBoardIcon,
-} from "@/assets/icons";
+import { navIcon } from "./navIcons";
+import { SignOutIcon } from "@/assets/icons";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { VolunteerIcon, ReportIcon, HiringIcon } from "@/assets/icons";
 import React from "react";
-import { MdOutlineGroups } from "react-icons/md";
+import { FiSearch } from "react-icons/fi";
 import { WINGTIME_ENABLED } from "@/config/wingtime";
+import { NAV_GROUPS, visibleNavGroups } from "@/config/nav";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStaff } from "@/hooks/useStaff";
-import { canAccessPath } from "@/constants/access";
+import { openQuickJump } from "@/components/common/QuickJump";
 
 interface SidebarProps {
   // "rail" is the permanent desktop column; "drawer" is the same menu inside the phone slide-out.
@@ -38,104 +31,14 @@ const Sidebar = ({ variant = "rail", onNavigate }: SidebarProps) => {
   const { data: staff, isLoading: staffLoading } = useStaff();
   const queryClient = useQueryClient();
 
-  const allLinks = [
-    {
-      href: "/dashboard",
-      text: "Dashboard",
-      icon: <DashBoardIcon />,
-    },
-    {
-      href: "/support",
-      text: "Support",
-      icon: <ReportIcon />,
-    },
-    {
-      href: "/volunteer",
-      text: "Volunteers",
-      icon: <VolunteerIcon />,
-    },
-    {
-      href: "/learner",
-      text: "Learners",
-      icon: <VolunteerIcon />,
-    },
-    {
-      href: "/reports",
-      text: "Reports",
-      icon: <ReportIcon />,
-    },
-    {
-      href: "/resources",
-      text: "Resources",
-      icon: <ResourceIcon />,
-    },
-    {
-      href: "/community",
-      text: "Community",
-      icon: <CommunityIcon />,
-    },
-    {
-      href: "/donations",
-      text: "Donations",
-      icon: <DonationIcon />,
-    },
-    {
-      href: "/broadcast",
-      text: "Email Broadcast",
-      icon: <MailIcon />,
-    },
-    {
-      href: "/hiring",
-      text: "Hiring",
-      icon: <HiringIcon />,
-    },
-    {
-      href: "/safety",
-      text: "Safety Monitoring",
-      icon: <SafetyIcon />,
-    },
-    {
-      href: "/tutorial-links",
-      text: "Tutorial Links",
-      icon: <ResourceIcon />,
-    },
-    {
-      href: "/list-of-values",
-      text: "List of Values",
-      icon: <ResourceIcon />,
-    },
-    {
-      href: "/notifications",
-      text: "Notifications",
-      icon: <MailIcon />,
-    },
-    {
-      href: "/accounts",
-      text: "Accounts",
-      icon: <VolunteerIcon />,
-    },
-    {
-      href: "/profile-changes",
-      text: "Profile Changes",
-      icon: <VolunteerIcon />,
-    },
-    {
-      href: "/matching",
-      text: "Matching",
-      icon: <VolunteerIcon />,
-    },
-    // WingTime approvals - only shown where the feature is switched on.
-    ...(WINGTIME_ENABLED ? [{ href: "/wingtime", text: "WingTime", icon: <MdOutlineGroups size={22} /> }] : []),
-  ];
-
-  // Only the pages this account may open, by what the server says it may do. The "Support" home
-  // is for support accounts (admins land on the admin screens). Hidden links are a convenience:
-  // the APIs enforce the same permissions.
-  const linksData = (staff ? allLinks : []).filter(
-    (link) =>
-      (link.href !== "/support" || staff?.role === "support") &&
-      canAccessPath(link.href, staff?.permissions ?? [])
-  );
+  // Only the pages this account may open, by what the server says it may do. Hidden links are a
+  // convenience: the APIs enforce the same permissions.
+  const groups = staff
+    ? visibleNavGroups(
+        { permissions: staff.permissions ?? [], role: staff.role, wingtimeEnabled: WINGTIME_ENABLED },
+        NAV_GROUPS
+      )
+    : [];
 
   const handleSignOut = () => {
     queryClient.clear();
@@ -149,41 +52,71 @@ const Sidebar = ({ variant = "rail", onNavigate }: SidebarProps) => {
   };
 
   return (
-    <div
-      className={`bg-white w-full flex flex-col items-center justify-between overflow-y-auto ${
-        variant === "drawer" ? "h-full p-4" : "h-screen p-6"
+    <nav
+      aria-label="Main"
+      className={`bg-white w-full flex flex-col justify-between overflow-y-auto ${
+        variant === "drawer" ? "h-full p-4" : "h-screen px-4 py-6"
       }`}
     >
       <div className="w-full">
-        <Link href="/">
+        <Link href="/" className="block px-2">
           <Logo />
         </Link>
-        <div className={`flex flex-col items-center w-full ${variant === "drawer" ? "gap-6 mt-8" : "gap-[2.2rem] mt-20"}`}>
-          {staffLoading && <p className="text-sm text-gray-light">Loading...</p>}
-          {linksData.map((link) => (
-            <SectionCard key={link.href} {...link} onClick={onNavigate} />
+        <button
+          type="button"
+          onClick={() => {
+            onNavigate?.();
+            openQuickJump();
+          }}
+          className="mt-6 flex w-full items-center gap-2 rounded-lg border border-stroke bg-background px-3 py-2 text-sm text-gray-medium hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+        >
+          <FiSearch aria-hidden />
+          <span className="flex-1 text-left">Jump to…</span>
+          <kbd className="hidden rounded border border-stroke bg-white px-1.5 text-[11px] text-gray-light lg:inline">
+            Ctrl K
+          </kbd>
+        </button>
+        <div className="mt-5 flex flex-col gap-4">
+          {staffLoading && <p className="px-3 text-sm text-gray-light">Loading...</p>}
+          {groups.map((group) => (
+            <div key={group.label ?? "top"} className="flex flex-col gap-0.5">
+              {group.label ? (
+                <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-light">
+                  {group.label}
+                </p>
+              ) : null}
+              {group.items.map((item) => (
+                <SectionCard
+                  key={item.href}
+                  href={item.href}
+                  text={item.text}
+                  icon={navIcon(item.icon)}
+                  onClick={onNavigate}
+                />
+              ))}
+            </div>
           ))}
         </div>
       </div>
-      <div className="w-full flex flex-col items-center gap-2">
+      <div className="mt-6 flex w-full flex-col gap-2 border-t border-stroke pt-4">
         {staff && (
-          <p className="text-xs text-gray-light text-center" data-testid="staff-role">
+          <p className="px-3 text-xs text-gray-light" data-testid="staff-role">
             {staff.username ? `${staff.username} · ` : ""}
             {staff.role === "support" ? "Support" : "Admin"}
           </p>
         )}
         {isClient && (
-        <button
-          onClick={handleSignOut}
+          <button
+            onClick={handleSignOut}
             type="button"
-          className="flex items-center gap-2 text-[#B91C1C] px-4 py-2 rounded-md"
-        >
-          <SignOutIcon />
-          <span>Log Out</span>
-        </button>
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#B91C1C] hover:bg-error-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            <SignOutIcon />
+            <span>Log Out</span>
+          </button>
         )}
       </div>
-    </div>
+    </nav>
   );
 };
 

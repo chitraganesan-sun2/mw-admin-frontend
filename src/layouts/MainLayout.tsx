@@ -3,6 +3,7 @@
 import Sidebar from "@/components/common/Sidebar";
 import { FC, PropsWithChildren, useEffect, useState } from "react";
 import CommonHeader from "@/components/common/Header";
+import QuickJump from "@/components/common/QuickJump";
 import { usePathname, useRouter } from "next/navigation";
 import { useStaff } from "@/hooks/useStaff";
 import { canAccessPath } from "@/constants/access";
@@ -39,6 +40,7 @@ const MainLayout: FC<PropsWithChildren> = ({ children }) => {
       <div className="hidden lg:block lg:col-span-2">
         <Sidebar />
       </div>
+      <QuickJump />
       <Drawer
         id={NAV_DRAWER_ID}
         open={navOpen}

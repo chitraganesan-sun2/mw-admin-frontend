@@ -10,6 +10,8 @@ import {
   DashBoardIcon,
 } from "@/assets/icons";
 import { MdOutlineGroups } from "react-icons/md";
+import { findNavItem } from "@/config/nav";
+import { navIcon } from "@/components/common/Sidebar/navIcons";
 
 export const getHeaderTitle = (pathname: string) => {
   const path = pathname.split("/")?.[1];
@@ -42,7 +44,10 @@ export const getHeaderIcon = (pathname: string) => {
       return <SafetyIcon />;
     case "wingtime":
       return <MdOutlineGroups />;
-    default:
-      return null;
+    default: {
+      // Pages added after this switch (Audit Log, Session Feedback...) take their icon from the nav config.
+      const hit = findNavItem(pathname);
+      return hit ? navIcon(hit.item.icon) : null;
+    }
   }
 };

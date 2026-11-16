@@ -3,52 +3,39 @@
 import Link from "next/link";
 import React from "react";
 import { usePathname } from "next/navigation";
+
 interface SectionCardProps {
   href: string;
   text: string;
   icon: React.ReactNode;
-  textColor?: string;
   onClick?: () => void;
 }
 
-const SectionCard = ({
-  href,
-  text,
-  icon,
-  textColor,
-  onClick,
-}: SectionCardProps) => {
+const SectionCard = ({ href, text, icon, onClick }: SectionCardProps) => {
   const pathname = usePathname();
   // Exact/prefix match, not a bare substring check - `.includes(href)` would treat e.g.
-  // "/report" as a match for pathname "/reports" (or any future route that happens to
-  // contain another route's name as a substring).
+  // "/report" as a match for pathname "/reports".
   const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <div className="w-full flex items-center justify-center ">
-      <Link
-        href={`${href}`}
-        onClick={onClick}
-        className="flex items-start gap-2 max-w-[125px] w-full ml-[-1rem]"
+    <Link
+      href={href}
+      onClick={onClick}
+      aria-current={isActive ? "page" : undefined}
+      className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary ${
+        isActive
+          ? "bg-learner-background font-semibold text-dark"
+          : "font-medium text-gray-medium hover:bg-background hover:text-dark"
+      }`}
+    >
+      <span
+        aria-hidden
+        className={`text-[1.15rem] transition-colors ${isActive ? "text-primary" : "text-gray-light group-hover:text-dark"}`}
       >
-        <span
-          style={isActive && textColor ? { color: textColor } : undefined}
-          className={`text-[1.25rem] transition-all duration-300 ${
-            isActive ? "" : "text-gray-light"
-          }   `}
-        >
-          {icon}
-        </span>
-        <p
-          style={textColor ? { color: textColor } : undefined}
-          className={`transition-all duration-300 font-medium ${
-            isActive && !textColor ? "" : "text-gray-light"
-          }`}
-        >
-          {text}
-        </p>
-      </Link>
-    </div>
+        {icon}
+      </span>
+      <span className="truncate">{text}</span>
+    </Link>
   );
 };
 

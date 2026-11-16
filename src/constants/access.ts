@@ -45,6 +45,7 @@ const PAGE_PERMISSIONS: Array<{ prefix: string; permission: Permission | null }>
   { prefix: "/profile-changes", permission: "profile_changes.review" },
   { prefix: "/matching", permission: "matching.manage" },
   { prefix: "/reports", permission: "reports.manage" },
+  { prefix: "/session-feedback", permission: "reports.manage" },
   { prefix: "/resources", permission: "resources.manage" },
   { prefix: "/community", permission: "community.manage" },
   { prefix: "/broadcast", permission: "broadcast.send" },
