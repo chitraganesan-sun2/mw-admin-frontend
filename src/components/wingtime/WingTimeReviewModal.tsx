@@ -25,6 +25,7 @@ type Props = {
   onReject: (reason: string) => void;
   onShowParticipants: () => void;
   onComplete: () => void;
+  queue?: CenterModalProps["queue"];
 };
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -54,6 +55,7 @@ export default function WingTimeReviewModal({
   onReject,
   onShowParticipants,
   onComplete,
+  queue,
 }: Props) {
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
@@ -87,6 +89,7 @@ export default function WingTimeReviewModal({
       isOpen={!!item}
       onClose={() => !busy && onClose()}
       title={item ? item.topic : "WingTime"}
+      queue={queue}
       width={720}
       hideFooter={!pending}
       actionLoading={busy}

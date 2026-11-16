@@ -14,6 +14,7 @@ import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { WINGTIME_ENABLED } from "@/config/wingtime";
+import WaitingBadge from "@/components/common/WaitingBadge";
 import {
   RECORDING_STATUS_LABEL,
   WINGTIME_STATUS_LABEL,
@@ -180,7 +181,12 @@ export default function WingTimePage() {
         title: "Status",
         key: "status",
         className: "p-6 w-[150px] whitespace-nowrap",
-        render: (_: unknown, r: AdminWingTime) => <span className={cell}>{WINGTIME_STATUS_LABEL[r.status]}</span>,
+        render: (_: unknown, r: AdminWingTime) => (
+          <span className="flex flex-col items-start gap-1">
+            <span className={cell}>{WINGTIME_STATUS_LABEL[r.status]}</span>
+            {r.status === "pending_approval" ? <WaitingBadge since={r.created_at} /> : null}
+          </span>
+        ),
       },
       {
         title: "Recording",
@@ -219,6 +225,16 @@ export default function WingTimePage() {
   }
 
   const rows = data?.items ?? [];
+  const reviewingIndex = reviewing ? rows.findIndex((r) => r.wingtime_id === reviewing.wingtime_id) : -1;
+  const queue =
+    reviewingIndex >= 0
+      ? {
+          position: reviewingIndex + 1,
+          total: rows.length,
+          onPrev: reviewingIndex > 0 ? () => setReviewing(rows[reviewingIndex - 1]) : undefined,
+          onNext: reviewingIndex < rows.length - 1 ? () => setReviewing(rows[reviewingIndex + 1]) : undefined,
+        }
+      : undefined;
 
   return (
     <div className="w-full h-auto p-6 animate-fadeIn">
@@ -234,6 +250,7 @@ export default function WingTimePage() {
         onReject={(reason) => decide("reject", reason)}
         onShowParticipants={() => reviewing && setRosterId(reviewing.wingtime_id)}
         onComplete={complete}
+        queue={queue}
       />
       <WingTimeRosterModal
         isOpen={!!rosterId}
