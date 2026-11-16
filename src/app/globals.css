@@ -173,3 +173,32 @@ body {
 .ant-checkbox-indeterminate .ant-checkbox-inner::after {
   background-color: black !important;
 }
+
+/* Keyboard focus: one visible ring everywhere (many controls here are plain buttons and links that
+   previously showed the browser default or nothing). Mouse clicks don't trigger it. */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible,
+summary:focus-visible {
+  outline: 2px solid #09baee;
+  outline-offset: 2px;
+}
+
+/* Table rows that open something show it on hover too, not only through the pointer cursor. */
+.ant-table-tbody > tr.cursor-pointer:hover > td {
+  background-color: #f4f7fb !important;
+}
+
+/* People who ask their system for less motion get none (page fade-ins, table fade-in, spinners). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -96,7 +96,7 @@ const Table: React.FC<TableProps> = ({
         rowKey={rowKey ?? resolveRowKey}
         expandable={expandable}
         rowSelection={rowSelection}
-        locale={emptyText ? { emptyText } : undefined}
+        locale={{ emptyText: emptyText ?? "Nothing to show here yet." }}
         showSorterTooltip={false}
         sticky
         scroll={{ x: "max-content" }}

@@ -13,6 +13,8 @@ import { formatDisplayDateTime } from "@/utils/displayDateTime";
 import { AttentionCard, Section, StatCard, formatMoney, formatNumber, plural } from "@/components/dashboard/widgets";
 import SessionsTable from "@/components/dashboard/SessionsTable";
 import { useStaff } from "@/hooks/useStaff";
+import { getFeedbackSummary } from "@/api/feedback";
+import { percentOfAnswered } from "@/utils/feedbackSummary";
 
 const DASHBOARD_QUERY_KEY = ["dashboard-summary"];
 
@@ -23,6 +25,15 @@ export default function DashboardPage() {
   // Sessions show members' names and live meeting links, so the table follows the permission that
   // opens the volunteer and learner lists (the API enforces the same rule).
   const canSeeSessions = !!staff?.permissions.includes("applications.read");
+
+  // The feedback glance follows the permission that opens the Session Feedback page.
+  const canSeeFeedback = !!staff?.permissions.includes("reports.manage");
+  const feedback = useQuery({
+    queryKey: ["feedback-summary", "30"],
+    queryFn: () => getFeedbackSummary(30),
+    enabled: canSeeFeedback,
+    staleTime: 5 * 60 * 1000,
+  });
 
   useEffect(() => {
     setHeaderOptions({ title: "Dashboard", titleIcon: getHeaderIcon(pathname) });
@@ -127,6 +138,26 @@ export default function DashboardPage() {
                 href="/hiring"
               />
             ) : null}
+          </div>
+        </Section>
+      ) : null}
+
+      {canSeeFeedback && feedback.data && feedback.data.learner.responses + feedback.data.volunteer.responses > 0 ? (
+        <Section title="Session Feedback" hint="Last 30 days, from the one-tap answers after a session">
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+            {(["learner", "volunteer"] as const).map((side) => {
+              const d = feedback.data![side];
+              const pct = percentOfAnswered(d.helpful.yes, d.helpful);
+              return (
+                <StatCard
+                  key={side}
+                  label={`${side === "learner" ? "Learners" : "Volunteers"} found it helpful`}
+                  value={pct === null ? "No answers yet" : `${pct}%`}
+                  detail={plural(d.responses, "review")}
+                  href="/session-feedback"
+                />
+              );
+            })}
           </div>
         </Section>
       ) : null}
