@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { canAccessPath, requiredPermissionFor, safeHomePath } from "../../src/constants/access.ts";
+import { canAccessPath, hasPermission, requiredPermissionFor, safeHomePath } from "../../src/constants/access.ts";
 
 // What the server reports for an account (GET /admin/auth/me). Mirrors the backend defaults.
 const ALL = [
@@ -15,6 +15,7 @@ const SUPPORT = ["applications.read", "applications.review", "hiring.read", "pro
 const PAGES = [
   "/volunteer", "/learner", "/hiring", "/profile-changes", "/donations", "/notifications", "/accounts",
   "/list-of-values", "/reports", "/community", "/broadcast", "/safety", "/matching", "/tutorial-links", "/resources",
+  "/session-feedback", "/wingtime", "/audit-log",
 ];
 
 test("an account with every permission can open every portal page", () => {
@@ -77,4 +78,31 @@ test("login only ever navigates to a known landing page", () => {
   // A real page that is not a landing page is still refused.
   assert.equal(safeHomePath("/volunteer", "admin"), "/dashboard");
   assert.equal(safeHomePath(undefined, "superuser"), "/access-denied");
+});
+
+test("WingTime and the audit log are admin-only on purpose (the backend uses require_admin for both)", () => {
+  assert.equal(requiredPermissionFor("/wingtime"), "admins.manage");
+  assert.equal(requiredPermissionFor("/wingtime/anything"), "admins.manage");
+  assert.equal(requiredPermissionFor("/audit-log"), "admins.manage");
+  assert.equal(canAccessPath("/wingtime", SUPPORT), false);
+  assert.equal(canAccessPath("/audit-log", SUPPORT), false);
+  assert.equal(canAccessPath("/wingtime", ALL), true);
+  // Every finer permission but not account management is still not enough.
+  const everythingButAdmin = ALL.filter((p) => p !== "admins.manage");
+  assert.equal(canAccessPath("/wingtime", everythingButAdmin), false);
+});
+
+test("hasPermission: approve/reject need applications.review, delete and CSV export need members.manage", () => {
+  // Support defaults can review applications but not delete members or export them.
+  assert.equal(hasPermission(SUPPORT, "applications.review"), true);
+  assert.equal(hasPermission(SUPPORT, "members.manage"), false);
+  // Read-only accounts see neither.
+  assert.equal(hasPermission(["applications.read"], "applications.review"), false);
+  assert.equal(hasPermission(ALL, "members.manage"), true);
+});
+
+test("hasPermission is false while the account is unknown (no flash of privileged controls)", () => {
+  assert.equal(hasPermission(undefined, "applications.review"), false);
+  assert.equal(hasPermission(null, "members.manage"), false);
+  assert.equal(hasPermission([], "members.manage"), false);
 });

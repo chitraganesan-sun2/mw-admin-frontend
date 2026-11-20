@@ -9,7 +9,7 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname, useRouter, useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ProfileDetailsModal from "@/components/volunteer/ProfileDetails";
 import { calculateAge } from "@/utils/moment";
 import { formatString } from "@/utils/stringFunctions";
@@ -17,6 +17,9 @@ import AlertModal from "@/components/common/Modals/AlertModal";
 import { downloadCsv } from "@/utils/downloadCsv";
 import { showToast } from "@/components/common/Toast";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+import { useCan } from "@/hooks/useStaff";
+import { useInFlight } from "@/hooks/useInFlight";
+import { withQuery } from "@/utils/query";
 import { getApiErrorMessage } from "@/utils/apiError";
 
 interface PaginationParams {
@@ -43,11 +46,15 @@ export default function LearnersPage() {
   const [nameOrder, setNameOrder] = useQueryState("name_order");
   const [ageOrder, setAgeOrder] = useQueryState("age_order");
   const [createdOnOrder, setCreatedOnOrder] = useQueryState("created_on_order");
+  // Text search comes from the header search box (it writes ?query=); the API matches name and email.
+  const [searchQuery] = useQueryState("query");
+  const canManage = useCan("members.manage");
+  const exporter = useInFlight();
+  const remover = useInFlight();
   const [volunteerId, setVolunteerId] = useQueryState("volunteer_id");
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
-  const [isDeleteAlertLoading, setIsDeleteAlertLoading] = useState(false);
   const [volunteerToDelete, setVolunteerToDelete] = useState<string | null>(
     null
   );
@@ -69,8 +76,8 @@ export default function LearnersPage() {
 
 
   const handleModalConfirm = () => {
-    setIsDeleteAlertLoading(true);
-    handleDeleteEvent();
+    // One delete request even if the button is clicked twice.
+    remover.run(handleDeleteEvent);
   };
 
   const getAllVolunteers = async ({
@@ -86,27 +93,15 @@ export default function LearnersPage() {
     age_order?: string;
     created_on_order?: string;
   }) => {
-    let url = `${endpoints.volunteer.getAllVolunteers}?page=${page}&size=${size}`;
-
-    // Add onboarded_status filter if it exists
-    if (onboarded_status) {
-      url += `&onboarded_status=${onboarded_status}`;
-    }
-
-    // Add name_order if it exists
-    if (name_order) {
-      url += `&name_order=${name_order}`;
-    }
-
-    // Add age_order if it exists
-    if (age_order) {
-      url += `&age_order=${age_order}`;
-    }
-
-    // Add created_on_order if it exists
-    if (created_on_order) {
-      url += `&created_on_order=${created_on_order}`;
-    }
+    const url = withQuery(endpoints.volunteer.getAllVolunteers, {
+      page,
+      size,
+      onboarded_status,
+      name_order,
+      age_order,
+      created_on_order,
+      search_query: searchQuery?.trim(),
+    });
 
     const response: any = await GET_API(url);
 
@@ -124,7 +119,7 @@ export default function LearnersPage() {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["volunteers", page, size, onboardedStatusFilter, nameOrder, ageOrder, createdOnOrder],
+    queryKey: ["volunteers", page, size, onboardedStatusFilter, nameOrder, ageOrder, createdOnOrder, searchQuery],
     queryFn: () =>
       getAllVolunteers({
         page,
@@ -200,23 +195,33 @@ export default function LearnersPage() {
       showToast({ message: getApiErrorMessage(err, "Couldn't delete the volunteer. Please try again."), type: "error" });
     } finally {
       setIsDeleteAlertOpen(false);
-      setIsDeleteAlertLoading(false);
     }
   };
 
+  // Deleting a member needs `members.manage`; accounts without it don't get the trash icon at all.
   const columns = getVolunteerColumns(
     handleSeeMoreDetails,
     handleDeleteVolunteer,
     handleOnboardedStatusFilter,
     onboardedStatusFilter
-  );
+  ).filter((column) => canManage || column.key !== "actions");
 
   useEffect(() => {
     setHeaderOptions({
       title: "Volunteers",
       titleIcon: getHeaderIcon(pathname),
+      showSearch: true,
     });
   }, [setHeaderOptions]);
+
+  // A new search starts from the first page (staying on page 5 of the old results would show nothing).
+  const lastSearch = useRef(searchQuery);
+  useEffect(() => {
+    if (lastSearch.current !== searchQuery) {
+      lastSearch.current = searchQuery;
+      setPage("1");
+    }
+  }, [searchQuery, setPage]);
 
   return (
     <div className="w-full h-auto p-6 animate-fadeIn">
@@ -227,20 +232,25 @@ export default function LearnersPage() {
         title="Delete Volunteer"
         description="Delete this volunteer? This permanently removes their profile and all associated data. It can't be undone."
         primaryActionText="Yes, Delete"
-        isLoading={isDeleteAlertLoading}
+        isLoading={remover.pending}
       />
       <ProfileDetailsModal />
-      {/* Download Button */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={() => downloadCsv("admin/export/volunteers/csv", "volunteers_export.csv")}
-          className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-colors"
-        >
-          Download All Data (CSV)
-        </button>
-      </div>
+      {/* Exporting every member's details needs `members.manage`. */}
+      {canManage && (
+        <div className="flex justify-end mb-4">
+          <button
+            type="button"
+            disabled={exporter.pending}
+            aria-busy={exporter.pending}
+            onClick={() => exporter.run(() => downloadCsv("admin/export/volunteers/csv", "volunteers_export.csv"))}
+            className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {exporter.pending ? "Preparing the file..." : "Download All Data (CSV)"}
+          </button>
+        </div>
+      )}
       {isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the list. Please try again." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
           key="volunteers"
