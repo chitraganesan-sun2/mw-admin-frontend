@@ -7,15 +7,19 @@ import QuickJump from "@/components/common/QuickJump";
 import { usePathname, useRouter } from "next/navigation";
 import { useStaff } from "@/hooks/useStaff";
 import { canAccessPath } from "@/constants/access";
-import { Drawer } from "antd";
+import { Button, Drawer, Skeleton } from "antd";
 import { FiMenu } from "react-icons/fi";
+import { useQueryClient } from "@tanstack/react-query";
+import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+import { clearSessionCookies } from "@/utils/session";
 
 const NAV_DRAWER_ID = "admin-nav-drawer";
 
 const MainLayout: FC<PropsWithChildren> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: staff, isLoading: staffLoading } = useStaff();
+  const queryClient = useQueryClient();
+  const { data: staff, isLoading: staffLoading, isError: staffFailed, error: staffError, refetch: refetchStaff, isFetching: staffFetching } = useStaff();
   const [navOpen, setNavOpen] = useState(false);
 
   // Page guard from the server's view of this account (the edge middleware only has the token's
@@ -23,10 +27,18 @@ const MainLayout: FC<PropsWithChildren> = ({ children }) => {
   // instead of rendering a page whose APIs will 403. Not a security boundary - the APIs enforce it.
   // Nothing is rendered until the server has said what this account may open, so a page the account
   // has no access to never fires its API calls just to be refused.
-  const allowed = !!staff && canAccessPath(pathname, staff.permissions);
+  const allowed = !!staff && canAccessPath(pathname, staff.permissions ?? []);
   useEffect(() => {
     if (staff && !allowed) router.replace("/access-denied");
   }, [staff, allowed, router]);
+
+  // Never leave the content area blank: if the server can't say who this is (offline, 500, 403...),
+  // say so and offer a retry or a way out. A 401 is already being redirected to the login page.
+  const handleLogOut = () => {
+    queryClient.clear();
+    clearSessionCookies();
+    router.replace("/");
+  };
 
   // The phone menu closes whenever the page changes.
   useEffect(() => {
@@ -71,7 +83,30 @@ const MainLayout: FC<PropsWithChildren> = ({ children }) => {
           </div>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto rounded-tl-[24px] bg-background lg:rounded-tl-[50px]">
-          {staffLoading ? null : allowed ? children : null}
+          {staffLoading ? (
+            <div className="p-4 sm:p-8" aria-busy="true" aria-label="Loading your account">
+              <Skeleton active paragraph={{ rows: 6 }} />
+            </div>
+          ) : staffFailed || !staff ? (
+            <div className="flex flex-col items-center gap-3 pb-6">
+              <ErrorMsg
+                message={
+                  (staffError as { status?: number } | null)?.status === 401
+                    ? "Your session has ended. Taking you to the login page."
+                    : `Couldn't load your account. ${(staffError as { message?: string } | null)?.message ?? "Please try again."}`
+                }
+                onRetry={() => refetchStaff()}
+                retrying={staffFetching}
+              />
+              <Button onClick={handleLogOut}>Log Out</Button>
+            </div>
+          ) : allowed ? (
+            children
+          ) : (
+            <div className="p-4 sm:p-8" role="status">
+              Taking you to the access page...
+            </div>
+          )}
         </div>
       </div>
     </div>
