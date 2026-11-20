@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { GET_API, POST_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import { Button, Select, Table, Tag } from "antd";
@@ -116,7 +117,7 @@ export default function MatchingPage() {
   const matches = matchesData?.items || [];
   const matchesTotal = matchesData?.total ?? 0;
 
-  const triggerMutation = useMutation({
+  const triggerMutation = useGuardedMutation({
     mutationFn: (payload: { learner_id?: string; volunteer_id?: string }) =>
       POST_API(endpoints.match.trigger, payload),
     onSuccess: (res: any) => {

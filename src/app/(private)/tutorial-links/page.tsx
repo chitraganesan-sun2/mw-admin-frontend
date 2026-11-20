@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { GET_API, POST_API, PUT_API, DELETE_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import { Button, Input, Select, Table, Modal, Form, Popconfirm, Tag } from "antd";
@@ -56,7 +57,7 @@ export default function TutorialLinksPage() {
     queryFn: async () => (await GET_API(endpoints.tutorialLinks.getAll))?.data || [],
   });
 
-  const createMutation = useMutation({
+  const createMutation = useGuardedMutation({
     mutationFn: (data: any) => POST_API(endpoints.tutorialLinks.create, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tutorial-links"] });
@@ -67,7 +68,7 @@ export default function TutorialLinksPage() {
     onError: mutationError("Couldn't create the tutorial link. Please try again."),
   });
 
-  const updateMutation = useMutation({
+  const updateMutation = useGuardedMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       PUT_API(endpoints.tutorialLinks.update(id), data),
     onSuccess: () => {
@@ -80,7 +81,7 @@ export default function TutorialLinksPage() {
     onError: mutationError("Couldn't update the tutorial link. Please try again."),
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useGuardedMutation({
     mutationFn: (id: string) => DELETE_API(endpoints.tutorialLinks.delete(id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tutorial-links"] });

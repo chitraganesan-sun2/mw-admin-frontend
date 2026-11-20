@@ -4,7 +4,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { Alert, Button, Checkbox, Input, Modal, Pagination, Select, Skeleton, Table, Tooltip } from "antd";
 import type { TableColumnsType } from "antd";
 import dayjs from "dayjs";
@@ -274,7 +275,7 @@ export default function SafetyReportsPage() {
 
   // ── Mutations ──────────────────────────────────────────────────────────────
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useGuardedMutation({
     mutationFn: (id: number) => deleteSafetyReport(id),
     onSuccess: (_data, id) => {
       rowCache.current.delete(id);
@@ -288,7 +289,7 @@ export default function SafetyReportsPage() {
     onSettled: () => setDeleteTarget(null),
   });
 
-  const bulkDeleteMutation = useMutation({
+  const bulkDeleteMutation = useGuardedMutation({
     // The API takes at most 100 ids per call, so a bigger selection is sent in chunks. A chunk that
     // errors is counted as failed and the remaining chunks still run.
     mutationFn: async (ids: number[]) => {

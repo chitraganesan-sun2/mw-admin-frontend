@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { Button, Checkbox, Form, Input, Modal, Popconfirm, Switch, Table, Tag } from "antd";
 import { DELETE_API, GET_API, POST_API, PUT_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
@@ -109,7 +110,7 @@ export default function NotificationsPage() {
     setEditing(null);
   };
 
-  const createMutation = useMutation({
+  const createMutation = useGuardedMutation({
     mutationFn: (body: any) => POST_API(endpoints.notificationRecipients.create, body),
     onSuccess: () => {
       refresh();
@@ -119,7 +120,7 @@ export default function NotificationsPage() {
     onError: mutationError("Couldn't add the recipient. Please try again."),
   });
 
-  const updateMutation = useMutation({
+  const updateMutation = useGuardedMutation({
     mutationFn: ({ id, body }: { id: string; body: any }) => PUT_API(endpoints.notificationRecipients.update(id), body),
     onSuccess: () => {
       refresh();
@@ -130,7 +131,7 @@ export default function NotificationsPage() {
     onError: mutationError("Couldn't update the recipient. Please try again."),
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useGuardedMutation({
     mutationFn: (id: string) => DELETE_API(endpoints.notificationRecipients.delete(id)),
     onSuccess: () => {
       refresh();

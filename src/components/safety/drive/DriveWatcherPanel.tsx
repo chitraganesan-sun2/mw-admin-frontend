@@ -2,7 +2,8 @@
 
 import React from "react";
 import { Button, Skeleton } from "antd";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { FiActivity, FiAlertCircle, FiClock, FiFileText, FiPlay, FiSquare } from "react-icons/fi";
 import { getDriveWatcher, startDriveWatcher, stopDriveWatcher } from "@/api/safety";
 import { showToast } from "@/components/common/Toast";
@@ -33,7 +34,7 @@ export default function DriveWatcherPanel() {
     retry: 1,
   });
 
-  const toggleMutation = useMutation({
+  const toggleMutation = useGuardedMutation({
     mutationFn: (start: boolean) => (start ? startDriveWatcher() : stopDriveWatcher()),
     onSuccess: (result) => {
       queryClient.setQueryData(WATCHER_QUERY_KEY, result.status);

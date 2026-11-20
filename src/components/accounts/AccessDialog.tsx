@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { Button, Modal, Switch, Tag } from "antd";
 import { GET_API, PUT_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
@@ -33,7 +34,7 @@ function AccessForm({ account, onClose }: { account: AccessAccount; onClose: () 
     staleTime: 10 * 60 * 1000,
   });
 
-  const save = useMutation({
+  const save = useGuardedMutation({
     mutationFn: (permissions: string[] | null) => PUT_API(endpoints.accounts.permissions(account.user_id), { permissions }),
     onSuccess: (_res, permissions) => {
       queryClient.invalidateQueries({ queryKey: ["staff-accounts"] });

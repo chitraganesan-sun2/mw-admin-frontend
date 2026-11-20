@@ -2,7 +2,8 @@
 
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { Alert, Button, Input, Modal, Radio } from "antd";
 import { FiDownload, FiMail, FiMessageSquare, FiTrash2 } from "react-icons/fi";
 import { deleteSafetyReport, downloadSafetyReportPdf, emailSafetyReport } from "@/api/safety";
@@ -57,7 +58,7 @@ function EmailDialog({ report, open, onClose }: { report: SafetyReport; open: bo
   const { emails } = parseRecipients(recipientText);
   const kindInfo = EMAIL_KINDS.find((k) => k.value === kind) as (typeof EMAIL_KINDS)[number];
 
-  const send = useMutation({
+  const send = useGuardedMutation({
     mutationFn: () => emailSafetyReport(report.id, kind, emails),
     onSuccess: (res) => {
       const message = typeof res?.message === "string" && res.message.trim() ? res.message : "Email sent.";
@@ -187,7 +188,7 @@ function DeleteDialog({ report, open, onClose }: { report: SafetyReport; open: b
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const remove = useMutation({
+  const remove = useGuardedMutation({
     mutationFn: () => deleteSafetyReport(report.id),
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["safety-report", String(report.id)] });
