@@ -55,6 +55,10 @@ const PAGE_PERMISSIONS: Array<{ prefix: string; permission: Permission | null }>
   { prefix: "/list-of-values", permission: "skills.manage" },
   { prefix: "/tutorial-links", permission: "tutorials.manage" },
   { prefix: "/accounts", permission: "admins.manage" },
+  // Admin-only ON PURPOSE (not by falling through to the default): the backend's WingTime routes
+  // and the audit-log route both use require_admin, and there is no finer permission for them.
+  { prefix: "/wingtime", permission: "admins.manage" },
+  { prefix: "/audit-log", permission: "admins.manage" },
   { prefix: "/access-denied", permission: null },
 ];
 
@@ -69,6 +73,10 @@ export const canAccessPath = (pathname: string, permissions: readonly string[]):
   const needed = requiredPermissionFor(pathname);
   return needed === null || permissions.includes(needed);
 };
+
+/** Whether the account may do one specific thing (what the UI shows; the API enforces it again). */
+export const hasPermission = (permissions: readonly string[] | null | undefined, permission: Permission): boolean =>
+  !!permissions && permissions.includes(permission);
 
 // Roles the portal knows how to route (anything else is treated as "no access").
 export const KNOWN_ROLES: StaffRole[] = ["admin", "support"];
