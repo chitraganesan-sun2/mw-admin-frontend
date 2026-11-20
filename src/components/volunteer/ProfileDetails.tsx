@@ -19,6 +19,9 @@ import noImage from "@/assets/images/no-image.webp";
 import { showToast } from "@/components/common/Toast";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { formatAge } from "@/utils/moment";
+import MemberDecisionDialog, { type MemberDecision } from "@/components/common/Modals/MemberDecisionDialog";
+import { useInFlight } from "@/hooks/useInFlight";
+import { useCan } from "@/hooks/useStaff";
 
 const getValue = (val: any) => val || "-";
 const getFormattedValue = (val?: string) => formatString(val || "") || "-";
@@ -37,9 +40,12 @@ const VolunteerProfileDetails = () => {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const [isAcceptLoading, setIsAcceptLoading] = useState(false);
-  const [isRejectLoading, setIsRejectLoading] = useState(false);
+  // Accept / Reject go through a confirmation step; `decide.run` ignores a second click while the
+  // first request is still running (one request, one email to the applicant).
+  const [decision, setDecision] = useState<MemberDecision | null>(null);
+  const decide = useInFlight();
   const [rejectionReason, setRejectionReason] = useState("");
+  const canReview = useCan("applications.review");
   const aboutMeVideoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -73,7 +79,7 @@ const VolunteerProfileDetails = () => {
     () => (data ? formatVolunteerData(data) : undefined),
     [data]
   );
-  const hideFooter = !data || data?.onboarded_status !== "verification_pending";
+  const hideFooter = !data || data?.onboarded_status !== "verification_pending" || !canReview;
 
   useEffect(() => {
     setIsOpen(!!volunteerId);
@@ -422,55 +428,33 @@ const VolunteerProfileDetails = () => {
     }
     setVolunteerId(null);
     setIsOpen(false);
+    setDecision(null);
     setRejectionReason("");
   };
 
-  const handleAccept = () => {
-    setIsAcceptLoading(true);
-    PUT_API(
-      endpoints.onboarding.updateOnboardingStatus(
-        volunteerId as string,
-        "volunteer",
-        "verification_completed"
-      ),
-      {}
-    )
-      .then(() => {
+  const confirmDecision = () => {
+    if (!decision || !volunteerId) return;
+    const accepting = decision === "accept";
+    return decide.run(async () => {
+      try {
+        await PUT_API(
+          endpoints.onboarding.updateOnboardingStatus(
+            volunteerId,
+            "volunteer",
+            accepting ? "verification_completed" : "verification_rejected"
+          ),
+          accepting ? {} : { reason: rejectionReason.trim() || undefined }
+        );
         handleModalClose();
         queryClient.invalidateQueries({ queryKey: ["volunteers"] });
         queryClient.invalidateQueries({ queryKey: ["volunteer-details"] });
-      })
-      .catch((error) => {
-        console.error(error);
-        showToast({ message: getApiErrorMessage(error, "Couldn't approve the volunteer. Please try again."), type: "error" });
-      })
-      .finally(() => {
-        setIsAcceptLoading(false);
-      });
-  };
-
-  const handleReject = () => {
-    setIsRejectLoading(true);
-    PUT_API(
-      endpoints.onboarding.updateOnboardingStatus(
-        volunteerId as string,
-        "volunteer",
-        "verification_rejected"
-      ),
-      { reason: rejectionReason.trim() || undefined }
-    )
-      .then(() => {
-        handleModalClose();
-        queryClient.invalidateQueries({ queryKey: ["volunteers"] });
-        queryClient.invalidateQueries({ queryKey: ["volunteer-details"] });
-      })
-      .catch((error) => {
-        console.error(error);
-        showToast({ message: getApiErrorMessage(error, "Couldn't reject the volunteer. Please try again."), type: "error" });
-      })
-      .finally(() => {
-        setIsRejectLoading(false);
-      });
+      } catch (error) {
+        showToast({
+          message: getApiErrorMessage(error, accepting ? "Couldn't approve the volunteer. Please try again." : "Couldn't reject the volunteer. Please try again."),
+          type: "error",
+        });
+      }
+    });
   };
 
   return (
@@ -480,13 +464,21 @@ const VolunteerProfileDetails = () => {
       customClassName="max-h-[90vh] !rounded-3xl overflow-y-auto no-scrollbar"
       isOpen={isOpen}
       onClose={handleModalClose}
-      onAccept={handleAccept}
-      onReject={handleReject}
+      onAccept={() => setDecision("accept")}
+      onReject={() => setDecision("reject")}
       hideFooter={hideFooter}
-      actionLoading={isAcceptLoading || isRejectLoading}
-      acceptLoading={isAcceptLoading}
-      rejectLoading={isRejectLoading}
+      actionLoading={decide.pending}
     >
+      <MemberDecisionDialog
+        decision={decision}
+        memberKind="volunteer"
+        memberName={volunteerDetails?.name ?? ""}
+        reason={rejectionReason}
+        onReasonChange={setRejectionReason}
+        pending={decide.pending}
+        onConfirm={confirmDecision}
+        onCancel={() => setDecision(null)}
+      />
       {isError ? (
         <div className="h-[65vh] w-full flex items-center justify-center text-gray-500">
           Couldn&apos;t load this volunteer&apos;s profile. Close and try again.
@@ -631,19 +623,6 @@ const VolunteerProfileDetails = () => {
               ))}
             </div>
           </div>
-          {!hideFooter && (
-            <div>
-              <p className="text-xl font-medium border-t mt-5 pt-5 mb-4">
-                Rejection Reason (optional)
-              </p>
-              <textarea
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Let the applicant know why their application wasn't approved — this is included in the rejection email if provided."
-                className="w-full min-h-[80px] rounded-lg border border-gray-200 p-3 text-sm text-gray-dark focus:outline-none focus:ring-1 focus:ring-gray-400"
-              />
-            </div>
-          )}
           {/* Removed duplicate bottom About Me links */}
         </div>
       )}
