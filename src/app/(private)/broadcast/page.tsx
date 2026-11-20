@@ -1,7 +1,9 @@
 "use client";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { createInFlightGuard } from "@/utils/inflight";
+import { withQuery } from "@/utils/query";
 import { usePathname } from "next/navigation";
 import Select from "@/components/common/Input/Select";
 import ClickInput from "@/components/common/Input/ClickInput";
@@ -100,7 +102,7 @@ const Broadcast = () => {
 
   const getRecipients = async () => {
     try {
-      const recipientEndpoints = `${endpoints.broadcast.getRecipients}?country=${location}&language=${language}`;
+      const recipientEndpoints = withQuery(endpoints.broadcast.getRecipients, { country: location, language });
       const response: any = await GET_API(recipientEndpoints);
       setAllVolunteers(
         response.data.volunteer_recipients_list.map((vol: any) => ({
@@ -231,55 +233,35 @@ const Broadcast = () => {
     setIsConfirmOpen(true);
   };
 
-  const handleSendEmail = () => {
+  // Sending reaches hundreds of people and can't be recalled: one send at a time, even if the
+  // confirmation button is clicked twice before the dialog re-renders.
+  const sendFlight = useRef(createInFlightGuard());
+  const handleSendEmail = () => sendFlight.current.run(sendNow);
+
+  const sendNow = async () => {
     setIsLoading(true);
     const queuedMessage = `Email queued for ${recipientCount} recipient${recipientCount === 1 ? "" : "s"}`;
     const allEmails = [...volunteers, ...learners].join(",");
 
-    // with attachment
-    if (attachFiles.length > 0) {
-      var formdataAttachment = new FormData();
-      if (attachFiles.length > 0) {
-        attachFiles.forEach((file) => {
-          formdataAttachment.append("files", file);
-        });
-      }
-      formdataAttachment.append("emails", allEmails);
-      formdataAttachment.append("subject", subject);
-      formdataAttachment.append("body", message);
-      POST_FORM_API(
-        endpoints.broadcast.sendEmailWithAttachment,
-        formdataAttachment
-      )
-        .then(() => {
-          setIsLoading(false);
-          handleReset();
-          setIsConfirmOpen(false);
-          toast.success(queuedMessage);
-        })
-        .catch((err: any) => {
-          setIsLoading(false);
-          setIsConfirmOpen(false);
-          toast.error(getApiErrorMessage(err, "Couldn't send the email. Please try again."));
-        });
-    } else {
-      // without attachment
-      var formData = new FormData();
-      formData.append("emails", allEmails);
-      formData.append("subject", subject);
-      formData.append("body", message);
-      POST_FORM_API(endpoints.broadcast.sendEmail, formData)
-        .then(() => {
-          handleReset();
-          setIsLoading(false);
-          setIsConfirmOpen(false);
-          toast.success(queuedMessage);
-        })
-        .catch((err: any) => {
-          setIsLoading(false);
-          setIsConfirmOpen(false);
-          toast.error(getApiErrorMessage(err, "Couldn't send the email. Please try again."));
-        });
+    const formData = new FormData();
+    formData.append("emails", allEmails);
+    formData.append("subject", subject);
+    formData.append("body", message);
+    const withAttachments = attachFiles.length > 0;
+    attachFiles.forEach((file) => formData.append("files", file));
+
+    try {
+      await POST_FORM_API(
+        withAttachments ? endpoints.broadcast.sendEmailWithAttachment : endpoints.broadcast.sendEmail,
+        formData
+      );
+      handleReset();
+      toast.success(queuedMessage);
+    } catch (err: any) {
+      toast.error(getApiErrorMessage(err, "Couldn't send the email. Please try again."));
+    } finally {
+      setIsLoading(false);
+      setIsConfirmOpen(false);
     }
   };
 
@@ -445,6 +427,7 @@ const Broadcast = () => {
           <input
             type="text"
             placeholder="Subject"
+            aria-label="Subject"
             className="w-full border border-stroke rounded-lg p-2 bg-background outline-none"
             value={subject}
             onChange={(e) => handleSelectSubject(e.target.value)}
