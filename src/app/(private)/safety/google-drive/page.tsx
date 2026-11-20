@@ -3,7 +3,8 @@
 import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Alert, Button, Input, Popconfirm, Select, Skeleton } from "antd";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { FiAlertTriangle, FiCheckCircle, FiHardDrive, FiLink, FiRefreshCw, FiSearch, FiWifiOff } from "react-icons/fi";
 import {
   disconnectDrive,
@@ -109,7 +110,7 @@ function GoogleDriveContent() {
 
   // ── Connect / disconnect ───────────────────────────────────────────────────
 
-  const connectMutation = useMutation({
+  const connectMutation = useGuardedMutation({
     mutationFn: getDriveAuthUrl,
     onSuccess: ({ auth_url }) => {
       if (!isGoogleConsentUrl(auth_url)) {
@@ -123,7 +124,7 @@ function GoogleDriveContent() {
     },
   });
 
-  const disconnectMutation = useMutation({
+  const disconnectMutation = useGuardedMutation({
     mutationFn: disconnectDrive,
     onSuccess: () => {
       showToast({ type: "success", message: "Google Drive is disconnected." });

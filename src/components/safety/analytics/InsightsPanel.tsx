@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { Alert, Button, Spin, Tag } from "antd";
 import { FiRefreshCw, FiZap } from "react-icons/fi";
 import { getSafetyInsights } from "@/api/safety";
@@ -115,7 +115,7 @@ const InsightsBody = ({ text }: { text: string }) => {
 export default function InsightsPanel() {
   const [insights, setInsights] = useState<Insights | null>(null);
 
-  const mutation = useMutation({
+  const mutation = useGuardedMutation({
     mutationFn: getSafetyInsights,
     onSuccess: (data) => setInsights(data),
     onError: (err) =>

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { Button, Form, Input, Modal, Popconfirm, Select, Table, Tag } from "antd";
 import { DELETE_API, GET_API, POST_API, PUT_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
@@ -85,7 +86,7 @@ export default function SkillsTab() {
     setEditing(null);
   };
 
-  const createMutation = useMutation({
+  const createMutation = useGuardedMutation({
     mutationFn: (body: any) => POST_API(endpoints.skills.create, body),
     onSuccess: () => {
       refresh();
@@ -95,7 +96,7 @@ export default function SkillsTab() {
     onError: mutationError("Couldn't add the skill. Please try again."),
   });
 
-  const updateMutation = useMutation({
+  const updateMutation = useGuardedMutation({
     mutationFn: ({ id, body }: { id: string; body: any; message: string }) => PUT_API(endpoints.skills.update(id), body),
     onSuccess: (_res, vars) => {
       refresh();
@@ -105,7 +106,7 @@ export default function SkillsTab() {
     onError: mutationError("Couldn't update the skill. Please try again."),
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useGuardedMutation({
     mutationFn: (id: string) => DELETE_API(endpoints.skills.delete(id)),
     onSuccess: () => {
       refresh();

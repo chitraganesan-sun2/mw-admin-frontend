@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { GET_API, POST_API, PUT_API, DELETE_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import { Button, Input, Select, Table, Modal, Form, Popconfirm, Tabs, Tag } from "antd";
@@ -68,7 +69,7 @@ export default function ListOfValuesPage() {
       (await GET_API(endpoints.listOfValues.getAll(activeTab) + "?include_hidden=true"))?.data || [],
   });
 
-  const createMutation = useMutation({
+  const createMutation = useGuardedMutation({
     mutationFn: (data: any) => POST_API(endpoints.listOfValues.create(activeTab), data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["lov", activeTab] });
@@ -79,7 +80,7 @@ export default function ListOfValuesPage() {
     onError: mutationError("Couldn't create the value. Please try again."),
   });
 
-  const updateMutation = useMutation({
+  const updateMutation = useGuardedMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       PUT_API(endpoints.listOfValues.update(activeTab, id), data),
     onSuccess: () => {
@@ -92,7 +93,7 @@ export default function ListOfValuesPage() {
     onError: mutationError("Couldn't update the value. Please try again."),
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useGuardedMutation({
     mutationFn: (id: string) => DELETE_API(endpoints.listOfValues.delete(activeTab, id)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["lov", activeTab] });

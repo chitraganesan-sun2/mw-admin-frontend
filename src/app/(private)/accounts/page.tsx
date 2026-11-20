@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { Button, Form, Input, Modal, Popconfirm, Select, Table, Tag } from "antd";
 import { GET_API, POST_API, PUT_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
@@ -70,7 +71,7 @@ export default function AccountsPage() {
     setIsModalOpen(false);
   };
 
-  const createMutation = useMutation({
+  const createMutation = useGuardedMutation({
     mutationFn: (body: { username: string; password: string; role: StaffRole }) => POST_API(endpoints.accounts.create, body),
     onSuccess: (_res, vars) => {
       refresh();
@@ -80,7 +81,7 @@ export default function AccountsPage() {
     onError: mutationError("Couldn't create the account. Please try again."),
   });
 
-  const roleMutation = useMutation({
+  const roleMutation = useGuardedMutation({
     mutationFn: ({ id, role }: { id: string; role: StaffRole }) => PUT_API(endpoints.accounts.role(id), { role }),
     onSuccess: () => {
       refresh();
@@ -89,7 +90,7 @@ export default function AccountsPage() {
     onError: mutationError("Couldn't change the role. Please try again."),
   });
 
-  const disableMutation = useMutation({
+  const disableMutation = useGuardedMutation({
     mutationFn: ({ id, disabled }: { id: string; disabled: boolean }) => PUT_API(endpoints.accounts.disabled(id), { disabled }),
     onSuccess: (_res, vars) => {
       refresh();
