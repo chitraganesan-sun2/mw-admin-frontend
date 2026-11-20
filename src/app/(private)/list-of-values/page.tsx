@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { paginationItemRender } from "@/components/Table/paginationItemRender";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { GET_API, POST_API, PUT_API, DELETE_API } from "@/api/request";
@@ -167,7 +168,7 @@ export default function ListOfValuesPage() {
             title="Delete this item?"
             onConfirm={() => deleteMutation.mutate(record[ID_MAP[activeTab]])}
           >
-            <Button size="small" danger>
+            <Button size="small" danger aria-label="Delete this item">
               <DeleteIcon />
             </Button>
           </Popconfirm>
@@ -220,7 +221,7 @@ export default function ListOfValuesPage() {
           columns={columns}
           rowKey={(record) => record[ID_MAP[activeTab]]}
           loading={isLoading}
-          pagination={{ pageSize: 15 }}
+          pagination={{ itemRender: paginationItemRender, pageSize: 15 }}
         />
       )}
 

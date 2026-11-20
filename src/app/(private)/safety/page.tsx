@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { paginationItemRender } from "@/components/Table/paginationItemRender";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -626,6 +627,7 @@ export default function SafetyReportsPage() {
         <div className="mt-4 flex flex-col items-center gap-2">
           <Pagination
             simple
+            itemRender={paginationItemRender}
             current={page}
             pageSize={pageSize}
             total={total}

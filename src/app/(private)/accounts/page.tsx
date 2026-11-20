@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { paginationItemRender } from "@/components/Table/paginationItemRender";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { Button, Form, Input, Modal, Popconfirm, Select, Table, Tag } from "antd";
@@ -218,7 +219,7 @@ export default function AccountsPage() {
           columns={columns}
           rowKey="user_id"
           loading={isLoading}
-          pagination={{ pageSize: 15, hideOnSinglePage: true }}
+          pagination={{ itemRender: paginationItemRender, pageSize: 15, hideOnSinglePage: true }}
           locale={{ emptyText: "No accounts yet." }}
           scroll={{ x: "max-content" }}
         />

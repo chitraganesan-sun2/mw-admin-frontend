@@ -373,6 +373,7 @@ const Broadcast = () => {
             />
             <div className="flex items-center gap-2 mt-2">
               <Checkbox
+                aria-label="Select all volunteers"
                 checked={
                   volunteers.length === allVolunteers.length &&
                   allVolunteers.length > 0
@@ -400,6 +401,7 @@ const Broadcast = () => {
             />
             <div className="flex items-center gap-2 mt-2">
               <Checkbox
+                aria-label="Select all learners"
                 checked={
                   learners.length === allLearners?.length &&
                   allLearners?.length > 0

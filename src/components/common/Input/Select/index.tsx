@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Select as AntSelect, Spin } from "antd";
 import { TiArrowSortedDown } from "react-icons/ti";
 
@@ -8,12 +9,15 @@ const Select = ({
   isLoading,
   ...props
 }: SelectInputProps) => {
+  // Ties the visible label to the select so it has an accessible name.
+  const selectId = useId();
   if (inputType !== "select") return null;
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      <label className="text-base font-normal text-black">{props.label}</label>
+      <label htmlFor={selectId} className="text-base font-normal text-black">{props.label}</label>
       <AntSelect
+        id={selectId}
         placeholder={props.placeholder}
         value={props.value || undefined}
         onChange={props.onChange}

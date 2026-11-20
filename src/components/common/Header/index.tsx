@@ -44,15 +44,29 @@ const CommonHeader: React.FC = () => {
   return (
     <div className="w-full lg:h-full p-2 px-3 flex flex-wrap items-center justify-between gap-2">
       <div className="flex capitalize items-center min-w-0">
-        <Button
-          icon={titleIcon}
-          rootClassName={cn(
-            "flex items-center justify-center  rounded-full hover:bg-gray-100",
-            isDonations ? "!w-12 h-12 [&_svg]:w-7 [&_svg]:h-7" : "!w-10 h-10",
-            titleIconClick ? "cursor-pointer border-stroke mr-2" : "border-none"
-          )}
-          onClick={titleIconClick}
-        />
+        {/* The icon is a real button only when it does something (a back arrow); otherwise it is
+            decoration, not an unnamed button that does nothing. */}
+        {titleIconClick ? (
+          <Button
+            aria-label="Back"
+            icon={titleIcon}
+            rootClassName={cn(
+              "flex items-center justify-center  rounded-full hover:bg-gray-100 cursor-pointer border-stroke mr-2",
+              isDonations ? "!w-12 h-12 [&_svg]:w-7 [&_svg]:h-7" : "!w-10 h-10"
+            )}
+            onClick={titleIconClick}
+          />
+        ) : titleIcon ? (
+          <span
+            aria-hidden="true"
+            className={cn(
+              "flex items-center justify-center rounded-full",
+              isDonations ? "!w-12 h-12 [&_svg]:w-7 [&_svg]:h-7" : "!w-10 h-10"
+            )}
+          >
+            {titleIcon}
+          </span>
+        ) : null}
         <h1 className={cn("font-medium truncate", isDonations ? "text-[18px]" : "text-lg")}>
           {formatString(title ?? "")}
         </h1>
