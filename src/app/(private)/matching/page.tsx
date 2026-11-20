@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { paginationItemRender } from "@/components/Table/paginationItemRender";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { GET_API, POST_API } from "@/api/request";
@@ -308,7 +309,7 @@ export default function MatchingPage() {
           columns={columns}
           rowKey="match_id"
           loading={isMatchesLoading}
-          pagination={{
+          pagination={{ itemRender: paginationItemRender,
             current: matchesPage,
             pageSize: matchesPageSize,
             total: matchesTotal,

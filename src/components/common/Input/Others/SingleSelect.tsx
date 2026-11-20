@@ -6,6 +6,7 @@ const SingleSelect = ({ disabled, inputType, inputClassName, ...props }: SelectI
 
     return (
         <AntSelect
+            aria-label={props.label || props.placeholder}
             placeholder={props.placeholder}
             value={props.value}
             onChange={props.onChange}

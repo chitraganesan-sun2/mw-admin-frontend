@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { labelToolbar } from "./labelToolbar";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 
@@ -22,6 +23,18 @@ const TextEditor: React.FC<TextEditorProps> = ({
   height = "200px",
 }) => {
   const [editorContent, setEditorContent] = useState(value || "");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Give the icon-only toolbar controls and the editing area accessible names (Quill builds them
+  // after mount, so watch the container until they exist).
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    labelToolbar(el);
+    const observer = new MutationObserver(() => labelToolbar(el));
+    observer.observe(el, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     setEditorContent(value || "");
@@ -61,7 +74,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
   };
 
   return (
-    <div className={`text-editor-container ${className}`}>
+    <div ref={containerRef} className={`text-editor-container ${className}`}>
       <style jsx global>{`
         .ql-container {
           font-family: "Poppins", sans-serif !important;

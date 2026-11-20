@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { paginationItemRender } from "@/components/Table/paginationItemRender";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { GET_API, POST_API, PUT_API, DELETE_API } from "@/api/request";
@@ -162,7 +163,7 @@ export default function TutorialLinksPage() {
         <div className="flex gap-2">
           <Button size="small" onClick={() => handleEdit(record)}>Edit</Button>
           <Popconfirm title="Delete this link?" onConfirm={() => deleteMutation.mutate(record.link_id)}>
-            <Button size="small" danger><DeleteIcon /></Button>
+            <Button size="small" danger aria-label={`Delete ${record.title}`}><DeleteIcon /></Button>
           </Popconfirm>
         </div>
       ),
@@ -186,7 +187,7 @@ export default function TutorialLinksPage() {
           columns={columns}
           rowKey="link_id"
           loading={isLoading}
-          pagination={{ pageSize: 10 }}
+          pagination={{ itemRender: paginationItemRender, pageSize: 10 }}
         />
       )}
 

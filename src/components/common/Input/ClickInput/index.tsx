@@ -17,13 +17,14 @@ const ClickInput = ({
   return (
     <div className="flex flex-col gap-1 w-full">
       <div className="flex items-center justify-between">
-        <label className="text-base font-normal text-black">{label}</label>
+        <span className="text-base font-normal text-black">{label}</span>
         <div className="text-base font-normal text-black">
           {availableItems} Available
         </div>
       </div>
       <button
         type="button"
+        aria-label={`${label}: ${selectedItems} selected of ${availableItems} available`}
         className="flex items-center text-sm justify-between gap-2 cursor-pointer w-full bg-background border border-stroke rounded-lg p-2 appearance-none text-left"
         onClick={onClick}
       >

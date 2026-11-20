@@ -1,5 +1,6 @@
 import { Table as AntTable } from "antd";
 import { useEffect, useState } from "react";
+import { paginationItemRender } from "./paginationItemRender";
 
 interface TableProps {
   data: any;
@@ -89,6 +90,7 @@ const Table: React.FC<TableProps> = ({
         loading={loading}
         pagination={{
           showQuickJumper: false,
+          itemRender: paginationItemRender,
           ...pagination,
         }}
         onChange={onChange}
