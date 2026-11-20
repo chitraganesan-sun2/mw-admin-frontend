@@ -28,7 +28,7 @@ const CommentCard = ({
         <div className="flex gap-1">
           <div className="w-[32px] h-[32px] relative flex-shrink-0">
             <Image
-              src={comment.author.profile_picture.image_url || DummyProfileImg}
+              src={comment?.author?.profile_picture?.image_url || DummyProfileImg}
               alt="profile picture"
               fill
               className="rounded-full object-cover"
@@ -37,7 +37,7 @@ const CommentCard = ({
           <div className="ml-1 flex-1 flex flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2 w-full">
               <p className="font-semibold text-black text-base">
-                {comment.author.name}
+                {comment?.author?.name || "Deleted user"}
               </p>
               <div className="w-1.5 h-1.5 rounded-full bg-black"></div>
               <div className="flex items-center gap-2">

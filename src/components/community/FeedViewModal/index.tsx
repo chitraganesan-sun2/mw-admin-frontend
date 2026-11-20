@@ -10,7 +10,9 @@ import { DeleteCloseIcon, FeedModalCloseIcon } from "@/assets/icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
 import { GET_API, DELETE_API } from "@/api/request";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { createInFlightGuard } from "@/utils/inflight";
+import dummyAvatar from "@/assets/images/DummyProfileImg.png";
 import LottieLoader from "@/components/common/Loader/Lottie";
 import CommentSkeleton from "../CommentCard/skeleton";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
@@ -125,7 +127,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
     return response.data;
   };
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch: refetchPost } = useQuery({
     queryKey: ["get-single-post", id],
     queryFn: getIndividualPost,
     enabled: !!id && mode === "view",
@@ -142,6 +144,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
     data: commentsData,
     isLoading: commentsLoading,
     isError: commentsError,
+    refetch: refetchComments,
   } = useQuery({
     queryKey: ["get-post-comments", id],
     queryFn: getPostComments,
@@ -165,7 +168,14 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
   const [isKeeping, setIsKeeping] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
 
-  const handleAction = async (action: any, successMessage: any, errorMessage: any, setLoadingState: any) => {
+  // One write at a time in this dialog (keep / reject / delete post / delete comment): a second click
+  // before the disabled state renders must not repeat the request.
+  const flight = useRef(createInFlightGuard());
+
+  const handleAction = (action: any, successMessage: any, errorMessage: any, setLoadingState: any) =>
+    flight.current.run(() => runAction(action, successMessage, errorMessage, setLoadingState));
+
+  const runAction = async (action: any, successMessage: any, errorMessage: any, setLoadingState: any) => {
     if (!reportId) return;
     try {
       setLoadingState(true);
@@ -184,22 +194,34 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
     }
   };
 
-  const handleKeepPost = () => handleAction(resolveReport, "Resource Kept", "Resource not kept", setIsKeeping);
-  const handleRejectReport = () => handleAction(rejectReport, "Resource Rejected", "Resource not rejected", setIsRejecting);
+  const handleKeepPost = () => handleAction(resolveReport, "Post kept. The report was marked resolved.", "Couldn't keep the post. Please try again.", setIsKeeping);
+  const handleRejectReport = () => handleAction(rejectReport, "Report rejected. The post stays up.", "Couldn't reject the report. Please try again.", setIsRejecting);
 
-  const handleDeleteEvent = async () => {
+  const handleDeleteEvent = () => flight.current.run(deletePostNow);
+
+  const deletePostNow = async () => {
     setIsDeleteAlertLoading(true);
+    let deleted = false;
     try {
       // Delete first: resolving the report before a failed delete dropped it off the
       // pending queue while the post stayed live.
       await DELETE_API(endpoints.post.deletePost(currentDeletePostId || ""));
+      deleted = true;
       if (isReportsPage && reportId) {
         await resolveReport(reportId);
       }
       setIsDeleteAlertOpen(false);
       onClose();
     } catch (error) {
-      showToast({ message: "Couldn't delete the post. Please try again.", type: "error" });
+      if (deleted) {
+        // The post is gone; only the follow-up on the report failed. Say so instead of
+        // claiming the delete failed.
+        showToast({ message: "The post was deleted, but the report couldn't be marked resolved. Check the Reports list.", type: "error" });
+        setIsDeleteAlertOpen(false);
+        onClose();
+      } else {
+        showToast({ message: "Couldn't delete the post. Please try again.", type: "error" });
+      }
     } finally {
       invalidateQueries();
       setIsDeleteAlertLoading(false);
@@ -211,7 +233,9 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
     setCurrentDeletePostId(postId);
   };
 
-  const handleDeleteComment = async () => {
+  const handleDeleteComment = () => flight.current.run(deleteCommentNow);
+
+  const deleteCommentNow = async () => {
     setIsCommentDeleteLoading(true);
     try {
       await DELETE_API(
@@ -222,7 +246,6 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
       });
       setIsCommentDeleteAlertOpen(false);
     } catch (error) {
-      console.error("Error deleting comment:", error);
       showToast({ message: "Couldn't delete the comment. Please try again.", type: "error" });
     }
     setIsCommentDeleteLoading(false);
@@ -266,12 +289,12 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
             <LottieLoader isLoading={true} />
           </div>
         ) : isError ? (
-          <ErrorMsg />
+          <ErrorMsg message="Couldn't load this post." onRetry={() => refetchPost()} />
         ) : (
           <div className="flex h-[720px]">
             <div className="w-[55%] relative bg-gray-300 md:h-[250px] lg:h-[720px] overflow-hidden">
               <Slider className="flex gap-20" {...sliderSettings}>
-                {post?.images?.map((image) => (
+                {post?.images?.filter((image) => !!image?.image_url).map((image) => (
                   <div key={image?.image_id} className="relative w-full h-[300px] md:h-[400px] lg:h-[720px]">
                     <Image
                       src={image?.image_url}
@@ -309,7 +332,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                   <div className="flex gap-3">
                     <div className="w-[40px] h-[40px] relative flex-shrink-0">
                       <Image
-                        src={post?.author?.profile_picture?.image_url}
+                        src={post?.author?.profile_picture?.image_url || dummyAvatar}
                         alt="profile picture"
                         fill
                         className="rounded-full object-cover"
@@ -354,13 +377,14 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                         <CommentSkeleton size={8} />
                       </div>
                     ) : commentsError ? (
-                      <div className="flex-center h-full w-full">
-                        <p className="text-md font-normal text-center text-red-500">
-                          Couldn't load the comments. Please try again.
+                      <div role="alert" className="flex-center flex-col gap-2 h-full w-full">
+                        <p className="text-md font-normal text-center text-red-700">
+                          Couldn&apos;t load the comments.
                         </p>
+                        <Button onClick={() => refetchComments()}>Try again</Button>
                       </div>
                     ) : (
-                      commentsData?.items.map((comment: any) => (
+                      (commentsData?.items ?? []).map((comment: any) => (
                         <React.Fragment key={comment.comment_id}>
                           <CommentCard
                             comment={comment}
@@ -381,7 +405,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                         </React.Fragment>
                       ))
                     )}
-                    {commentsData?.items.length === 0 && (
+                    {!commentsLoading && !commentsError && (commentsData?.items?.length ?? 0) === 0 && (
                       <div className="flex-center h-full w-full">
                         <p className="text-md font-normal text-center">
                           No comments yet
