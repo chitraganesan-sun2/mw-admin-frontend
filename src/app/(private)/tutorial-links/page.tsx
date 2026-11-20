@@ -11,7 +11,7 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
-import { safeHref } from "@/utils/safeHref";
+import { isHttpUrl, safeHref } from "@/utils/safeHref";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { getApiErrorMessage } from "@/utils/apiError";
 
@@ -52,7 +52,7 @@ export default function TutorialLinksPage() {
   const [editingLink, setEditingLink] = useState<TutorialLink | null>(null);
   const [form] = Form.useForm();
 
-  const { data: links = [], isLoading, isError } = useQuery({
+  const { data: links = [], isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["tutorial-links"],
     queryFn: async () => (await GET_API(endpoints.tutorialLinks.getAll))?.data || [],
   });
@@ -90,7 +90,8 @@ export default function TutorialLinksPage() {
     onError: mutationError("Couldn't delete the tutorial link. Please try again."),
   });
 
-  const handleSubmit = (values: any) => {
+  const handleSubmit = (rawValues: any) => {
+    const values = { ...rawValues, url: typeof rawValues.url === "string" ? rawValues.url.trim() : rawValues.url };
     if (editingLink) {
       updateMutation.mutate({ id: editingLink.link_id, data: values });
     } else {
@@ -178,7 +179,7 @@ export default function TutorialLinksPage() {
       </div>
 
       {isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the tutorial links." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
           dataSource={links}
@@ -204,7 +205,10 @@ export default function TutorialLinksPage() {
             label="URL"
             rules={[
               { required: true, message: "URL is required" },
-              { type: "url", message: "Enter a valid http(s) URL" },
+              {
+                validator: (_, v) =>
+                  !v || isHttpUrl(v) ? Promise.resolve() : Promise.reject(new Error("Enter a valid http:// or https:// URL")),
+              },
             ]}
           >
             <Input placeholder="https://..." />
