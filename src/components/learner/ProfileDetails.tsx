@@ -15,6 +15,10 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { showToast } from "@/components/common/Toast";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { formatAge } from "@/utils/moment";
+import noImage from "@/assets/images/no-image.webp";
+import MemberDecisionDialog, { type MemberDecision } from "@/components/common/Modals/MemberDecisionDialog";
+import { useInFlight } from "@/hooks/useInFlight";
+import { useCan } from "@/hooks/useStaff";
 
 dayjs.extend(customParseFormat);
 
@@ -44,9 +48,12 @@ const LearnerProfileDetails = () => {
   const [learnerId, setLearnerId] = useQueryState("learner_id");
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [isAcceptLoading, setIsAcceptLoading] = useState(false);
-  const [isRejectLoading, setIsRejectLoading] = useState(false);
+  // Accept / Reject go through a confirmation step; `decide.run` ignores a second click while the
+  // first request is still running (one request, one email to the applicant).
+  const [decision, setDecision] = useState<MemberDecision | null>(null);
+  const decide = useInFlight();
   const [rejectionReason, setRejectionReason] = useState("");
+  const canReview = useCan("applications.review");
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["learner-details", learnerId],
@@ -63,7 +70,7 @@ const LearnerProfileDetails = () => {
     () => (data ? formatLearnerData(data) : null),
     [data]
   );
-  const hideFooter = !data || data?.onboarded_status !== "verification_pending";
+  const hideFooter = !data || data?.onboarded_status !== "verification_pending" || !canReview;
 
   useEffect(() => {
     setIsOpen(!!learnerId);
@@ -72,6 +79,7 @@ const LearnerProfileDetails = () => {
   const handleModalClose = () => {
     setLearnerId(null);
     setIsOpen(false);
+    setDecision(null);
     setRejectionReason("");
   };
 
@@ -87,28 +95,22 @@ const LearnerProfileDetails = () => {
     queryClient.invalidateQueries({ queryKey: ["learner-details"] });
   };
 
-  const handleAccept = () => {
-    setIsAcceptLoading(true);
-    updateVerificationStatus("verification_completed")
-      .catch((error) => {
-        console.error(error);
-        showToast({ message: getApiErrorMessage(error, "Couldn't approve the learner. Please try again."), type: "error" });
-      })
-      .finally(() => {
-        setIsAcceptLoading(false);
-      });
-  };
-
-  const handleReject = () => {
-    setIsRejectLoading(true);
-    updateVerificationStatus("verification_rejected", rejectionReason.trim() || undefined)
-      .catch((error) => {
-        console.error(error);
-        showToast({ message: getApiErrorMessage(error, "Couldn't reject the learner. Please try again."), type: "error" });
-      })
-      .finally(() => {
-        setIsRejectLoading(false);
-      });
+  const confirmDecision = () => {
+    if (!decision) return;
+    const accepting = decision === "accept";
+    return decide.run(async () => {
+      try {
+        await updateVerificationStatus(
+          accepting ? "verification_completed" : "verification_rejected",
+          accepting ? undefined : rejectionReason.trim() || undefined
+        );
+      } catch (error) {
+        showToast({
+          message: getApiErrorMessage(error, accepting ? "Couldn't approve the learner. Please try again." : "Couldn't reject the learner. Please try again."),
+          type: "error",
+        });
+      }
+    });
   };
 
   const formatArray = (arr?: string[]) =>
@@ -324,13 +326,21 @@ const LearnerProfileDetails = () => {
       customClassName="max-h-[90vh] !rounded-3xl overflow-y-auto no-scrollbar"
       isOpen={isOpen}
       onClose={handleModalClose}
-      onAccept={handleAccept}
-      onReject={handleReject}
+      onAccept={() => setDecision("accept")}
+      onReject={() => setDecision("reject")}
       hideFooter={hideFooter}
-      actionLoading={isAcceptLoading || isRejectLoading}
-      acceptLoading={isAcceptLoading}
-      rejectLoading={isRejectLoading}
+      actionLoading={decide.pending}
     >
+      <MemberDecisionDialog
+        decision={decision}
+        memberKind="learner"
+        memberName={learnerDetails?.name ?? ""}
+        reason={rejectionReason}
+        onReasonChange={setRejectionReason}
+        pending={decide.pending}
+        onConfirm={confirmDecision}
+        onCancel={() => setDecision(null)}
+      />
       {isError ? (
         <div className="h-[65vh] w-full flex items-center justify-center text-gray-500">
           Couldn&apos;t load this learner&apos;s profile. Close and try again.
@@ -345,7 +355,7 @@ const LearnerProfileDetails = () => {
             <p className="text-xl font-medium mb-4">Personal Details</p>
             <div className="flex mb-3">
               <Image
-                src={learnerDetails?.profile_picture_url || ""}
+                src={learnerDetails?.profile_picture_url || noImage}
                 alt="profile"
                 className="rounded-xl min-h-[250px] max-h-[300px] !w-auto"
                 width={100}
@@ -377,19 +387,6 @@ const LearnerProfileDetails = () => {
             ) : null
           )}
 
-          {!hideFooter && (
-            <div>
-              <p className="text-xl font-medium border-t mt-5 pt-5 mb-4">
-                Rejection Reason (optional)
-              </p>
-              <textarea
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Let the applicant know why their application wasn't approved — this is included in the rejection email if provided."
-                className="w-full min-h-[80px] rounded-lg border border-gray-200 p-3 text-sm text-gray-dark focus:outline-none focus:ring-1 focus:ring-gray-400"
-              />
-            </div>
-          )}
         </div>
       )}
     </CenterModal>

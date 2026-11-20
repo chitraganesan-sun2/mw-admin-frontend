@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
-import type { Staff } from "@/constants/access";
+import { hasPermission, type Permission, type Staff } from "@/constants/access";
 
 /**
  * Who the SERVER says is signed in (role + permissions). The token in the cookie is readable and
@@ -18,4 +18,13 @@ export function useStaff() {
     // A role change should show up within a minute or when the tab regains focus.
     refetchOnWindowFocus: true,
   });
+}
+
+/**
+ * Whether the signed-in account may do one thing. False while the account is still loading, so a
+ * control for a privileged action never flashes up and then disappears.
+ */
+export function useCan(permission: Permission): boolean {
+  const { data } = useStaff();
+  return hasPermission(data?.permissions, permission);
 }
