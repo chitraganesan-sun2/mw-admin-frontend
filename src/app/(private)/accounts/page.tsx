@@ -61,7 +61,7 @@ export default function AccountsPage() {
     setHeaderOptions({ title: "Accounts", titleIcon: getHeaderIcon(pathname) });
   }, [setHeaderOptions, pathname]);
 
-  const { data: accounts = [], isLoading, isError } = useQuery({
+  const { data: accounts = [], isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["staff-accounts"],
     queryFn: async () => ((await GET_API(endpoints.accounts.list))?.data ?? []) as Account[],
   });
@@ -211,7 +211,7 @@ export default function AccountsPage() {
       </p>
 
       {isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the accounts." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
           dataSource={[...accounts].sort((a, b) => a.username.localeCompare(b.username))}

@@ -159,7 +159,7 @@ export default function ReportsPage() {
       />
 
       {isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the reports." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
           key={`table-${currentTab}`}

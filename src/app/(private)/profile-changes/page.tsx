@@ -54,7 +54,7 @@ export default function ProfileChangesPage() {
     });
   }, [pathname, setHeaderOptions]);
 
-  const { data, isLoading, isFetching, isError } = useQuery({
+  const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ["profile-changes", status, page, pageSize],
     staleTime: 0,
     queryFn: async () => {
@@ -241,7 +241,7 @@ export default function ProfileChangesPage() {
         </div>
       </div>
       {isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the profile change requests." onRetry={() => refetch()} retrying={isFetching} />
       ) : !isLoading && !isFetching && rows.length === 0 ? (
         <div className="w-full py-10 text-center text-[#6B7280]">No {status} requests</div>
       ) : (

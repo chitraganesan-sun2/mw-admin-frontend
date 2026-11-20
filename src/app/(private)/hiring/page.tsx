@@ -131,7 +131,7 @@ export default function HiringPage() {
     return { items, total };
   };
 
-  const { data: listData, isFetching, isLoading, isError } = useQuery({
+  const { data: listData, isFetching, isLoading, isError, refetch } = useQuery({
     queryKey: ["applications", "paginated", page, pageSize, debouncedSearch],
     queryFn: () =>
       getAllApplications({
@@ -399,7 +399,7 @@ export default function HiringPage() {
         </div>
       </div>
       {isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the applications." onRetry={() => refetch()} retrying={isFetching} />
       ) : !isLoading && !isFetching && pagedData.length === 0 ? (
         <div className="w-full py-10 text-center text-[#6B7280]">No applications yet.</div>
       ) : (

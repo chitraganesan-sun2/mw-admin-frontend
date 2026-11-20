@@ -53,7 +53,7 @@ export default function MatchingPage() {
     });
   }, [setHeaderOptions, pathname]);
 
-  const { data: learnerOptions = [], isFetching: isLearnerOptionsLoading } = useQuery({
+  const { data: learnerOptions = [], isFetching: isLearnerOptionsLoading, isError: learnerOptionsError, refetch: refetchLearnerOptions } = useQuery({
     queryKey: ["matching-learners-picker", debouncedPickerSearch],
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -73,7 +73,7 @@ export default function MatchingPage() {
     enabled: side === "learner",
   });
 
-  const { data: volunteerOptions = [], isFetching: isVolunteerOptionsLoading } = useQuery({
+  const { data: volunteerOptions = [], isFetching: isVolunteerOptionsLoading, isError: volunteerOptionsError, refetch: refetchVolunteerOptions } = useQuery({
     queryKey: ["matching-volunteers-picker", debouncedPickerSearch],
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -103,6 +103,8 @@ export default function MatchingPage() {
     data: matchesData,
     isLoading: isMatchesLoading,
     isError: isMatchesError,
+    refetch: refetchMatches,
+    isFetching: isMatchesFetching,
   } = useQuery({
     queryKey: ["matches", matchesPage, matchesPageSize],
     queryFn: async () => {
@@ -228,8 +230,9 @@ export default function MatchingPage() {
     <div className="p-6">
       <div className="bg-white rounded-xl p-6 mb-6 flex flex-wrap items-end gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Match on Behalf Of</label>
+          <label htmlFor="matching-side" className="block text-sm font-medium mb-1">Match on Behalf Of</label>
           <Select
+            id="matching-side"
             value={side}
             onChange={(v) => {
               setSide(v);
@@ -243,10 +246,11 @@ export default function MatchingPage() {
           />
         </div>
         <div className="flex-1 min-w-[240px]">
-          <label className="block text-sm font-medium mb-1">
+          <label htmlFor="matching-person" className="block text-sm font-medium mb-1">
             {side === "learner" ? "Select Learner" : "Select Volunteer"}
           </label>
           <Select
+            id="matching-person"
             showSearch
             allowClear
             value={selectedId}
@@ -263,6 +267,21 @@ export default function MatchingPage() {
             loading={side === "learner" ? isLearnerOptionsLoading : isVolunteerOptionsLoading}
             style={{ width: "100%" }}
             placeholder={side === "learner" ? "Search learners..." : "Search volunteers..."}
+            // A failed lookup must not look like "nobody found".
+            notFoundContent={
+              (side === "learner" ? learnerOptionsError : volunteerOptionsError) ? (
+                <span role="alert">
+                  Couldn&apos;t load the list.{" "}
+                  <button
+                    type="button"
+                    className="bg-transparent border-0 p-0 underline cursor-pointer"
+                    onClick={() => (side === "learner" ? refetchLearnerOptions() : refetchVolunteerOptions())}
+                  >
+                    Try again
+                  </button>
+                </span>
+              ) : undefined
+            }
             options={(() => {
               const list = side === "learner" ? learnerOptions : volunteerOptions;
               return selectedOption && selectedId === selectedOption.value && !list.some((o: any) => o.value === selectedId)
@@ -282,7 +301,7 @@ export default function MatchingPage() {
       </div>
 
       {isMatchesError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the matches." onRetry={() => refetchMatches()} retrying={isMatchesFetching} />
       ) : (
         <Table
           dataSource={matches}

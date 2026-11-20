@@ -81,7 +81,7 @@ export default function NotificationsPage() {
     setHeaderOptions({ title: "Notifications", titleIcon: getHeaderIcon(pathname) });
   }, [setHeaderOptions, pathname]);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["notification-recipients"],
     queryFn: async () => (await GET_API(endpoints.notificationRecipients.list))?.data as {
       recipients: Recipient[];
@@ -95,7 +95,7 @@ export default function NotificationsPage() {
   const allEvents = data?.events ?? ["submitted", "status_changed", "updated"];
   const allAlerts = data?.alert_types ?? ["ai_red_alert", "message_red_alert"];
 
-  const { data: log = [], isLoading: logLoading } = useQuery({
+  const { data: log = [], isLoading: logLoading, isError: logError, refetch: refetchLog, isFetching: logFetching } = useQuery({
     queryKey: ["notification-log"],
     queryFn: async () => ((await GET_API(endpoints.notificationRecipients.log(20)))?.data ?? []) as LogRow[],
     refetchInterval: 30 * 1000,
@@ -274,7 +274,7 @@ export default function NotificationsPage() {
       </p>
 
       {isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the recipients." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
           dataSource={recipients}
@@ -288,16 +288,20 @@ export default function NotificationsPage() {
       )}
 
       <h3 className="text-lg font-medium mt-10 mb-3">Recent Notifications</h3>
-      <Table
-        dataSource={log}
-        columns={logColumns}
-        rowKey={(r: LogRow) => `${r.created_at}-${r.application_id}-${r.event}`}
-        loading={logLoading}
-        pagination={false}
-        size="small"
-        locale={{ emptyText: "Nothing has been sent yet." }}
-        scroll={{ x: "max-content" }}
-      />
+      {logError ? (
+        <ErrorMsg compact message="Couldn't load the recent notifications. This is not the same as nothing having been sent." onRetry={() => refetchLog()} retrying={logFetching} />
+      ) : (
+        <Table
+          dataSource={log}
+          columns={logColumns}
+          rowKey={(r: LogRow) => `${r.created_at}-${r.application_id}-${r.event}`}
+          loading={logLoading}
+          pagination={false}
+          size="small"
+          locale={{ emptyText: "Nothing has been sent yet." }}
+          scroll={{ x: "max-content" }}
+        />
+      )}
 
       <Modal
         title={editing ? "Edit recipient" : "Add recipient"}
