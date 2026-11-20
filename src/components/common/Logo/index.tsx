@@ -10,7 +10,7 @@ const Logo = ({ className }: LogoProps) => {
     <div className={cn("flex flex-wrap items-center justify-center gap-2 rounded-lg", className)}>
       <LogoIcon />
       <h3 className="text-xl font-medium">
-        MelodyWings<sup className="ml-0.5 text-[0.65em] font-normal align-super">®</sup>
+        MelodyWings<sup className="text-[0.65em] font-normal -top-[0.3em]">®</sup>
       </h3>
     </div>
   );
