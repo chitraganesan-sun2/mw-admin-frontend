@@ -27,4 +27,8 @@ jobs:
       - name: Unit tests
         run: npm run test:unit
       - name: Build
+        # The app refuses to build without the API origin (no silent "undefined/api/v1"); any
+        # well-formed URL will do for a compile-only check, nothing here calls it.
+        env:
+          NEXT_PUBLIC_API_URL: https://api.invalid
         run: npx next build
