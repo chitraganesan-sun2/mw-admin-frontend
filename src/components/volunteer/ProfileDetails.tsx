@@ -572,8 +572,9 @@ const VolunteerProfileDetails = () => {
                       <p className="text-base font-medium text-black mb-1">{`${
                         index + 1
                       }) ${item.title}:`}</p>
-                      {item?.data?.map((field) => (
+                      {item?.data?.map((field, fieldIndex) => (
                         <div
+                          key={`${field?.title}-${fieldIndex}`}
                           className={
                             field?.title === "Description" && !field?.value
                               ? "hidden"
