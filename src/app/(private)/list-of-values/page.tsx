@@ -179,8 +179,9 @@ export default function ListOfValuesPage() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-medium">List of Values</h1>
+      <div className="flex justify-end items-center mb-6">
+        {/* The page header already shows this title; keep a heading for screen readers only. */}
+        <h2 className="sr-only">List of Values</h2>
         {!isSkills && (
           <Button
             type="primary"
