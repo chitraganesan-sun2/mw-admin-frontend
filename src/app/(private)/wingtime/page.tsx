@@ -50,7 +50,7 @@ export default function WingTimePage() {
     setHeaderOptions({ title: "WingTime", titleIcon: getHeaderIcon(pathname), showSearch: false });
   }, [pathname, setHeaderOptions]);
 
-  const { data, isLoading, isFetching, isError } = useQuery({
+  const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ["wingtime", status, page, pageSize],
     staleTime: 0,
     enabled: WINGTIME_ENABLED,
@@ -292,7 +292,7 @@ export default function WingTimePage() {
         </div>
       </div>
       {isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the WingTime list." onRetry={() => refetch()} retrying={isFetching} />
       ) : !isLoading && !isFetching && rows.length === 0 ? (
         <div className="w-full py-10 text-center text-[#6B7280]">No {WINGTIME_STATUS_LABEL[status].toLowerCase()} WingTimes</div>
       ) : (

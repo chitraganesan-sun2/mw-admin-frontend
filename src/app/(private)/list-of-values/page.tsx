@@ -62,7 +62,7 @@ export default function ListOfValuesPage() {
   const pendingSkills = usePendingSkillsCount();
   const isSkills = activeTab === "skills";
 
-  const { data: items = [], isLoading, isError } = useQuery({
+  const { data: items = [], isLoading, isError, refetch, isFetching } = useQuery({
     enabled: !isSkills,
     queryKey: ["lov", activeTab],
     queryFn: async () =>
@@ -213,7 +213,7 @@ export default function ListOfValuesPage() {
       {isSkills ? (
         <SkillsTab />
       ) : isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the list of values." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
           dataSource={items}

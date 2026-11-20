@@ -269,7 +269,7 @@ export default function SkillsTab() {
       </p>
 
       {isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the skills." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
           dataSource={items}

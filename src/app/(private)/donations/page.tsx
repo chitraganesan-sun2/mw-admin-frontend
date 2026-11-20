@@ -117,7 +117,7 @@ export default function DonationsPage() {
     return () => clearTimeout(timeout);
   }, [search]);
 
-  const { data: donationsData, isFetching, isLoading, isError } = useQuery({
+  const { data: donationsData, isFetching, isLoading, isError, refetch } = useQuery({
     queryKey: ["donations", page, pageSize, debouncedSearch, sortField, sortOrder],
     queryFn: () =>
       getDonations({
@@ -299,7 +299,7 @@ export default function DonationsPage() {
         />
       </div>
       {isError ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load the donations." onRetry={() => refetch()} retrying={isFetching} />
       ) : !isLoading && !isFetching && data.length === 0 ? (
         <div className="w-full py-10 text-center text-[#6B7280]">No donations yet.</div>
       ) : (
