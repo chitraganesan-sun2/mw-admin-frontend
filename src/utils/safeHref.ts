@@ -19,3 +19,20 @@ export function safeHref(url: unknown): string | undefined {
   }
   return SAFE_PROTOCOLS.has(parsed.protocol) ? parsed.href : undefined;
 }
+
+/**
+ * True only for an absolute http:// or https:// URL. Stricter than safeHref (no mailto:) and than
+ * antd's `type: "url"` rule, which also accepts ftp: and other schemes: use this to validate a URL an
+ * admin types in (the backend enforces the same rule).
+ */
+export function isHttpUrl(value: unknown): boolean {
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!/^https?:\/\//i.test(trimmed)) return false;
+  try {
+    const parsed = new URL(trimmed);
+    return (parsed.protocol === "http:" || parsed.protocol === "https:") && parsed.hostname.length > 0;
+  } catch {
+    return false;
+  }
+}
