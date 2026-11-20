@@ -7,7 +7,9 @@ import CommentIcon from "@/assets/icons/CommentIcon";
 import { endpoints } from "@/api/constants";
 import { DELETE_API, GET_API } from "@/api/request";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createInFlightGuard } from "@/utils/inflight";
+import { withQuery } from "@/utils/query";
 import {
   DeleteCloseIcon,
   HeartLikeIcon,
@@ -41,7 +43,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
   const getPosts = async ({ pageParam = 1 }) => {
     let endpoint = endpoints.post.getPosts;
     const response = await GET_API(
-      `${endpoint}?page=${pageParam}&size=10&query=${searchQuery || ""}`
+      withQuery(endpoint, { page: pageParam, size: 10, query: searchQuery?.trim() })
     );
     return response.data;
   };
@@ -53,6 +55,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
     isFetching,
     isFetchingNextPage,
     isError,
+    refetch,
   } = useInfiniteQuery({
     queryKey: ["get-posts", searchQuery],
     queryFn: getPosts,
@@ -75,7 +78,11 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
     onClick(postId);
   };
 
-  const hanldeDeleteEvent = async () => {
+  // A second click on "Yes, Delete" before the dialog re-renders must not send a second request.
+  const flight = useRef(createInFlightGuard());
+  const hanldeDeleteEvent = () => flight.current.run(deletePostNow);
+
+  const deletePostNow = async () => {
     setIsDeleteAlertLoading(true);
     try {
       await DELETE_API(endpoints.post.deletePost(currentDeletePostId || ""));
@@ -94,7 +101,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
     setCurrentDeletePostId(postId);
   };
 
-  if (isError) return <ErrorMsg />;
+  if (isError) return <ErrorMsg message="Couldn't load the posts." onRetry={() => refetch()} />;
 
   return (
     <div className="flex flex-col gap-2 h-full md:p-0 relative">
@@ -114,7 +121,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
       ) : (
         <div className="flex flex-col gap-3 h-full divide-y divide-gray-200">
           {posts.map((post) => {
-            const postImage = post?.images[0]?.image_url;
+            const postImage = post?.images?.[0]?.image_url;
             const validImageUrl =
               postImage && postImage.startsWith("http") ? postImage : "";
 
@@ -126,7 +133,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
                     <div className="w-[40px] h-[40px] md:w-[40px] md:h-[40px] relative flex-shrink-0 flex items-center justify-center">
                       <Image
                         src={
-                          post.author.profile_picture?.image_url ||
+                          post?.author?.profile_picture?.image_url ||
                           DummyProfileImg
                         }
                         alt="profile picture"

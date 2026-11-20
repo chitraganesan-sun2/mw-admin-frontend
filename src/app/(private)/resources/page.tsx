@@ -10,12 +10,15 @@ import SectionWrapper from "@/components/resources/SectionWrapper";
 import TopicCard from "@/components/resources/TopicCard";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { Button } from "antd";
 import { usePathname } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect, useMemo, useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+
+const RESOURCES_PAGE_SIZE = 20;
 
 type ShowModalType = "view" | "edit" | "create" | null;
 
@@ -28,19 +31,36 @@ export default function ResourcesPage() {
   const [resourceId, setResourceId] = useQueryState("id");
   const [mode, setMode] = useQueryState("mode");
 
-  const { data: ResourceCategories, isError: isErrorCategories } =
+  const { data: ResourceCategories, isError: isErrorCategories, refetch: refetchCategories } =
     useQuery({
       queryKey: ["resource-categories"],
       queryFn: async () =>
         (await GET_API(endpoints.resources.getCategories))?.data || [],
     });
 
-  const { data: resources, isFetching: isFetchingResources, isError: isErrorResources } = useQuery({
+  // The API pages its answer; asking for one page used to silently drop everything after it.
+  const {
+    data: resourcePages,
+    isFetching: isFetchingResources,
+    isError: isErrorResources,
+    refetch: refetchResources,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ["resources", searchQuery],
-    queryFn: async () =>
-      (await getResources({ query: searchQuery || "" }))?.items || [],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => await getResources({ query: searchQuery || "", page: String(pageParam), size: String(RESOURCES_PAGE_SIZE) }),
+    getNextPageParam: (last: any, pages) => {
+      const loaded = pages.reduce((n: number, p: any) => n + (p?.items?.length ?? 0), 0);
+      const total = typeof last?.total === "number" ? last.total : undefined;
+      if (!last?.items?.length) return undefined;
+      if (total !== undefined) return loaded < total ? pages.length + 1 : undefined;
+      return last.items.length >= RESOURCES_PAGE_SIZE ? pages.length + 1 : undefined;
+    },
     enabled: !category,
   });
+  const resources = useMemo(() => resourcePages?.pages.flatMap((p: any) => p?.items ?? []) ?? [], [resourcePages]);
 
   const pageTitle = useMemo(
     () =>
@@ -81,7 +101,14 @@ export default function ResourcesPage() {
           handleViewOrEditResource={handleViewOrEditResource}
         />
       ) : isErrorCategories || isErrorResources ? (
-        <ErrorMsg />
+        <ErrorMsg
+          message="Couldn't load the resources."
+          onRetry={() => {
+            refetchCategories();
+            refetchResources();
+          }}
+          retrying={isFetchingResources}
+        />
       ) : (
         <>
           {ResourceCategories?.length > 0 && (
@@ -99,7 +126,7 @@ export default function ResourcesPage() {
             />
           )}
 
-          {isFetchingResources ? (
+          {isFetchingResources && !isFetchingNextPage ? (
             <SectionWrapper
               onPlaceHolderClick={() => setMode("create")}
               data={Array(5).fill(null)}
@@ -124,6 +151,13 @@ export default function ResourcesPage() {
               )}
             />
           )}
+          {hasNextPage && !(isFetchingResources && !isFetchingNextPage) ? (
+            <div className="flex justify-center py-4">
+              <Button onClick={() => fetchNextPage()} loading={isFetchingNextPage} disabled={isFetchingNextPage}>
+                Show more resources
+              </Button>
+            </div>
+          ) : null}
         </>
       )}
     </div>

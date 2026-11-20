@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createInFlightGuard } from "@/utils/inflight";
 import { usePathname } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Table from "@/components/Table";
@@ -80,7 +81,7 @@ export default function WingTimePage() {
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["wingtime"] });
 
-  const decide = async (kind: "approve" | "reject", reason?: string) => {
+  const decideNow = async (kind: "approve" | "reject", reason?: string) => {
     if (!reviewing) return;
     const set = kind === "approve" ? setApproving : setRejecting;
     set(true);
@@ -107,7 +108,7 @@ export default function WingTimePage() {
     }
   };
 
-  const complete = async () => {
+  const completeNow = async () => {
     if (!reviewing) return;
     setCompleting(true);
     try {
@@ -122,7 +123,7 @@ export default function WingTimePage() {
     }
   };
 
-  const decideRecording = async (action: "publish" | "reject" | "unpublish", acknowledgeFlags = false) => {
+  const decideRecordingNow = async (action: "publish" | "reject" | "unpublish", acknowledgeFlags = false) => {
     if (!reviewing) return;
     setRecordingBusy(true);
     try {
@@ -144,6 +145,14 @@ export default function WingTimePage() {
       refresh();
     }
   };
+
+  // One review action at a time: a second click (before the first re-renders the disabled state)
+  // would otherwise send the same approve/reject/complete/publish twice.
+  const flight = useRef(createInFlightGuard());
+  const decide = (kind: "approve" | "reject", reason?: string) => flight.current.run(() => decideNow(kind, reason));
+  const complete = () => flight.current.run(completeNow);
+  const decideRecording = (action: "publish" | "reject" | "unpublish", acknowledgeFlags = false) =>
+    flight.current.run(() => decideRecordingNow(action, acknowledgeFlags));
 
   const columns = useMemo(
     () => [

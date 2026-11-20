@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createInFlightGuard } from "@/utils/inflight";
 import { usePathname } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Table from "@/components/Table";
@@ -97,7 +98,7 @@ export default function ProfileChangesPage() {
     );
   };
 
-  const handleApprove = async () => {
+  const approveNow = async () => {
     if (!selectedId) return;
     setAcceptLoading(true);
     try {
@@ -113,7 +114,7 @@ export default function ProfileChangesPage() {
     }
   };
 
-  const handleReject = async (reason: string) => {
+  const rejectNow = async (reason: string) => {
     if (!selectedId) return;
     setRejectLoading(true);
     try {
@@ -197,6 +198,11 @@ export default function ProfileChangesPage() {
           onNext: selectedIndex < rows.length - 1 ? () => setSelectedId(rows[selectedIndex + 1].request_id) : undefined,
         }
       : undefined;
+
+  // One decision at a time (a second click before the disabled state renders would decide twice).
+  const flight = useRef(createInFlightGuard());
+  const handleApprove = () => flight.current.run(approveNow);
+  const handleReject = (reason: string) => flight.current.run(() => rejectNow(reason));
 
   return (
     <div className="w-full h-auto p-6 animate-fadeIn">

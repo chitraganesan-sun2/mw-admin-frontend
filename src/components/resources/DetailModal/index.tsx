@@ -15,7 +15,8 @@ import { showToast } from "@/components/common/Toast";
 import { usePathname } from "next/navigation";
 import { getReportStatus, rejectReport, resolveReport } from "@/api/reports";
 import LottieLoader from "@/components/common/Loader/Lottie";
-import { useMemo, useState } from "react";
+import { useRef, useState } from "react";
+import { createInFlightGuard } from "@/utils/inflight";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { safeHref } from "@/utils/safeHref";
 import AlertModal from "@/components/common/Modals/AlertModal";
@@ -39,7 +40,7 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
   const [isRejecting, setIsRejecting] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
-  const { data: resource, isFetching } = useQuery({
+  const { data: resource, isFetching, refetch: refetchResource } = useQuery({
     queryKey: ["resource-single", resourceId],
     queryFn: () => (resourceId ? getSingleResource(resourceId) : null),
     enabled: !!resourceId,
@@ -58,7 +59,11 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
       queryClient.invalidateQueries({ queryKey: ["resources"] });
     }
   };
-  const handleAction = async (action: any, id: any, successMessage: any, errorMessage: any, setLoading: any) => {
+  // One write at a time: keep / reject / remove must not repeat on a second click.
+  const flight = useRef(createInFlightGuard());
+  const handleAction = (action: any, id: any, successMessage: any, errorMessage: any, setLoading: any) =>
+    flight.current.run(() => runAction(action, id, successMessage, errorMessage, setLoading));
+  const runAction = async (action: any, id: any, successMessage: any, errorMessage: any, setLoading: any) => {
     if (!id) return;
     setLoading(true);
     try {
@@ -78,11 +83,11 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
   };
   
   const handleDelete = async () => {
-    await handleAction(deleteResource, resourceId, "Resource Deleted", "Resource not deleted", setIsDeleting);
+    await handleAction(deleteResource, resourceId, "Resource removed", "Couldn't remove the resource. Please try again.", setIsDeleting);
     setIsDeleteConfirmOpen(false);
   };
-  const handleKeepResource = () => handleAction(resolveReport, reportId, "Resource Kept", "Resource not kept", setIsKeeping);
-  const handleRejectReport = () => handleAction(rejectReport, reportId, "Resource Rejected", "Resource not rejected", setIsRejecting);
+  const handleKeepResource = () => handleAction(resolveReport, reportId, "Resource kept. The report was marked resolved.", "Couldn't keep the resource. Please try again.", setIsKeeping);
+  const handleRejectReport = () => handleAction(rejectReport, reportId, "Report rejected. The resource stays.", "Couldn't reject the report. Please try again.", setIsRejecting);
   
 
   const renderSkills = () =>
@@ -113,6 +118,9 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
 
   if (!resourceId) return null;
 
+  // A report that someone already decided can't be decided again from here.
+  const reportDecision: string | undefined = (ReportStatus as any)?.data?.report_status;
+  const reportAlreadyDecided = reportDecision === "resolved" || reportDecision === "rejected";
   const isLoading = isDeleting || isKeeping || isRejecting;
   return (
     <ViewModal modalOpen={isOpen} onClose={onClose} width={800} height="100%">
@@ -121,7 +129,7 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
           <LottieLoader isLoading={true} />
         </div>
       ) : !resource ? (
-        <ErrorMsg />
+        <ErrorMsg message="Couldn't load this resource." onRetry={() => refetchResource()} />
       ) : (
         <div className="flex flex-col max-h-[90vh]">
           <div className="flex-1 overflow-y-auto no-scrollbar">
@@ -169,7 +177,12 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
             </div>
           </div>
           <div className="flex justify-end gap-2 border-t px-5 py-3">
-            {isReportsPage && (
+            {isReportsPage && reportAlreadyDecided && (
+              <p className="mr-auto self-center text-sm text-gray-light" role="status">
+                This report was already {reportDecision}.
+              </p>
+            )}
+            {isReportsPage && !reportAlreadyDecided && (
               <>
                 <Button loading={isKeeping} onClick={isLoading ? undefined : handleKeepResource} btnVariant="success" icon={<IoCheckmark size={18} />} title="Keep Resource" />
                 <Button loading={isRejecting} onClick={isLoading ? undefined : handleRejectReport} btnVariant="warning" icon={<IoClose size={18} />} title="Reject Report" />

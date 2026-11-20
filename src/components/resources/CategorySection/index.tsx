@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useQueryState } from "nuqs";
 import React from "react";
 import Card, { CardSkeleton } from "../Card";
+import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 
 type CategorySectionProps = {
   topicSingleTitle: string;
@@ -17,7 +18,7 @@ const CategorySection = ({
   const [category] = useQueryState("category");
   const [searchQuery] = useQueryState("query");
 
-  const { data: categories, isFetching } = useQuery({
+  const { data: categories, isFetching, isError, refetch } = useQuery({
     queryKey: ["resources-by-category", category, searchQuery],
     queryFn: async () => {
       const resources = await getResourcesByCategory(category || "", {
@@ -38,6 +39,8 @@ const CategorySection = ({
             <CardSkeleton key={index} />
           ))}
         </div>
+      ) : isError ? (
+        <ErrorMsg message="Couldn't load these resources." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <>
           {categories?.length > 0 ? (
