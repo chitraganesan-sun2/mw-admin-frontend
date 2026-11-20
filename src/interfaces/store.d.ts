@@ -15,7 +15,3 @@ type UseComponentStoreProps = {
   headerOptions: Partial<HeaderOptions>;
   setHeaderOptions: (options: HeaderOptions) => void;
 };
-
-type UseGlobalStoreProps = {};
-
-type UseAppStoreProps = UseGlobalStoreProps;

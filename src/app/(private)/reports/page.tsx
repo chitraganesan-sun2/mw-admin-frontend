@@ -163,7 +163,7 @@ export default function ReportsPage() {
       ) : (
         <Table
           key={`table-${currentTab}`}
-          rootClassName="!opcacity-100"
+          rootClassName="!opacity-100"
           data={data?.data || []}
           columns={columns}
           loading={isFetching}

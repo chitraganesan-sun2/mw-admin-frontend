@@ -35,9 +35,6 @@ export const getSafetyReport = async (id: number | string) =>
 export const getSafetyReportStatus = async (id: number | string) =>
   body<SafetyReportStatus>(await GET_API(endpoints.safety.status(id)));
 
-export const getSafetyReportStats = async (id: number | string) =>
-  body<SafetyReportStats>(await GET_API(endpoints.safety.stats(id)));
-
 export const deleteSafetyReport = async (id: number | string) => {
   await DELETE_API(endpoints.safety.report(id));
 };
