@@ -200,6 +200,8 @@ export default function SafetyUploadPage() {
   };
 
   const retry = (key: string) => {
+    // Only a failed item can be retried; a second click on Retry must not re-queue one already uploading.
+    if (itemsRef.current.find((item) => item.key === key)?.status !== "failed") return;
     patch(key, { status: "waiting", started: true, error: undefined, progress: 0 });
     pump();
   };
