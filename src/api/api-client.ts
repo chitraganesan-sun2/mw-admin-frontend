@@ -8,6 +8,7 @@ import axios, {
 import Cookies from "js-cookie";
 import { showToast } from "@/components/common/Toast";
 import { clearSessionCookies } from "@/utils/session";
+import { coalesceMutations } from "@/utils/inflight";
 
 // Define custom error interface
 interface ApiError {
@@ -94,11 +95,15 @@ axiosInstance.interceptors.response.use(
   }
 );
 
+// Safety net under every UI-level double-click guard: two identical state-changing requests that
+// are in flight at the same moment share one network call (see utils/inflight.ts).
+const send = coalesceMutations((options: AxiosRequestConfig) => axiosInstance(options));
+
 export const request = async (
   options: AxiosRequestConfig
 ): Promise<AxiosResponse | ApiError> => {
   try {
-    const response = await axiosInstance(options);
+    const response = await send(options);
     return response;
   } catch (error) {
     // 401 redirect/cleanup is handled by the response interceptor above.
