@@ -7,6 +7,7 @@ import axios, {
 } from "axios";
 import Cookies from "js-cookie";
 import { showToast } from "@/components/common/Toast";
+import { clearSessionCookies } from "@/utils/session";
 
 // Define custom error interface
 interface ApiError {
@@ -21,7 +22,6 @@ const axiosInstance: AxiosInstance = axios.create({
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
-    "ngrok-skip-browser-warning": "any",
   },
 });
 
@@ -63,12 +63,7 @@ axiosInstance.interceptors.response.use(
           // (every subsequent call would just fail the same way). Guard against
           // redirect loops by skipping it if already on the login page.
           if (typeof window !== "undefined" && window.location.pathname !== "/") {
-            Cookies.remove("token", { path: "/" });
-            Cookies.remove("role", { path: "/" });
-            Cookies.remove("onboarded_status", { path: "/" });
-            Cookies.remove("learner_id", { path: "/" });
-            Cookies.remove("volunteer_id", { path: "/" });
-            Cookies.remove("lastActivity", { path: "/" });
+            clearSessionCookies();
             window.location.href = "/";
           }
           break;

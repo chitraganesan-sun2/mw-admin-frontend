@@ -5,7 +5,7 @@ import SectionCard from "./SectionCard";
 import { navIcon } from "./navIcons";
 import { SignOutIcon } from "@/assets/icons";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { clearSessionCookies } from "@/utils/session";
 import React from "react";
 import { FiSearch } from "react-icons/fi";
 import { WINGTIME_ENABLED } from "@/config/wingtime";
@@ -42,12 +42,7 @@ const Sidebar = ({ variant = "rail", onNavigate }: SidebarProps) => {
 
   const handleSignOut = () => {
     queryClient.clear();
-    Cookies.remove("token", { path: "/" });
-    Cookies.remove("role", { path: "/" });
-    Cookies.remove("onboarded_status", { path: "/" });
-    Cookies.remove("learner_id", { path: "/" });
-    Cookies.remove("volunteer_id", { path: "/" });
-    Cookies.remove("lastActivity", { path: "/" });
+    clearSessionCookies();
     router.replace("/");
   };
 

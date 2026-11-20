@@ -18,14 +18,16 @@ const queryClient = new QueryClient({
   },
 });
 
+const clearQueryCache = () => queryClient.clear();
+
 export default function QueryProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  useAutoLogout(router);
-  
+  useAutoLogout(router, clearQueryCache);
+
   return (
     <QueryClientProvider client={queryClient}>
       <NuqsAdapter>

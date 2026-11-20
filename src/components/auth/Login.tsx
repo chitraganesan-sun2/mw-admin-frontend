@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { showToast } from "../common/Toast";
 import { safeHomePath } from "@/constants/access";
 import { getApiErrorMessage } from "@/utils/apiError";
+import { sessionCookieOptions } from "@/utils/session";
 
 const Login = () => {
   const [loginFormData, setloginFormData] = useState<any>({});
@@ -42,12 +43,7 @@ const Login = () => {
           setLoading(false);
           return showToast({ message: "Couldn't log in. Please try again.", type: "error" });
         }
-        Cookies.set("token", jwt, {
-          expires: 1,
-          path: "/",
-          sameSite: "strict",
-          secure: process.env.NODE_ENV === "production",
-        });
+        Cookies.set("token", jwt, sessionCookieOptions(1));
         setloginFormData({});
         // Where to land comes from the server's answer about this account's role (admin -> the
         // admin screens, support -> the support dashboard), never from anything the client set.
