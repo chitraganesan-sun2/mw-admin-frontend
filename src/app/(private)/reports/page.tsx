@@ -134,7 +134,7 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="w-full px-6">
+    <div className="w-full p-6">
       {isPersonTab ? (
         <PersonReportModal
           key={`${currentTab}-${reportId}`}

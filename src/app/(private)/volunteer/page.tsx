@@ -3,6 +3,9 @@
 import { endpoints } from "@/api/constants";
 import { GET_API, DELETE_API } from "@/api/request";
 import Table from "@/components/Table";
+import { Button } from "antd";
+import FilterBar from "@/components/common/Filters/FilterBar";
+import ListSearch from "@/components/common/Filters/ListSearch";
 import { getVolunteerColumns, nextStatusSort } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
@@ -39,7 +42,7 @@ interface TableVolunteer {
 export default function LearnersPage() {
   const [volunteerData, setVolunteerData] = useState<TableVolunteer[]>([]);
   const [total, setTotal] = useState<number>(0);
-  const [size, setSize] = useQueryState("size", { defaultValue: "10" });
+  const [size, setSize] = useQueryState("size", { defaultValue: "25" });
   const [page, setPage] = useQueryState("page", { defaultValue: "1" });
   const [onboardedStatusFilter, setOnboardedStatusFilter] =
     useQueryState("onboarded_status");
@@ -204,19 +207,20 @@ export default function LearnersPage() {
     }
   };
 
-  // Deleting a member needs `members.manage`; accounts without it don't get the trash icon at all.
+  // Deleting a member needs `members.manage`; accounts without it still get View but no trash icon.
   const columns = getVolunteerColumns(
     handleSeeMoreDetails,
     handleDeleteVolunteer,
     handleOnboardedStatusFilter,
-    onboardedStatusFilter
-  ).filter((column) => canManage || column.key !== "actions");
+    onboardedStatusFilter,
+    canManage
+  );
 
   useEffect(() => {
     setHeaderOptions({
       title: "Volunteers",
       titleIcon: getHeaderIcon(pathname),
-      showSearch: true,
+      showSearch: false,
     });
   }, [setHeaderOptions]);
 
@@ -241,20 +245,22 @@ export default function LearnersPage() {
         isLoading={remover.pending}
       />
       <ProfileDetailsModal />
-      {/* Exporting every member's details needs `members.manage`. */}
-      {canManage && (
-        <div className="flex justify-end mb-4">
-          <button
-            type="button"
-            disabled={exporter.pending}
-            aria-busy={exporter.pending}
-            onClick={() => exporter.run(() => downloadCsv("admin/export/volunteers/csv", "volunteers_export.csv"))}
-            className="px-4 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {exporter.pending ? "Preparing the file..." : "Download All Data (CSV)"}
-          </button>
-        </div>
-      )}
+      <FilterBar
+        actions={
+          /* Exporting every member's details needs `members.manage`. */
+          canManage ? (
+            <Button
+              disabled={exporter.pending}
+              aria-busy={exporter.pending}
+              onClick={() => exporter.run(() => downloadCsv("admin/export/volunteers/csv", "volunteers_export.csv"))}
+            >
+              {exporter.pending ? "Preparing the file..." : "Download All Data (CSV)"}
+            </Button>
+          ) : null
+        }
+      >
+        <ListSearch placeholder="Search by name or email" />
+      </FilterBar>
       {isError ? (
         <ErrorMsg message="Couldn't load the list. Please try again." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
@@ -269,6 +275,7 @@ export default function LearnersPage() {
             total: total,
             showSizeChanger: true,
             showQuickJumper: true,
+            pageSizeOptions: [25, 50, 100],
           }}
           onChange={handleTableChange}
           handleSeeMoreDetails={handleSeeMoreDetails}

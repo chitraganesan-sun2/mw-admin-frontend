@@ -40,7 +40,6 @@ const STATUS_TONE: Record<string, ToneName> = {
   // waiting on someone
   pending: "warning",
   verification_pending: "warning",
-  partially_filled: "warning",
   in_progress: "warning",
   // went wrong / closed negatively
   rejected: "danger",
@@ -54,6 +53,7 @@ const STATUS_TONE: Record<string, ToneName> = {
   processing: "info",
   new: "info",
   // quiet
+  partially_filled: "neutral",
   expired: "neutral",
   cancelled: "neutral",
   canceled: "neutral",

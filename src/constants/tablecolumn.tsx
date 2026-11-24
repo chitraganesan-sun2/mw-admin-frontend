@@ -2,11 +2,16 @@ import React from "react";
 import { Volunteer, Report, Learner } from "@/constants/column";
 import ExpandableText from "@/components/common/Modals/ExpandableText";
 import { Button } from "antd";
-import { DeleteIcon } from "@/assets/icons";
+import DeleteButton from "@/components/common/DeleteButton";
+import StatusTag from "@/components/common/StatusTag";
+import { toneFromStatus } from "@/utils/statusTone";
 import { FaSort } from "react-icons/fa";
 import { formatDisplayDate } from "@/utils/moment";
 import { formatMoney } from "@/components/dashboard/widgets";
 
+// Column widths below are explicit on purpose: the shared Table renders a fixed layout when every column is sized,
+// which is what keeps each header over its cells (the widths per table add up to about 1000px, the content area
+// at a 1280px screen). The Actions column is pinned right so it never sits off-screen.
 
 export interface DonationRow {
   id: string;
@@ -16,37 +21,27 @@ export interface DonationRow {
   amount: number; // in dollars
 }
 
-export const getDonationColumns = (
-  onViewMore?: (row: DonationRow) => void
-) => [
+export const getDonationColumns = (onViewMore?: (row: DonationRow) => void) => [
   {
     title: "Donor Name",
     dataIndex: "donor_name",
     key: "donor_name",
     sorter: false,
-    className:
-      "p-6 text-base w-[220px] !font-medium text-[#121212] !font-poppins font-medium",
+    width: 200,
+    ellipsis: true,
     render: (_: unknown, record: DonationRow) => (
-      <span className="text-base !font-semibold text-[#121212] !font-poppins !normal-case">
-        {record?.donor_name || "Anonymous"}
-      </span>
+      <span className="font-semibold text-ink !normal-case">{record?.donor_name || "Anonymous"}</span>
     ),
   },
   {
-    title: (
-      <span className="text-[16px] !font-medium text-[#121212] !font-poppins">
-        Email Address
-      </span>
-    ),
+    title: "Email Address",
     dataIndex: "email",
     key: "email",
     sorter: false,
-    className:
-      "p-6 w-[260px] text-base text-[#121212] !font-poppins !font-medium",
+    width: 260,
+    ellipsis: true,
     render: (_: unknown, record: DonationRow) => (
-      <span className="text-base font-medium text-[#121212] !font-poppins !normal-case">
-        {record?.email?.toLowerCase?.() || "-"}
-      </span>
+      <span className="text-ink !normal-case">{record?.email?.toLowerCase?.() || "-"}</span>
     ),
   },
   {
@@ -54,47 +49,46 @@ export const getDonationColumns = (
     dataIndex: "donation_date",
     key: "donation_date",
     sorter: false,
-    className:
-      "p-6 w-[200px] text-base  text-[#121212] !font-poppins whitespace-nowrap !font-medium",
+    width: 140,
+    className: "whitespace-nowrap",
     render: (_: unknown, record: DonationRow) => {
       if (!record.donation_date) return "-";
-      return (
-        <span className="text-base font-medium text-[#121212] !font-poppins !normal-case">
-          {formatDisplayDate(record.donation_date)}
-        </span>
-      );
+      return <span className="text-ink !normal-case">{formatDisplayDate(record.donation_date)}</span>;
     },
   },
   {
+    // Right-aligned with tabular numerals so amounts line up and the header sits above them.
     title: "Amount",
     dataIndex: "amount",
     key: "amount",
     sorter: false,
-    className:
-      "p-6 w-[140px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
+    width: 120,
+    align: "right" as const,
+    className: "whitespace-nowrap",
     render: (_: unknown, record: DonationRow) => (
-      <span className="text-base font-medium text-[#121212] !font-poppins !normal-case">
+      <span className="font-medium tabular-nums text-ink !normal-case">
         {record?.amount != null ? formatMoney(record.amount) : "-"}
       </span>
     ),
   },
   {
-    title: "",
+    title: "Actions",
     key: "actions",
-    className: "!p-0 !w-[140px] text-sm text-gray-900 !font-poppins",
+    width: 110,
+    fixed: "right" as const,
+    align: "right" as const,
     render: (_: unknown, record: DonationRow) => (
-      <button
-        type="button"
+      <Button
+        size="small"
+        aria-label={`View donation from ${record?.donor_name || "anonymous donor"}`}
         onClick={(e) => {
           e.stopPropagation();
           onViewMore?.(record);
         }}
-        className="bg-transparent border-0 px-6 !py-3 text-base font-medium text-[#121212] underline !font-poppins cursor-pointer whitespace-nowrap"
       >
-        View more
-      </button>
+        View
+      </Button>
     ),
-    width: 140,
   },
 ];
 
@@ -129,15 +123,128 @@ const statusSortTitle = (handler?: () => void, active?: string | null) => {
       type="button"
       onClick={handler}
       aria-label={`Sort by approval status${activeLabel ? ` (currently: ${activeLabel} first)` : ""}`}
-      className="bg-transparent border-0 w-full h-full flex items-center pr-5 gap-2 justify-between cursor-pointer text-left"
+      className="flex h-full w-full cursor-pointer items-center justify-between gap-2 whitespace-nowrap border-0 bg-transparent pr-2 text-left font-[inherit] text-[inherit]"
     >
       <span className="flex flex-col">
         Approval Status
         {activeLabel && <span className="text-xs font-normal text-gray-medium">{activeLabel} first</span>}
       </span>
-      <FaSort className={activeLabel ? "text-primary" : "text-gray-400"} />
+      <FaSort className={activeLabel ? "text-brand-ink" : "text-ink-3"} />
     </button>
   );
+};
+
+// One status cell for Volunteers and Learners: the shared StatusTag with a dot (AA colours); the label is the same
+// one the sort control uses.
+const OnboardedStatusCell = ({ status }: { status?: string }) => (
+  <StatusTag dot tone={toneFromStatus(status)}>
+    {STATUS_LABEL[status ?? ""] ?? "Form Incomplete"}
+  </StatusTag>
+);
+
+type PersonKind = "volunteer" | "learner";
+
+// Name | Age | Location | Email | Registered | Approval Status | Actions (pinned right). View + delete share the
+// pinned column so they never sit off-screen (ADM-UI-2); delete is an icon-only 32x32 danger button and the
+// confirm modal still guards it.
+const getPersonColumns = (
+  kind: PersonKind,
+  handleSeeMoreDetails?: (id: string) => void,
+  handleDelete?: (id: string) => void,
+  handleOnboardedStatusFilter?: () => void,
+  activeStatusSort?: string | null,
+  canDelete = true
+) => {
+  const idOf = (record: any): string => (kind === "volunteer" ? record?.volunteer_id : record?.learner_id);
+  return [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      field: "name",
+      sorter: true,
+      width: 170,
+      ellipsis: true,
+      className: "!font-semibold text-ink",
+    },
+    {
+      title: "Age",
+      dataIndex: "age",
+      key: "age",
+      field: "age",
+      sorter: true,
+      width: 80,
+    },
+    {
+      title: "Location",
+      dataIndex: "location",
+      key: "location",
+      sorter: false,
+      width: 130,
+      ellipsis: true,
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: false,
+      width: 210,
+      ellipsis: true,
+      // Lowercased in the cell only - a column-level `lowercase` class also lowercased the header.
+      render: (_: unknown, record: { email?: string }) => (
+        <span className="text-ink !normal-case">{record?.email?.toLowerCase?.() || "-"}</span>
+      ),
+    },
+    {
+      title: "Registered",
+      dataIndex: "created_on",
+      key: "created_on",
+      field: "created_on",
+      sorter: true,
+      width: 130,
+      className: "whitespace-nowrap",
+      render: (_: unknown, record: Volunteer | Learner) => {
+        const date = (record as any)?.created_on;
+        if (!date) return "-";
+        return formatDisplayDate(date);
+      },
+    },
+    {
+      title: statusSortTitle(handleOnboardedStatusFilter, activeStatusSort),
+      dataIndex: "onboarded_status",
+      key: "onboarded_status",
+      onFilter: (value: string, record: Volunteer | Learner) => record.onboarded_status === value,
+      sorter: false,
+      width: 180,
+      render: (_: unknown, record: Volunteer | Learner) =>
+        "onboarded_status" in record ? <OnboardedStatusCell status={record.onboarded_status} /> : null,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      width: 130,
+      fixed: "right" as const,
+      align: "right" as const,
+      render: (_: unknown, record: any) => (
+        <div className="flex items-center justify-end gap-2">
+          {record.onboarded_status === "details_pending" ? (
+            <span className="text-ink-3" aria-label="No details yet">
+              -
+            </span>
+          ) : (
+            <Button
+              size="small"
+              aria-label={`View details for ${record?.name && record.name !== "-" ? record.name : kind}`}
+              onClick={() => handleSeeMoreDetails?.(idOf(record))}
+            >
+              View
+            </Button>
+          )}
+          {canDelete && <DeleteButton label={`Delete ${kind}`} onClick={() => handleDelete?.(idOf(record))} />}
+        </div>
+      ),
+    },
+  ];
 };
 
 export const getVolunteerColumns = (
@@ -145,323 +252,50 @@ export const getVolunteerColumns = (
   handleDeleteVolunteer?: (id: string) => void,
   handleOnboardedStatusFilter?: () => void,
   activeStatusSort?: string | null,
-) => [
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    field: "name",
-    sorter: true,
-    className:
-      "px-6 !py-3 text-sm w-[200px]  !font-semibold text-gray-900 !font-poppins",
-  },
-  {
-    title: "Age",
-    dataIndex: "age",
-    key: "age",
-    field: "age",
-    sorter: true,
-    className:
-      "px-6 !py-3 text-sm w-[100px]  bg-gray-50 text-gray-900 !font-poppins",
-  },
-  {
-    title: "Location",
-    dataIndex: "location",
-    key: "location",
-    sorter: false,
-    className: "px-6 !py-3 w-[100px]  text-sm text-gray-900 !font-poppins",
-  },
-  {
-    title: "Email",
-    dataIndex: "email",
-    key: "email",
-    sorter: false,
-    className: "px-6 !py-3 w-[100px] text-sm text-gray-900 !font-poppins",
-    // Lowercased in the cell only - a column-level `lowercase` class also lowercased the header.
-    render: (_: unknown, record: { email?: string }) => (
-      <span className="text-gray-900 !font-poppins !normal-case">{record?.email?.toLowerCase?.() || "-"}</span>
-    ),
-  },
-  {
-    title: "Registered",
-    dataIndex: "created_on",
-    key: "created_on",
-    field: "created_on",
-    sorter: true,
-    className:
-      "px-6 !py-3 w-[120px] text-sm text-gray-900 !font-poppins whitespace-nowrap",
-    render: (_: unknown, record: Volunteer) => {
-      const date = (record as any)?.created_on;
-      if (!date) return "-";
-      return formatDisplayDate(date);
-    },
-  },
-  {
-    title: statusSortTitle(handleOnboardedStatusFilter, activeStatusSort),
-    dataIndex: "onboarded_status",
-    key: "onboarded_status",
-    onFilter: (value: string, record: Volunteer) =>
-      record.onboarded_status === value,
-    sorter: false,
-    className: "!p-0 w-[150px]  text-sm text-gray-900 !font-poppins",
-    render: (_: unknown, record: Volunteer) => {
-      if ("onboarded_status" in record) {
-        return (
-          <span
-            className={`px-6 !py-3 w-[100px] !font-poppins ${
-              record.onboarded_status === "verification_pending"
-                ? "text-warning"
-                : record.onboarded_status === "verification_completed"
-                  ? "text-success"
-                  : record.onboarded_status === "verification_rejected"
-                    ? "text-error"
-                    : record.onboarded_status === "details_pending"
-                      ? "text-blue-500"
-                      : "text-gray-500"
-            }`}
-          >
-            <span className="flex items-center gap-1">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  record.onboarded_status === "verification_pending"
-                    ? "bg-warning"
-                    : record.onboarded_status === "verification_completed"
-                      ? "bg-success"
-                      : record.onboarded_status === "verification_rejected"
-                        ? "bg-error"
-                        : record.onboarded_status === "details_pending"
-                          ? "bg-blue-500"
-                          : "bg-gray-500"
-                }`}
-              ></div>
-              {STATUS_LABEL[record.onboarded_status] ?? "Form Incomplete"}
-            </span>
-          </span>
-        );
-      }
-      return null;
-    },
-  },
-  {
-    title: "Details",
-    key: "details",
-    className: "!p-0 w-[150px]  text-sm text-gray-900 !font-poppins",
-
-    render: (_: unknown, record: Volunteer) => (
-      <div className="flex items-center gap-2">
-        {record.onboarded_status === "details_pending" ? (
-          <span>-</span>
-        ) : (
-          <button
-            type="button"
-            onClick={() => handleSeeMoreDetails?.(record?.volunteer_id)}
-            className="bg-transparent border-0 p-0 !font-semibold text-gray-900 underline !font-poppins cursor-pointer"
-          >
-            See more details
-          </button>
-        )}
-      </div>
-    ),
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    className: "!p-0 !w-[200px] text-sm text-gray-900 !font-poppins",
-    render: (_: any, record: any) => (
-      <div className="flex space-x-4 justify-center w-full">
-        <button
-          type="button"
-          aria-label="Delete volunteer"
-          onClick={() => handleDeleteVolunteer?.(record.volunteer_id)}
-          className="cursor-pointer bg-transparent border-0 p-0"
-        >
-          <DeleteIcon />
-        </button>
-      </div>
-    ),
-    width: 200,
-    align: "center",
-  },
-];
+  canDelete = true
+) =>
+  getPersonColumns("volunteer", handleSeeMoreDetails, handleDeleteVolunteer, handleOnboardedStatusFilter, activeStatusSort, canDelete);
 
 export const getLearnerColumns = (
   handleSeeMoreDetails?: (id: string) => void,
   handleDeleteLearner?: (id: string) => void,
   handleOnboardedStatusFilter?: () => void,
   activeStatusSort?: string | null,
-) => [
-  {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    field: "name",
-    sorter: true,
-    className:
-      "p-6 text-sm w-[200px] !font-semibold text-gray-900 !font-poppins",
-  },
-  {
-    title: "Age",
-    dataIndex: "age",
-    key: "age",
-    field: "age",
-    sorter: true,
-    className: "p-6 text-sm w-[100px] bg-gray-50 text-gray-900 !font-poppins",
-  },
-  {
-    title: "Location",
-    dataIndex: "location",
-    key: "location",
-    sorter: false,
-    className: "p-6 w-[100px] text-sm text-gray-900 !font-poppins",
-  },
-  {
-    title: "Email",
-    dataIndex: "email",
-    key: "email",
-    sorter: false,
-    className: "p-6 w-[100px] text-sm text-gray-900 !font-poppins",
-    render: (_: unknown, record: Learner) => (
-      <span className="text-gray-900 !font-poppins !normal-case">
-        {record?.email?.toLowerCase() || "-"}
-      </span>
-    ),
-  },
-  {
-    title: "Registered",
-    dataIndex: "created_on",
-    key: "created_on",
-    field: "created_on",
-    sorter: true,
-    className:
-      "p-6 w-[120px] text-sm text-gray-900 !font-poppins whitespace-nowrap",
-    render: (_: unknown, record: Learner) => {
-      const date = (record as any)?.created_on;
-      if (!date) return "-";
-      return formatDisplayDate(date);
-    },
-  },
-  {
-    title: statusSortTitle(handleOnboardedStatusFilter, activeStatusSort),
-    dataIndex: "onboarded_status",
-    key: "onboarded_status",
-    onFilter: (value: string, record: Learner) =>
-      record.onboarded_status === value,
-    onFilterChange: handleOnboardedStatusFilter,
-    sorter: false,
-    className: "!p-0 w-[150px]  text-sm text-gray-900 !font-poppins",
-    render: (_: unknown, record: Volunteer) => {
-      if ("onboarded_status" in record) {
-        return (
-          <span
-            className={`px-6 !py-3 w-[100px] !font-poppins ${
-              record.onboarded_status === "verification_pending"
-                ? "text-warning"
-                : record.onboarded_status === "verification_completed"
-                  ? "text-success"
-                  : record.onboarded_status === "verification_rejected"
-                    ? "text-error"
-                    : record.onboarded_status === "details_pending"
-                      ? "text-blue-500"
-                      : "text-gray-500"
-            }`}
-          >
-            <span className="flex items-center gap-1">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  record.onboarded_status === "verification_pending"
-                    ? "bg-warning"
-                    : record.onboarded_status === "verification_completed"
-                      ? "bg-success"
-                      : record.onboarded_status === "verification_rejected"
-                        ? "bg-error"
-                        : record.onboarded_status === "details_pending"
-                          ? "bg-blue-500"
-                          : "bg-gray-500"
-                }`}
-              ></div>
-              {STATUS_LABEL[record.onboarded_status] ?? "Form Incomplete"}
-            </span>
-          </span>
-        );
-      }
-      return null;
-    },
-  },
-  {
-    title: "Details",
-    key: "details",
-    className: "!p-0 w-[150px]  text-sm text-gray-900 !font-poppins",
-    render: (_: unknown, record: Learner) => (
-      <div className="flex items-center gap-2">
-        {record.onboarded_status === "details_pending" ? (
-          <span>-</span>
-        ) : (
-          <button
-            type="button"
-            onClick={() => handleSeeMoreDetails?.(record?.learner_id)}
-            className="bg-transparent border-0 p-0 !font-semibold text-gray-900 underline !font-poppins cursor-pointer"
-          >
-            See more details
-          </button>
-        )}
-      </div>
-    ),
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    className: "!p-0 !w-[200px] text-sm text-gray-900 !font-poppins",
-    render: (_: any, record: any) => (
-      <div className="flex space-x-4 justify-center w-full">
-        <button
-          type="button"
-          aria-label="Delete learner"
-          onClick={() => handleDeleteLearner?.(record.learner_id)}
-          className="cursor-pointer bg-transparent border-0 p-0"
-        >
-          <DeleteIcon />
-        </button>
-      </div>
-    ),
-    width: 200,
-    align: "center",
-  },
-];
+  canDelete = true
+) =>
+  getPersonColumns("learner", handleSeeMoreDetails, handleDeleteLearner, handleOnboardedStatusFilter, activeStatusSort, canDelete);
 
 export const getReportColumns = (
   handleSeePost?: (id: string, reportId?: string) => void,
-  actionLabel = "See post",
+  actionLabel = "See post"
 ) => [
   {
     title: "Title",
     dataIndex: "title",
     key: "title",
     sorter: false,
-    className:
-      "!w-[20%] p-6 text-sm !font-semibold text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
+    width: 200,
+    ellipsis: true,
+    className: "!font-semibold text-ink",
   },
   {
     title: "Reported By",
     dataIndex: "profile_name",
     key: "profile_name",
     sorter: false,
-    className:
-      "!w-[15%] p-6 text-sm !font-semibold text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
+    width: 150,
+    ellipsis: true,
+    className: "!font-semibold text-ink",
   },
   {
     title: "Reason",
     dataIndex: "reason",
     key: "reason",
     sorter: false,
-    className:
-      "!w-[25%] !max-w-[40vw] p-6 text-sm bg-gray-50 text-gray-900 !font-poppins overflow-hidden",
+    width: 290,
     render: (_: unknown, record: Report) => (
       <div className="flex items-center gap-2 overflow-hidden">
-        <ExpandableText
-          text={record.reason}
-          maxLength={120}
-          actionLabel="read&nbsp;more"
-        />
+        <ExpandableText text={record.reason} maxLength={120} actionLabel="read&nbsp;more" />
       </div>
     ),
   },
@@ -470,8 +304,8 @@ export const getReportColumns = (
     dataIndex: "report_time",
     key: "report_time",
     sorter: false,
-    className:
-      "!w-[10%] p-6 text-sm text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
+    width: 130,
+    className: "whitespace-nowrap",
     render: (_: unknown, record: Report) => {
       if (!record.report_time) return "-";
       return formatDisplayDate(record.report_time);
@@ -482,51 +316,23 @@ export const getReportColumns = (
     dataIndex: "review_status",
     key: "review_status",
     sorter: false,
-    className:
-      "!w-[10%] p-6 text-sm text-gray-900 !font-poppins whitespace-nowrap overflow-hidden",
+    width: 130,
     render: (_: unknown, record: Report) => (
-      <span
-        className={`text-sm text-gray-900 !font-poppins ${
-          record.report_status === "pending"
-            ? "!text-warning"
-            : record.report_status === "resolved"
-              ? "!text-success"
-              : record.report_status === "rejected"
-                ? "!text-error"
-                : "!text-gray-500"
-        }`}
-      >
-        <span className="flex items-center gap-1">
-          <div
-            className={`!w-2 !h-2 !rounded-full ${
-              record.report_status === "pending"
-                ? "!bg-warning"
-                : record.report_status === "resolved"
-                  ? "!bg-success"
-                  : record.report_status === "rejected"
-                    ? "!bg-error"
-                    : "!bg-gray-500"
-            }`}
-          ></div>
-          {record.report_status}
-        </span>
-      </span>
+      <StatusTag dot tone={toneFromStatus(record.report_status)}>
+        {record.report_status}
+      </StatusTag>
     ),
   },
   {
-    title: "",
+    title: "Actions",
     key: "actions",
-    className: "!w-[10%]",
+    width: 120,
+    fixed: "right" as const,
+    align: "right" as const,
     render: (_: unknown, record: Report) => (
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => handleSeePost?.(record.docId, record.reportId)}
-          className="bg-transparent border-0 p-0 !font-semibold text-gray-900 underline !font-poppins cursor-pointer"
-        >
-          {actionLabel}
-        </button>
-      </div>
+      <Button size="small" onClick={() => handleSeePost?.(record.docId, record.reportId)}>
+        {actionLabel}
+      </Button>
     ),
   },
 ];
@@ -541,24 +347,16 @@ export interface HiringApplicationRow {
   has_resume?: boolean;
 }
 
-export const getHiringColumns = (
-  onViewApplication?: (row: HiringApplicationRow) => void
-) => [
+export const getHiringColumns = (onViewApplication?: (row: HiringApplicationRow) => void) => [
   {
-    title: (
-      <span className="text-[16px] !font-medium text-[#121212] !font-poppins">
-        Applicant Name
-      </span>
-    ),
+    title: "Applicant Name",
     dataIndex: "applicant_name",
     key: "applicant_name",
     sorter: false,
-    className:
-      "p-6 text-base w-[220px] text-[#121212] !font-poppins",
+    width: 200,
+    ellipsis: true,
     render: (_: unknown, record: HiringApplicationRow) => (
-      <span className="text-[16px] !font-semibold text-[#121212] !font-poppins">
-        {record?.applicant_name || "-"}
-      </span>
+      <span className="font-semibold text-ink">{record?.applicant_name || "-"}</span>
     ),
   },
   {
@@ -566,11 +364,10 @@ export const getHiringColumns = (
     dataIndex: "email",
     key: "email",
     sorter: false,
-    className: "p-6 w-[240px] text-base text-[#121212] !font-poppins !font-medium",
+    width: 240,
+    ellipsis: true,
     render: (_: unknown, record: HiringApplicationRow) => (
-      <span className="text-base text-[#121212] !font-poppins !font-medium !normal-case">
-        {record?.email?.toLowerCase?.() || "-"}
-      </span>
+      <span className="text-ink !normal-case">{record?.email?.toLowerCase?.() || "-"}</span>
     ),
   },
   {
@@ -579,15 +376,16 @@ export const getHiringColumns = (
     key: "submission_date",
     // Server-paginated and already newest-first; a client sorter only reordered the visible page.
     sorter: false,
-    className:
-      "p-6 w-[200px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
+    width: 150,
+    className: "whitespace-nowrap",
   },
   {
     title: "Hours / week",
     dataIndex: "hours_per_week",
     key: "hours_per_week",
     sorter: false,
-    className: "p-6 w-[140px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
+    width: 120,
+    className: "whitespace-nowrap",
     render: (_: unknown, record: HiringApplicationRow) => record?.hours_per_week || "-",
   },
   {
@@ -595,25 +393,25 @@ export const getHiringColumns = (
     dataIndex: "has_resume",
     key: "has_resume",
     sorter: false,
-    className: "p-6 w-[110px] text-base text-[#121212] !font-poppins !font-medium",
+    width: 90,
     render: (_: unknown, record: HiringApplicationRow) => (record?.has_resume ? "Yes" : "-"),
   },
   {
-    title: "",
+    title: "Actions",
     key: "actions",
-    className: "!p-0 !w-[160px] text-[14px] text-[#121212] !font-poppins",
+    width: 150,
+    fixed: "right" as const,
+    align: "right" as const,
     render: (_: unknown, record: HiringApplicationRow) => (
-      <button
-        type="button"
+      <Button
+        size="small"
         onClick={(e) => {
           e.stopPropagation();
           onViewApplication?.(record);
         }}
-        className="bg-transparent border-0 px-6 !py-3 text-[14px] !font-medium text-[#121212] underline !font-poppins cursor-pointer whitespace-nowrap"
       >
         View application
-      </button>
+      </Button>
     ),
-    width: 160,
   },
 ];

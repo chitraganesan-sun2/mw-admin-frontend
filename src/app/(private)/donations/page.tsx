@@ -1,7 +1,9 @@
 "use client";
 
 import Table from "@/components/Table";
-import Input from "@/components/common/Input";
+import SearchInput from "@/components/common/Filters/SearchInput";
+import FilterBar from "@/components/common/Filters/FilterBar";
+import EmptyState from "@/components/common/EmptyState";
 import { getDonationColumns, DonationRow } from "@/constants/tablecolumn";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
@@ -281,7 +283,7 @@ export default function DonationsPage() {
   };
 
   return (
-    <div className="w-full h-auto p-10 animate-fadeIn">
+    <div className="w-full h-auto p-6 animate-fadeIn">
       <DonationDetailsModal
         key={modalKey}
         isOpen={isDetailsOpen}
@@ -289,30 +291,28 @@ export default function DonationsPage() {
         data={details}
         isLoading={detailsLoading}
       />
-      <div className="w-full mb-6">
-        <Input
-          inputType="search"
-          name="search"
+      <FilterBar>
+        <SearchInput
           value={search}
           onChange={(value: string) => {
             setSearch(value);
             setPage(1);
           }}
           placeholder="Search"
-          inputClassName="!bg-white !rounded-3xl"
         />
-      </div>
+      </FilterBar>
       {isError ? (
         <ErrorMsg message="Couldn't load the donations." onRetry={() => refetch()} retrying={isFetching} />
       ) : !isLoading && !isFetching && data.length === 0 ? (
-        <div className="w-full py-10 text-center text-[#6B7280]">No donations yet.</div>
+        <div className="rounded-2xl border border-stroke bg-white">
+          <EmptyState title="No donations yet" description="Donations will appear here as they come in." />
+        </div>
       ) : (
         <Table
           key="donations"
           data={data}
           columns={columns}
           loading={isLoading || isFetching}
-          rootClassName="[&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal [&_thead_th.ant-table-column-sort]:!bg-[#FAFAFA] [&_tbody_tr:hover>td]:!bg-[#FAFAFA] [&_tbody_td.ant-table-column-sort]:!bg-transparent [&_tbody_tr:hover>td.ant-table-column-sort]:!bg-[#FAFAFA] [&_.ant-table-column-sorter]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up.active]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down.active]:!text-[#9CA3AF]"
           pagination={{
             current: page,
             pageSize: pageSize,

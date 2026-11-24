@@ -117,16 +117,20 @@ const Table: React.FC<TableProps> = ({
         columns={layout.columns}
         // The skeleton covers the first load; the spinner overlay is only for refreshing rows already on screen.
         loading={loading && hasRows}
-        pagination={{
-          showQuickJumper: false,
-          itemRender: paginationItemRender,
-          ...pagination,
-        }}
+        pagination={
+          pagination === false
+            ? false
+            : {
+                showQuickJumper: false,
+                itemRender: paginationItemRender,
+                ...pagination,
+              }
+        }
         onChange={onChange}
         onRow={keyboardAccessibleOnRow}
         rowKey={rowKey ?? resolveRowKey}
-        expandable={expandable}
-        rowSelection={rowSelection}
+        expandable={expandable ? { columnWidth: 48, ...expandable } : undefined}
+        rowSelection={rowSelection ? { columnWidth: 48, ...rowSelection } : undefined}
         locale={{ emptyText: loading && !hasRows ? <TableSkeleton /> : empty }}
         showSorterTooltip={false}
         tableLayout={layout.fixedLayout ? "fixed" : undefined}

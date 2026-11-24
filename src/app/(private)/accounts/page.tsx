@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { paginationItemRender } from "@/components/Table/paginationItemRender";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
-import { Button, Form, Input, Modal, Popconfirm, Select, Table, Tag } from "antd";
+import { Button, Form, Input, Modal, Popconfirm, Select } from "antd";
+import Table from "@/components/Table";
+import StatusTag from "@/components/common/StatusTag";
+import PageHeader from "@/components/common/PageHeader";
 import { GET_API, POST_API, PUT_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import { useComponentStore } from "@/store/useComponenetStore";
@@ -105,9 +107,11 @@ export default function AccountsPage() {
       title: "Username",
       dataIndex: "username",
       key: "username",
+      width: 220,
+      ellipsis: true,
       render: (name: string, a: Account) => (
         <span className="font-medium !normal-case">
-          {name} {a.user_id === me?.user_id && <Tag className="ml-1">You</Tag>}
+          {name} {a.user_id === me?.user_id && <StatusTag className="ml-1">You</StatusTag>}
         </span>
       ),
     },
@@ -115,6 +119,7 @@ export default function AccountsPage() {
       title: "Role",
       dataIndex: "role",
       key: "role",
+      width: 150,
       render: (r: StaffRole, a: Account) => {
         const isMe = a.user_id === me?.user_id;
         return (
@@ -137,12 +142,13 @@ export default function AccountsPage() {
     {
       title: "Access",
       key: "access",
+      width: 360,
       render: (_: unknown, a: Account) => {
         const isMe = a.user_id === me?.user_id;
         return (
           <div className="flex items-center gap-2">
-            <Tag color={a.custom_permissions ? "blue" : "default"}>{a.custom_permissions ? "Custom" : "Role defaults"}</Tag>
-            <span className="text-xs text-gray-600">{a.permissions.length} areas</span>
+            <StatusTag tone={a.custom_permissions ? "info" : "neutral"}>{a.custom_permissions ? "Custom" : "Role defaults"}</StatusTag>
+            <span className="text-xs text-ink-2">{a.permissions.length} areas</span>
             <Button
               size="small"
               onClick={() => setAccessFor(a)}
@@ -160,11 +166,14 @@ export default function AccountsPage() {
       title: "Status",
       dataIndex: "disabled",
       key: "disabled",
-      render: (d: boolean) => <Tag color={d ? "red" : "green"}>{d ? "Disabled" : "Active"}</Tag>,
+      width: 120,
+      render: (d: boolean) => <StatusTag tone={d ? "danger" : "success"} dot>{d ? "Disabled" : "Active"}</StatusTag>,
     },
     {
       title: "Actions",
       key: "actions",
+      width: 120,
+      fixed: "right" as const,
       render: (_: unknown, a: Account) => {
         const isMe = a.user_id === me?.user_id;
         const busy = disableMutation.isPending && disableMutation.variables?.id === a.user_id;
@@ -192,36 +201,40 @@ export default function AccountsPage() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-end items-center mb-2">
-        <h2 className="sr-only">Accounts</h2>
-        <Button
-          type="primary"
-          onClick={() => {
-            setNewRole("support");
-            setFormKey((k) => k + 1);
-            setIsModalOpen(true);
-          }}
-        >
-          + Add account
-        </Button>
-      </div>
-      <p className="text-gray-600 mb-6 max-w-3xl">
-        People who can sign in to this portal. A role gives the starting access (<strong>Support</strong> works on applications;{" "}
-        <strong>Admin</strong> can do everything), and <strong>Edit access</strong> switches individual areas on or off for one
-        person. Changes apply on the person&apos;s next request.
-      </p>
+      <PageHeader
+        className="mb-6"
+        description={
+          <>
+            People who can sign in to this portal. A role gives the starting access (<strong>Support</strong> works on
+            applications; <strong>Admin</strong> can do everything), and <strong>Edit access</strong> switches individual
+            areas on or off for one person. Changes apply on the person&apos;s next request.
+          </>
+        }
+        actions={
+          <Button
+            type="primary"
+            onClick={() => {
+              setNewRole("support");
+              setFormKey((k) => k + 1);
+              setIsModalOpen(true);
+            }}
+          >
+            + Add account
+          </Button>
+        }
+      />
+      <h2 className="sr-only">Accounts</h2>
 
       {isError ? (
         <ErrorMsg message="Couldn't load the accounts." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
-          dataSource={[...accounts].sort((a, b) => a.username.localeCompare(b.username))}
+          data={[...accounts].sort((a, b) => a.username.localeCompare(b.username))}
           columns={columns}
           rowKey="user_id"
           loading={isLoading}
-          pagination={{ itemRender: paginationItemRender, pageSize: 15, hideOnSinglePage: true }}
-          locale={{ emptyText: "No accounts yet." }}
-          scroll={{ x: "max-content" }}
+          pagination={{ pageSize: 15, hideOnSinglePage: true }}
+          emptyText="No accounts yet."
         />
       )}
 

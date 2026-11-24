@@ -17,7 +17,10 @@ import { useQuery } from "@tanstack/react-query";
 import { GET_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 
-import Input from "@/components/common/Input";
+import SearchInput from "@/components/common/Filters/SearchInput";
+import FilterBar from "@/components/common/Filters/FilterBar";
+import PageHeader from "@/components/common/PageHeader";
+import EmptyState from "@/components/common/EmptyState";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { formatDisplayDate } from "@/utils/moment";
 import { serverTimeMs } from "@/utils/displayDateTime";
@@ -383,33 +386,36 @@ export default function HiringPage() {
         data={selectedDetails}
         isLoading={isDetailsLoading}
       />
-      <div className="w-full mb-4 flex items-center justify-between gap-4">
-        <h2 className="text-[20px] font-medium text-[#121212] !font-poppins">Applications</h2>
-        <div className="w-full max-w-[280px]">
-          <Input
-            inputType="search"
-            name="search"
-            value={search}
-            onChange={(value: string) => {
-              setSearch(value);
-              setPage(1);
-            }}
-            placeholder="Search"
-            inputClassName="!bg-white !rounded-3xl"
-          />
-        </div>
-      </div>
+      <PageHeader
+        className="mb-4"
+        title="Applications"
+        description="Select a row to read the full application."
+      />
+      <FilterBar>
+        <SearchInput
+          value={search}
+          onChange={(value: string) => {
+            setSearch(value);
+            setPage(1);
+          }}
+          placeholder="Search"
+        />
+      </FilterBar>
       {isError ? (
         <ErrorMsg message="Couldn't load the applications." onRetry={() => refetch()} retrying={isFetching} />
       ) : !isLoading && !isFetching && pagedData.length === 0 ? (
-        <div className="w-full py-10 text-center text-[#6B7280]">No applications yet.</div>
+        <div className="rounded-2xl border border-stroke bg-white">
+          <EmptyState
+            title={debouncedSearch ? "No applications match your search" : "No applications yet"}
+            description={debouncedSearch ? "Try a different search." : "New applications will appear here."}
+          />
+        </div>
       ) : (
         <Table
           key="hiring-applications"
           data={pagedData}
           columns={columns}
           loading={isLoading || isFetching}
-          rootClassName="[&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal [&_thead_th.ant-table-column-sort]:!bg-[#FAFAFA] [&_tbody_tr:hover>td]:!bg-[#FAFAFA] [&_tbody_td.ant-table-column-sort]:!bg-transparent [&_tbody_tr:hover>td.ant-table-column-sort]:!bg-[#FAFAFA] [&_.ant-table-column-sorter]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-up.active]:!text-[#9CA3AF] [&_.ant-table-column-sorters_.ant-table-column-sorter-down.active]:!text-[#9CA3AF]"
           onRow={(record: HiringApplicationRow) => ({
             onClick: () => handleViewApplication(record),
             className: "cursor-pointer",
@@ -420,6 +426,7 @@ export default function HiringPage() {
             total: totalCount,
             showSizeChanger: true,
             showQuickJumper: true,
+            pageSizeOptions: [10, 25, 50, 100],
           }}
           onChange={handleTableChange}
         />

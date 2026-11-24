@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Input } from "antd";
-import { FiRefreshCw } from "react-icons/fi";
+import { FiChevronRight } from "react-icons/fi";
+import FilterBar, { FilterField } from "@/components/common/Filters/FilterBar";
+import RefreshButton from "@/components/common/Filters/RefreshButton";
 import { useQueryState } from "nuqs";
 import Table from "@/components/Table";
 import { getAuditLog, type AuditEntry } from "@/api/audit";
@@ -22,7 +24,7 @@ export default function AuditLogPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
   const [page, setPage] = useQueryState("page", { defaultValue: "1" });
-  const [size, setSize] = useQueryState("size", { defaultValue: "25" });
+  const [size, setSize] = useQueryState("size", { defaultValue: "15" });
   const [action, setAction] = useQueryState("action");
   const [targetId, setTargetId] = useQueryState("target");
 
@@ -72,12 +74,15 @@ export default function AuditLogPage() {
       title: "When",
       dataIndex: "created_at",
       key: "created_at",
+      width: 190,
+      className: "whitespace-nowrap",
       render: (v: string) => formatDisplayDateTime(v),
     },
     {
       title: "What happened",
       dataIndex: "action",
       key: "action",
+      width: 300,
       render: (v: string) => (
         <span title={v}>
           <span className="!normal-case">{describeAction(v)}</span>
@@ -88,6 +93,7 @@ export default function AuditLogPage() {
       title: "Who",
       dataIndex: "admin_id",
       key: "admin_id",
+      width: 200,
       render: (v: string) => {
         const name = nameOf(v);
         return name ? (
@@ -104,6 +110,7 @@ export default function AuditLogPage() {
     {
       title: "On",
       key: "target",
+      width: 260,
       render: (_: unknown, row: AuditEntry) =>
         row.target_id ? (
           <span className="!normal-case">
@@ -121,10 +128,9 @@ export default function AuditLogPage() {
   const filtered = !!(action || targetId);
 
   return (
-    <div className="p-4 sm:p-8">
-      <div className="mb-4 flex flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1 text-xs text-gray-medium">
-          Action
+    <div className="p-4 sm:p-6">
+      <FilterBar actions={<RefreshButton onClick={() => refetch()} loading={isFetching} />}>
+        <FilterField label="Action">
           <Input
             allowClear
             value={actionDraft}
@@ -135,9 +141,8 @@ export default function AuditLogPage() {
             aria-label="Filter by action"
             className="!w-56"
           />
-        </label>
-        <label className="flex flex-col gap-1 text-xs text-gray-medium">
-          Target id
+        </FilterField>
+        <FilterField label="Target id">
           <Input
             allowClear
             value={targetDraft}
@@ -148,12 +153,9 @@ export default function AuditLogPage() {
             aria-label="Filter by target id"
             className="!w-64"
           />
-        </label>
+        </FilterField>
         {filtered ? <Button onClick={clearFilters}>Clear filters</Button> : null}
-        <Button icon={<FiRefreshCw aria-hidden />} onClick={() => refetch()} loading={isFetching} className="ml-auto">
-          Refresh
-        </Button>
-      </div>
+      </FilterBar>
 
       {isError ? (
         <div role="alert" className="rounded-xl border border-stroke bg-white p-4 text-sm text-dark">
@@ -170,9 +172,26 @@ export default function AuditLogPage() {
           rowKey="audit_id"
           emptyText={filtered ? "No entries match these filters." : "Nothing has been recorded yet."}
           expandable={{
+            // Rows with nothing to expand keep a dimmed chevron so the first column doesn't look ragged.
+            expandIcon: ({ expandable, expanded, onExpand, record }: any) =>
+              expandable ? (
+                <button
+                  type="button"
+                  aria-label={expanded ? "Hide details" : "Show details"}
+                  aria-expanded={expanded}
+                  onClick={(e) => onExpand(record, e)}
+                  className="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-ink-2 hover:bg-background"
+                >
+                  <FiChevronRight aria-hidden className={`transition-transform ${expanded ? "rotate-90" : ""}`} />
+                </button>
+              ) : (
+                <span className="inline-flex h-8 w-8 items-center justify-center text-ink-3 opacity-30" aria-hidden>
+                  <FiChevronRight />
+                </span>
+              ),
             rowExpandable: (row: AuditEntry) => metadataLines(row.metadata).length > 0,
             expandedRowRender: (row: AuditEntry) => (
-              <ul className="m-0 list-none p-0 text-xs !normal-case text-gray-medium">
+              <ul className="m-0 list-none p-0 text-xs !normal-case text-ink-2">
                 {metadataLines(row.metadata).map((line) => (
                   <li key={line} className="font-mono break-all">
                     {line}
@@ -186,7 +205,7 @@ export default function AuditLogPage() {
             pageSize: Number(size),
             total: data?.total ?? 0,
             showSizeChanger: true,
-            pageSizeOptions: ["25", "50", "100"],
+            pageSizeOptions: ["15", "25", "50", "100"],
           }}
           onChange={(p: any) => {
             setPage(String(p.current));
