@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+import { parseServerDate } from "@/utils/displayDateTime";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(advancedFormat);
@@ -34,8 +35,10 @@ const SUPPORTED_DATE_FORMATS = [
 ];
 
 const parseDate = (raw: string): dayjs.Dayjs => {
-  // dayjs() default parser handles ISO 8601 well
-  const d = dayjs(raw);
+  // ISO 8601 / datetime strings; a string with no zone is UTC (the backend writes naive UTC), so
+  // the list and the details modal agree on the same instant.
+  const instant = parseServerDate(raw);
+  const d = instant ? dayjs(instant) : dayjs(NaN);
   if (d.isValid()) return d;
   // Fallback: try explicit formats for non-standard legacy strings
   for (const fmt of SUPPORTED_DATE_FORMATS) {
@@ -137,12 +140,13 @@ export default function DonationsPage() {
         ? Object.values(raw as Record<string, any>)
         : [];
     return items.map((it: any, index: number) => {
+      // created_at is the instant the details modal also shows. `date` is a server-formatted UTC
+      // string ("21st Nov, 2026") that can name a different day than the admin's local one, so it
+      // is only a fallback for rows without created_at.
       const donationDateRaw =
-        it?.date || it?.donation_date || it?.transaction_time || it?.created_on || it?.createdAt || "";
+        it?.created_at || it?.createdAt || it?.transaction_time || it?.created_on || it?.donation_date || it?.date || "";
       const parsedDate = donationDateRaw ? parseDate(donationDateRaw) : null;
-      const normalizedDate = parsedDate?.isValid()
-        ? parsedDate.format("YYYY-MM-DD")
-        : "";
+      const normalizedDate = parsedDate?.isValid() ? parsedDate.toISOString() : "";
       const amountNum =
         typeof it?.final_amount === "number"
           ? it.final_amount

@@ -5,6 +5,7 @@ import { Button } from "antd";
 import { DeleteIcon } from "@/assets/icons";
 import { FaSort } from "react-icons/fa";
 import { formatDisplayDate } from "@/utils/moment";
+import { formatMoney } from "@/components/dashboard/widgets";
 
 
 export interface DonationRow {
@@ -73,7 +74,7 @@ export const getDonationColumns = (
       "p-6 w-[140px] text-base text-[#121212] !font-poppins whitespace-nowrap !font-medium",
     render: (_: unknown, record: DonationRow) => (
       <span className="text-base font-medium text-[#121212] !font-poppins !normal-case">
-        {record?.amount != null ? `$${record.amount}` : "-"}
+        {record?.amount != null ? formatMoney(record.amount) : "-"}
       </span>
     ),
   },

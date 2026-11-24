@@ -3,6 +3,8 @@
 import ViewModal from "@/components/common/Modals/ViewModal";
 import { FeedModalCloseIcon } from "@/assets/icons";
 import React from "react";
+import { formatDisplayDateTime } from "@/utils/displayDateTime";
+import { formatMoney } from "@/components/dashboard/widgets";
 
 export interface DonationDetails {
   amount: number;
@@ -123,12 +125,12 @@ export default function DonationDetailsModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm text-[#4F4F4F]">Amount Donated</p>
-                  <p className="mt-2 text-[28px] font-semibold text-[#000000]">${data.amount}</p>
+                  <p className="mt-2 text-[28px] font-semibold text-[#000000]">{formatMoney(data.amount)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-[#4F4F4F]">Date and Time</p>
                   <p className="mt-2 text-[28px] font-semibold text-[#000000]">
-                    {formatDonationDateTime(data.dateTime)}
+                    {formatDisplayDateTime(data.dateTime)}
                   </p>
                 </div>
               </div>
@@ -180,22 +182,6 @@ export default function DonationDetailsModal({
       </div>
     </ViewModal>
   );
-}
-
-function formatDonationDateTime(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "-";
-  const datePart = d.toLocaleDateString(undefined, {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-  let h = d.getHours();
-  const m = d.getMinutes().toString().padStart(2, "0");
-  const ampm = h >= 12 ? "PM" : "AM";
-  h = h % 12;
-  if (h === 0) h = 12;
-  return `${datePart}, ${h}.${m} ${ampm}`;
 }
 
 function Field({ label, value }: { label: string; value?: string }) {
