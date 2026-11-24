@@ -19,6 +19,7 @@ const Button: React.FC<ButtonProps> = ({
 
     const variantStyles = {
         primary: "",
+        default: "",
         // The one dark "strong" action (selected pill tab, Log In). White on #121212 is 18:1.
         secondary: "!bg-ink !border-ink !text-white hover:!bg-ink-2 hover:!border-ink-2 hover:!text-white",
         error: "!bg-error-light !border-error-light !text-error hover:!bg-error hover:!border-error hover:!text-white",

@@ -152,13 +152,14 @@ const SelectionModal = ({
         </div>
         <div className="flex items-center gap-2 mt-5 justify-end">
           <Button
-            className="w-fit h-[40px] font-poppins font-medium !bg-white !text-black !rounded-xl !border !border-stroke"
+            className="w-fit font-poppins"
             onClick={handleClose}
           >
             Cancel
           </Button>
           <Button
-            className="w-fit h-[40px] font-poppins font-medium !bg-black !text-white !rounded-xl "
+            type="primary"
+            className="w-fit font-poppins"
             onClick={handleSave}
           >
             Save

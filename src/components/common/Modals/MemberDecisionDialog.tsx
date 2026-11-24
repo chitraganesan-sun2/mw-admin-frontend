@@ -60,9 +60,9 @@ const MemberDecisionDialog = ({ decision, memberKind, memberName, reason, onReas
             onChange={(e) => onReasonChange(e.target.value)}
             disabled={pending}
             placeholder="Let the applicant know why their application wasn't approved."
-            className="min-h-[110px] w-full rounded-lg border border-gray-300 p-3 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+            className="min-h-[110px] w-full rounded-xl border border-stroke p-3 text-sm font-[inherit] focus:outline-none focus:border-brand-ink focus:ring-1 focus:ring-brand-ink"
           />
-          <p className="mt-1 text-right text-xs text-gray-600" aria-live="polite">
+          <p className="mt-1 text-right text-xs text-ink-2" aria-live="polite">
             {reason.length} / {REJECTION_REASON_MAX}
           </p>
         </>

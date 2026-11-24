@@ -43,6 +43,8 @@ export default function ApexChart({ type, series, options, height = 260 }: ApexC
         toolbar: { show: false },
         zoom: { enabled: false },
         fontFamily: "inherit",
+        // Axis labels, legends and data labels in the secondary-text colour (7.9:1 on white), 12px minimum.
+        foreColor: "#4F4F4F",
         animations: { enabled: !reducedMotion },
         ...options.chart,
         type,

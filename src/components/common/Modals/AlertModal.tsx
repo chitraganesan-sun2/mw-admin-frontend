@@ -41,9 +41,9 @@ const AlertModal = ({
   const getTitleColor = () => {
     switch (type) {
       case "danger":
-        return "text-[#DC2626]";
+        return "text-error";
       case "warning":
-        return "text-[#A16207]"; // was #F59E0B, 2.1:1 on white
+        return "text-warning"; // AA on white (the old #F59E0B was 2.1:1)
       default:
         return "text-black";
     }
@@ -59,23 +59,16 @@ const AlertModal = ({
             <FeedModalCloseIcon />
           </button>
         </div>
-        <p className="text-sm text-gray-light font-medium px-5">
+        <p className="text-sm text-ink-2 px-5">
           {description}
         </p>
         <Divider />
         <div className="flex items-center gap-2 justify-end px-5 pb-3">
-          <Button
-            disabled={isLoading}
-            onClick={handleSecondaryAction}
-            className="w-fit text-sm h-9 font-medium !font-poppins !bg-white rounded-lg py-2 !text-black !border !border-stroke"
-          >
+          <Button disabled={isLoading} onClick={handleSecondaryAction} btnVariant="default">
             {secondaryActionText}
           </Button>
-          <Button
-            loading={isLoading}
-            onClick={onPrimaryAction}
-            className="w-fit text-sm h-9 font-medium !font-poppins !bg-black !border-none rounded-lg py-2 !text-white hover:!text-white"
-          >
+          {/* A destructive confirm is the danger button; other confirms use the one primary look. */}
+          <Button loading={isLoading} onClick={onPrimaryAction} danger={type === "danger"}>
             {primaryActionText}
           </Button>
         </div>

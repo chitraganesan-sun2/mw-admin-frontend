@@ -109,7 +109,8 @@ const CenterModal: React.FC<CenterModalProps> = ({
                 loading={rejectLoading}
                 disabled={actionLoading}
                 icon={<MdClose className="text-[1.1rem]" />}
-                className="w-[150px] text-sm  h-9 !bg-error-light !border-none rounded-xl  py-2 !text-error"
+                btnVariant="error"
+                customClassName="w-[150px]"
               >
                 Reject
               </Button>
@@ -119,7 +120,8 @@ const CenterModal: React.FC<CenterModalProps> = ({
                 loading={acceptLoading}
                 disabled={actionLoading}
                 icon={<IoMdCheckmark className="text-[1.1rem]" />}
-                className="w-[150px] text-sm h-9 !bg-[#DCFCE7] !border-none rounded-xl  py-2 !text-success "
+                btnVariant="success"
+                customClassName="w-[150px]"
               >
                 Accept
               </Button>

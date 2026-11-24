@@ -109,9 +109,9 @@ const barChart = ({ name, labels, values, colors, horizontal }: BarSpec) => {
     legend: { show: false },
     xaxis: horizontal
       ? ({ categories: labels, ...valueAxis } as ApexXAxis)
-      : { categories: labels, labels: { style: { fontSize: "11px" } } },
+      : { categories: labels, labels: { style: { fontSize: "12px" } } },
     yaxis: horizontal
-      ? { labels: { maxWidth: 160, style: { fontSize: "11px" } } }
+      ? { labels: { maxWidth: 160, style: { fontSize: "12px" } } }
       : (valueAxis as ApexYAxis),
     tooltip: { y: { formatter: (value: number) => String(value) } },
   };
@@ -398,7 +398,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible, group }
               },
               xaxis: {
                 categories: trend.map((t) => t.label),
-                labels: { rotate: -35, rotateAlways: true, trim: true, style: { fontSize: "10px" } },
+                labels: { rotate: -35, rotateAlways: true, trim: true, style: { fontSize: "12px" } },
               },
               yaxis: { min: 0, max: 100, tickAmount: 5, labels: { formatter: wholeNumber } },
               annotations: {
@@ -433,7 +433,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible, group }
               colors: [ACCENT],
               stroke: { curve: "smooth", width: 2 },
               fill: { type: "gradient", gradient: { opacityFrom: 0.3, opacityTo: 0.02 } },
-              xaxis: { categories: daily.map((d) => d.label), labels: { rotate: -45, style: { fontSize: "10px" } } },
+              xaxis: { categories: daily.map((d) => d.label), labels: { rotate: -45, style: { fontSize: "12px" } } },
               yaxis: { ...countAxis(Math.max(0, ...daily.map((d) => d.count))), labels: { formatter: wholeNumber } } as ApexYAxis,
             }}
           />
@@ -462,7 +462,7 @@ export default function AnalyticsCharts({ analytics, history, isVisible, group }
               colors: [SEVERITY_COLORS.Moderate.hex],
               stroke: { curve: "straight", width: 2.5 },
               markers: { size: 4, strokeColors: "#fff", strokeWidth: 1.5 },
-              xaxis: { categories: daily.map((d) => d.label), labels: { rotate: -45, style: { fontSize: "10px" } } },
+              xaxis: { categories: daily.map((d) => d.label), labels: { rotate: -45, style: { fontSize: "12px" } } },
               yaxis: { min: 0, max: 100, tickAmount: 5, labels: { formatter: wholeNumber } },
               annotations: {
                 yaxis: [
