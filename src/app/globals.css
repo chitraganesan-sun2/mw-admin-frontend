@@ -12,12 +12,53 @@
   --gray-light-color: #4f4f4f;
   --white-color: #ffffff;
   --black-color: #121212;
-  --error-color: #ef4444;
+  --error-color: #b91c1c;
   --error-light-color: #fee2e2;
-  --success-color: #16a34a;
+  --success-color: #15803d;
   --success-light-color: #dcfce7;
   --border-stroke: #e0e0e0;
-  --input-background: #f4f7fb;
+  --input-background: #ffffff;
+
+  /* Design tokens (mirror src/theme/tokens.ts, which also feeds the antd theme and Tailwind colours). */
+  --brand: #09baee; /* fills and icons; put DARK text (--on-brand) on it, never white */
+  --brand-tint: #e0f7fe;
+  --brand-ink: #046a8a; /* cyan as text or a thin line on white: 6.1:1 */
+  --on-brand: #121212;
+  --ink: #121212;
+  --ink-2: #4f4f4f;
+  --ink-3: #667085;
+  --line: #e0e0e0;
+  --line-soft: #eef1f5;
+  --canvas: #f4f7fb;
+  --surface: #ffffff;
+  --table-head: #f8fafc;
+  --row-hover: #f5fbfe;
+  --tone-success-fg: #15803d;
+  --tone-success-bg: #dcfce7;
+  --tone-warning-fg: #92400e;
+  --tone-warning-bg: #fef3c7;
+  --tone-danger-fg: #b91c1c;
+  --tone-danger-bg: #fee2e2;
+  --tone-info-fg: #046a8a;
+  --tone-info-bg: #e0f7fe;
+
+  /* Radius, elevation, spacing, control sizes */
+  --radius-control: 12px;
+  --radius-control-sm: 8px;
+  --radius-card: 16px;
+  --radius-modal: 24px;
+  --radius-tag: 6px;
+  --shadow-hover: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-popover: 0 8px 24px rgba(18, 18, 18, 0.12);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --control-sm: 32px;
+  --control-md: 40px;
+  --control-lg: 44px;
 
   /* Font weights */
   --font-light: 300;
@@ -31,8 +72,15 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  color: "#121212";
+  color: var(--ink);
   font-family: "Poppins", sans-serif !important;
+}
+
+/* antd components pick their font from the theme token, but portals (dropdowns, modals, tooltips) and a few
+   inner nodes still fell back to the system stack; make every antd node inherit Poppins (ADM-UI-9, X-UI-2). */
+[class^="ant-"],
+[class*=" ant-"] {
+  font-family: inherit;
 }
 
 ::-webkit-scrollbar {
@@ -88,19 +136,23 @@ body {
 }
 
 .ant-pagination {
-  @apply flex justify-center bg-white w-fit mx-auto px-4 py-3 rounded-xl items-center gap-2 mt-8 !important;
+  @apply flex justify-center bg-white w-fit mx-auto px-4 py-3 rounded-xl items-center gap-2 my-4 !important;
 }
 
 .ant-pagination-item {
-  @apply rounded-xl px-2 border border-gray-300 !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius-control-sm) !important;
 }
 
+/* Current page: brand tint + brand-ink outline (not a black block); text stays AA on the tint. */
 .ant-pagination-item-active {
-  @apply bg-black border-black !important;
+  background: var(--brand-tint) !important;
+  border-color: var(--brand-ink) !important;
 }
 
 .ant-pagination-item-active a {
-  @apply text-white !important;
+  color: var(--brand-ink) !important;
+  font-weight: 600;
 }
 
 @keyframes fadeIn {
@@ -124,17 +176,8 @@ body {
   border-radius: 24px !important;
 }
 
-.ant-select-item-option-selected {
-  background-color: var(--gray-light-color) !important;
-  color: white !important;
-}
-
-.ant-select-selector {
-  padding: 3px !important;
-  padding-left: 8px !important;
-  background-color: var(--input-background) !important;
-  font-size: 14px !important;
-}
+/* Select boxes now take their size, radius, border and background from the antd theme (40px / 12px / #E0E0E0 /
+   white); the old !important padding + grey background overrides made every select a different height (ADM-UI-16). */
 
 .ant-select-selection-item {
   background: transparent !important;
@@ -156,7 +199,7 @@ body {
 }
 
 .ant-select-item {
-  border-radius: 4px !important;
+  border-radius: var(--radius-control-sm) !important;
   min-height: 32px !important;
 }
 
@@ -182,13 +225,13 @@ button:focus-visible,
 [role="tab"]:focus-visible,
 [tabindex]:not([tabindex="-1"]):focus-visible,
 summary:focus-visible {
-  outline: 2px solid #09baee;
+  outline: 2px solid var(--brand-ink);
   outline-offset: 2px;
 }
 
 /* Table rows that open something show it on hover too, not only through the pointer cursor. */
 .ant-table-tbody > tr.cursor-pointer:hover > td {
-  background-color: #f4f7fb !important;
+  background-color: var(--row-hover) !important;
 }
 
 /* People who ask their system for less motion get none (page fade-ins, table fade-in, spinners). */
@@ -202,3 +245,17 @@ summary:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* Shared admin Table (components/Table): header 14/600, body 14/400, aligned grid, 56px rows. */
+.mw-table .ant-table-thead > tr > th {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  line-height: 20px;
+}
+
+.mw-table .ant-table-tbody > tr > td {
+  font-size: 14px;
+  min-height: 56px;
+}
+

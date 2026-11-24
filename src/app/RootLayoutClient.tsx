@@ -6,6 +6,7 @@ import { ConfigProvider } from "antd";
 import QueryProvider from "@/providers/QueryWrapper";
 import PageLoader from "@/components/common/Loader/PageLoader";
 import { initSentry } from "@/services/sentry";
+import { ADMIN_THEME } from "@/theme/antdTheme";
 
 // Module scope, not component body - runs exactly once per page load rather
 // than on every render.
@@ -28,7 +29,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
             }
         >
             <Suspense fallback={<PageLoader />}>
-                <ConfigProvider wave={{ disabled: true }}>
+                <ConfigProvider wave={{ disabled: true }} theme={ADMIN_THEME}>
                     <QueryProvider>{children}</QueryProvider>
                 </ConfigProvider>
             </Suspense>

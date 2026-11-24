@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { BRAND, BRAND_INK, BRAND_TINT, CANVAS, INK, INK_2, INK_3, LINE, LINE_SOFT, TABLE_HEAD, TONES } from "./src/theme/tokens";
 
 const config: Config = {
   content: [
@@ -21,29 +22,36 @@ const config: Config = {
           secondary: "var(--background-secondary-color)",
       },
       colors: {
-        primary: "#09BAEE",
-        background: "#F4F7FB",
+        // One source of truth: src/theme/tokens.ts (also feeds the antd theme and globals.css variables).
+        primary: BRAND,
+        brand: { DEFAULT: BRAND, tint: BRAND_TINT, ink: BRAND_INK },
+        ink: { DEFAULT: INK, 2: INK_2, 3: INK_3 },
+        background: CANVAS,
         dark: "#1E1E1E",
-        stroke: "#E0E0E0",
+        stroke: LINE,
+        "line-soft": LINE_SOFT,
+        "table-head": TABLE_HEAD,
         success: {
-          DEFAULT: "#15803D", // green-700: 5.0:1 on white (#22C55E was 2.3:1, fails WCAG AA)
-          light: "#DCFCE7",
+          DEFAULT: TONES.success.fg, // 4.6:1 on its tint, 5.0:1 on white
+          light: TONES.success.bg,
         },
         gray: {
-          light: "#808080",
-          medium: "#4F4F4F",
+          // Was #808080 (3.95:1, fails AA). Used for meta text, captions and the sidebar group labels.
+          light: INK_3,
+          medium: INK_2,
         },
         error: {
-          DEFAULT: "#DC2626",
-          light: "#FEE2E2",
+          DEFAULT: TONES.danger.fg, // was #DC2626, only ~4.0:1 on its #FEE2E2 tint
+          light: TONES.danger.bg,
         },
         warning: {
-          DEFAULT: "#A16207", // yellow-700: 4.9:1 on white (#CA8A04 was 2.9:1)
-          light: "#FEF3C7",
+          DEFAULT: TONES.warning.fg, // was #A16207, 4.4:1 on its #FEF3C7 tint (fails AA)
+          light: TONES.warning.bg,
         },
+        info: { DEFAULT: TONES.info.fg, light: TONES.info.bg },
         learner: {
           background: "#DFF5FF",
-          text: "#09baee",
+          text: BRAND_INK,
         },
       },
       fontFamily: {
