@@ -141,6 +141,12 @@ export default function LearnersPage() {
       }),
   });
 
+  // Deleting the last row on a page above 1 leaves that page out of range - step back one page.
+  const loadedRowCount = learners?.items?.length;
+  useEffect(() => {
+    if (!isFetching && !isError && loadedRowCount === 0 && Number(page) > 1) setPage(String(Number(page) - 1));
+  }, [isFetching, isError, loadedRowCount, page, setPage]);
+
   useEffect(() => {
     if (learners?.items) {
       const transformedData = learners?.items?.map((learner: any) => ({

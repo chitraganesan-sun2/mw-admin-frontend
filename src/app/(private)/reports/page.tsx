@@ -48,19 +48,17 @@ export default function ReportsPage() {
   });
 
   // State Management
-  const [pagination, setPagination] = useState<PaginationParams>({
+  // The page belongs to a tab: a page picked on another tab reads as page 1 here, so a tab switch
+  // (click, or browser back) can never request the new tab with the old tab's page number.
+  const [paging, setPaging] = useState<{ tab: string; page: number; size: number }>({
+    tab: currentTab,
     page: 1,
     size: 10,
   });
-  const [debouncedTab, setDebouncedTab] = useState(currentTab);
-
-  // Debounce effect for tab switching
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDebouncedTab(currentTab);
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [currentTab]);
+  const pagination: PaginationParams = {
+    page: paging.tab === currentTab ? paging.page : 1,
+    size: paging.size,
+  };
 
   const handleViewAction = useCallback((id: string, reportId?: string) => {
     setMode("view");
@@ -74,7 +72,7 @@ export default function ReportsPage() {
   );
 
   const getAllReports = useCallback(async () => {
-    const response: any = await getReportsByType(debouncedTab, pagination);
+    const response: any = await getReportsByType(currentTab, pagination);
     if (response.status === 200) {
       return {
         data: response.data?.items.map((item: any) => ({
@@ -97,17 +95,30 @@ export default function ReportsPage() {
       };
     }
     return { data: [], total: 0 };
-  }, [debouncedTab, pagination]);
+  }, [currentTab, pagination.page, pagination.size]);
 
-  const { data, isFetching, isError, refetch } = useQuery({
-    queryKey: ["reports", debouncedTab, pagination.page, pagination.size],
+  const { data, isFetching, isError, isPlaceholderData, refetch } = useQuery({
+    queryKey: ["reports", currentTab, pagination.page, pagination.size],
     queryFn: getAllReports,
-    placeholderData: (previousData) => previousData, 
+    // Keep the old rows while paging within a tab, but never show another tab's rows under this tab's columns.
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === currentTab ? previousData : undefined,
   });
 
-  const handleTableChange = useCallback((pagination: any) => {
-    setPagination({ page: pagination.current, size: pagination.pageSize });
-  }, []);
+  const handleTableChange = useCallback(
+    (p: any) => {
+      setPaging({ tab: currentTab, page: p.current, size: p.pageSize });
+    },
+    [currentTab]
+  );
+
+  // Resolving the last report on a page above 1 leaves that page out of range - step back.
+  const rowCount = data?.data.length ?? 0;
+  useEffect(() => {
+    if (!isFetching && !isError && !isPlaceholderData && pagination.page > 1 && rowCount === 0) {
+      setPaging({ tab: currentTab, page: pagination.page - 1, size: pagination.size });
+    }
+  }, [isFetching, isError, isPlaceholderData, pagination.page, pagination.size, rowCount, currentTab]);
 
   useEffect(() => {
     setHeaderOptions({
@@ -152,7 +163,7 @@ export default function ReportsPage() {
         tabButtons={tabs}
         currentTab={currentTab}
         handleTabClick={(tab: string) => {
-          setPagination((p) => ({ ...p, page: 1 }));
+          setPaging((p) => ({ ...p, tab, page: 1 }));
           setCurrentTab(tab);
         }}
         showSearch={true}
