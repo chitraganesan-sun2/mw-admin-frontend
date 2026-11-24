@@ -19,6 +19,9 @@ export const getHeaderTitle = (pathname: string) => {
 };
 
 export const getHeaderIcon = (pathname: string) => {
+  // The sidebar's icon for the page, so the header glyph always matches the nav entry (and is one size).
+  const navHit = findNavItem(pathname);
+  if (navHit) return navIcon(navHit.item.icon);
   switch (getHeaderTitle(pathname)) {
     case "dashboard":
       return <DashBoardIcon />;

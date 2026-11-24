@@ -106,7 +106,7 @@ const DetailModal = ({ isOpen, onClose, refetch }: DetailModalProps) => {
         <p key={index}>
           {index + 1}. {item?.title} -{" "}
           {href ? (
-            <Link href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+            <Link href={href} target="_blank" rel="noopener noreferrer" className="text-brand-ink underline">
               {item?.url}
             </Link>
           ) : (

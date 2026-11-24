@@ -153,7 +153,7 @@ function EmailDialog({ report, open, onClose }: { report: SafetyReport; open: bo
                 setFieldError(null);
               }}
             />
-            <p id={`${uid}-to-help`} className={`text-xs mt-1 ${fieldError ? "text-red-600" : "text-gray-500"}`} role={fieldError ? "alert" : undefined}>
+            <p id={`${uid}-to-help`} className={`text-xs mt-1 ${fieldError ? "text-error" : "text-gray-500"}`} role={fieldError ? "alert" : undefined}>
               {fieldError ?? `Separate addresses with commas. Up to ${MAX_RECIPIENTS}. Leave blank to use the recipients set up on the server.`}
             </p>
           </div>

@@ -74,7 +74,7 @@ const CommentCard = ({
                 type="button"
                 aria-label="Delete comment"
                 onClick={() => onDelete(comment.comment_id)}
-                className="cursor-pointer text-red-600 hover:text-red-700 h-auto bg-transparent border-0 p-0"
+                className="cursor-pointer text-error hover:text-error h-auto bg-transparent border-0 p-0"
               >
                 <RiCloseCircleFill className="text-xl" />
               </button>

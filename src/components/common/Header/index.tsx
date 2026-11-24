@@ -1,32 +1,9 @@
-import { useQueryState } from "nuqs";
-import { useEffect, useState } from "react";
 import Button from "@/components/common/Button";
-import { cn, formatString } from "@/utils/merge-class";
+import { cn } from "@/utils/merge-class";
 import { useComponentStore } from "@/store/useComponenetStore";
-import Input from "../Input";
 
 const CommonHeader: React.FC = () => {
   const { headerOptions } = useComponentStore();
-  const [searchQuery, setSearchQuery] = useQueryState("query");
-
-  // Keep the input responsive to every keystroke locally, but debounce writes to the
-  // URL-backed query param - every downstream page reads `query` as a useQuery key,
-  // so an un-debounced write re-fetches from the server on every keystroke.
-  const [inputValue, setInputValue] = useState(searchQuery ?? "");
-
-  useEffect(() => {
-    setInputValue(searchQuery ?? "");
-  }, [searchQuery]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (inputValue !== (searchQuery ?? "")) {
-        setSearchQuery(inputValue || null);
-      }
-    }, 300);
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputValue]);
   const {
     actionButtonOnClick,
     actionButtonClassName,
@@ -35,41 +12,32 @@ const CommonHeader: React.FC = () => {
     showButton,
     titleIcon,
     title,
-    showSearch,
     titleIconClick,
   } = headerOptions || {};
 
-  const isDonations = (title || "").toLowerCase().includes("donation");
-
   return (
     <div className="w-full lg:h-full p-2 px-3 flex flex-wrap items-center justify-between gap-2">
-      <div className="flex capitalize items-center min-w-0">
+      <div className="flex items-center min-w-0">
         {/* The icon is a real button only when it does something (a back arrow); otherwise it is
-            decoration, not an unnamed button that does nothing. */}
+            decoration, not an unnamed button that does nothing. Every header icon is drawn at 20px. */}
         {titleIconClick ? (
           <Button
             aria-label="Back"
             icon={titleIcon}
-            rootClassName={cn(
-              "flex items-center justify-center  rounded-full hover:bg-gray-100 cursor-pointer border-stroke mr-2",
-              isDonations ? "!w-12 h-12 [&_svg]:w-7 [&_svg]:h-7" : "!w-10 h-10"
-            )}
+            iconOnly
+            customClassName="!rounded-full mr-2 [&_svg]:h-5 [&_svg]:w-5"
             onClick={titleIconClick}
           />
         ) : titleIcon ? (
           <span
             aria-hidden="true"
-            className={cn(
-              "flex items-center justify-center rounded-full",
-              isDonations ? "!w-12 h-12 [&_svg]:w-7 [&_svg]:h-7" : "!w-10 h-10"
-            )}
+            className="mr-2 flex h-8 w-8 items-center justify-center text-ink-2 [&_svg]:h-5 [&_svg]:w-5"
           >
             {titleIcon}
           </span>
         ) : null}
-        <h1 className={cn("font-medium truncate", isDonations ? "text-[18px]" : "text-lg")}>
-          {formatString(title ?? "")}
-        </h1>
+        {/* The title is shown as the page gives it (no forced capitalisation: "List of Values" matches the sidebar). */}
+        <h1 className="truncate text-xl font-medium text-ink">{title ?? ""}</h1>
       </div>
       <div
         className={cn(
@@ -77,14 +45,6 @@ const CommonHeader: React.FC = () => {
           "flex items-center justify-center gap-2 flex-wrap max-w-full"
         )}
       >
-        { showSearch && <Input
-          value={inputValue}
-          inputType="search"
-          name="search"
-          inputClassName="!bg-white !rounded-3xl gap-1 items-center"
-          onChange={(value: string) => setInputValue(value)}
-          placeholder="Search"
-        /> }
         {showButton && (
           <Button
             title={actionButtonTitle}

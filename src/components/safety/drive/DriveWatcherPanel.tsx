@@ -16,7 +16,7 @@ const WATCHER_POLL_MS = 15_000;
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
 const Stat = ({ icon, children, tone }: { icon: React.ReactNode; children: React.ReactNode; tone?: "bad" }) => (
-  <span className={`inline-flex items-center gap-1.5 text-sm ${tone === "bad" ? "text-red-600" : "text-gray-600"}`}>
+  <span className={`inline-flex items-center gap-1.5 text-sm ${tone === "bad" ? "text-error" : "text-gray-600"}`}>
     <span aria-hidden="true">{icon}</span>
     {children}
   </span>
@@ -89,7 +89,7 @@ export default function DriveWatcherPanel() {
         {watcherQuery.isLoading ? (
           <Skeleton active paragraph={{ rows: 1 }} title={false} aria-label="Loading watcher status" />
         ) : watcherQuery.isError ? (
-          <div role="alert" className="flex flex-wrap items-center gap-3 text-sm text-red-600">
+          <div role="alert" className="flex flex-wrap items-center gap-3 text-sm text-error">
             <FiAlertCircle aria-hidden="true" />
             <span>{getApiErrorMessage(watcherQuery.error, "Couldn't load the watcher status.")}</span>
             <Button size="small" onClick={() => watcherQuery.refetch()} loading={watcherQuery.isFetching}>

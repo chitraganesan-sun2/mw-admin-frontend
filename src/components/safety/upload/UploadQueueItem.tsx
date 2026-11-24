@@ -34,7 +34,7 @@ function AcceptedStatus({ reportId }: { reportId: number }) {
     <div className="flex flex-wrap items-center gap-2">
       {status.isError && !status.data ? (
         <>
-          <span className="text-sm text-red-600">Couldn&apos;t check the analysis status.</span>
+          <span className="text-sm text-error">Couldn&apos;t check the analysis status.</span>
           <Button size="small" onClick={() => status.refetch()} loading={status.isFetching}>
             Retry
           </Button>
@@ -54,7 +54,7 @@ function AcceptedStatus({ reportId }: { reportId: number }) {
             </Button>
           )}
           {status.data?.status?.toUpperCase() === "FAILED" && (
-            <span className="text-sm text-red-600">
+            <span className="text-sm text-error">
               {status.data.error_message || "The analysis failed on the server."}
             </span>
           )}
@@ -113,7 +113,7 @@ export default function UploadQueueItem({ item, onRemove, onRetry }: UploadQueue
             ))}
 
           {item.status === "failed" && (
-            <p role="alert" className="text-sm text-red-600 m-0">
+            <p role="alert" className="text-sm text-error m-0">
               {item.error || "Couldn't upload this file."}
             </p>
           )}

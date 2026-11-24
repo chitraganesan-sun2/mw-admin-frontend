@@ -98,13 +98,13 @@ export default function TranscriptInput({ onAdd }: TranscriptInputProps) {
 
       <p
         id="safety-transcript-count"
-        className={validationMessage ? "text-sm text-red-600 mt-1 mb-3" : "text-sm text-gray-500 mt-1 mb-3"}
+        className={validationMessage ? "text-sm text-error mt-1 mb-3" : "text-sm text-gray-500 mt-1 mb-3"}
       >
         {validationMessage ??
           `${trimmedLength.toLocaleString()} / ${TRANSCRIPT_MAX_CHARS.toLocaleString()} characters (at least ${TRANSCRIPT_MIN_CHARS}).`}
       </p>
       {loadError && (
-        <p role="alert" className="text-sm text-red-600 mt-0 mb-3">
+        <p role="alert" className="text-sm text-error mt-0 mb-3">
           {loadError}
         </p>
       )}

@@ -4,6 +4,7 @@ import { useQueryState } from "nuqs";
 import React from "react";
 import Card, { CardSkeleton } from "../Card";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+import EmptyState from "@/components/common/EmptyState";
 
 type CategorySectionProps = {
   topicSingleTitle: string;
@@ -30,7 +31,7 @@ const CategorySection = ({
 
   return (
     <div className="flex flex-col px-5">
-      <h2 className="mb-5 lg:mb-8 font-medium text-xl">
+      <h2 className="mb-5 lg:mb-6 font-semibold text-xl text-ink">
         Resources {">"} {topicSingleTitle}
       </h2>
       {isFetching ? (
@@ -63,9 +64,10 @@ const CategorySection = ({
               ))}
           </div>
           ):  (
-            <span className="min-w-[250px] min-h-[50vh] !h-full !w-full flex-center">
-              No Resource Found
-            </span>
+            <EmptyState
+              title={searchQuery ? "No resources match your search" : "No resources in this topic yet"}
+              description={searchQuery ? "Try a different search." : undefined}
+            />
           )}
         </>
       )}

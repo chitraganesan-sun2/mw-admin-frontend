@@ -244,7 +244,7 @@ export default function SafetyUploadPage() {
               aria-pressed={mode === option.kind}
               onClick={() => setMode(option.kind)}
               className={clsx(
-                "inline-flex min-h-[40px] items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                "inline-flex min-h-[40px] items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-ink",
                 mode === option.kind
                   ? "border-primary bg-[#E0F7FE] text-[#046A8A]"
                   : "border-stroke bg-white text-[#4F4F4F] hover:bg-gray-50"

@@ -16,7 +16,7 @@ const ExpandableText = ({ text, maxLength = 100, actionLabel = "" }: { text: str
                         onClick={() => setIsModalOpen(true)}
                         className="cursor-pointer appearance-none border-0 bg-transparent p-0 inline"
                     >&nbsp;...
-                        <span className="ml-1 !text-sm font-medium text-blue-500 underline">{actionLabel}</span>
+                        <span className="ml-1 !text-sm font-medium text-brand-ink underline">{actionLabel}</span>
                     </button>
                 )}
             </p>
@@ -32,7 +32,7 @@ const ExpandableText = ({ text, maxLength = 100, actionLabel = "" }: { text: str
                     <div className="flex justify-end">
                         <button
                             onClick={() => setIsModalOpen(false)}
-                            className="bg-blue-500 text-white font-medium px-4 py-2 rounded-lg"
+                            className="bg-ink text-white font-medium px-4 py-2 rounded-lg"
                         >
                             Close
                         </button>

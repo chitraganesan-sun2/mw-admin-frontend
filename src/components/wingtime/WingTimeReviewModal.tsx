@@ -131,7 +131,7 @@ export default function WingTimeReviewModal({
                 className="w-full min-h-[80px] rounded-lg border border-gray-200 p-3 text-sm text-gray-dark focus:outline-none focus:ring-1 focus:ring-gray-400"
               />
               {error && (
-                <p id="wingtime-reject-error" role="alert" className="mt-1 text-sm text-red-700">
+                <p id="wingtime-reject-error" role="alert" className="mt-1 text-sm text-error">
                   {error}
                 </p>
               )}
@@ -159,7 +159,7 @@ export default function WingTimeReviewModal({
                     <div className="text-sm text-gray-dark" aria-live="polite">
                       {safety.kind === "waiting" && <p>Safety analysis: still running. Publishing unlocks when it finishes.</p>}
                       {safety.kind === "failed" && (
-                        <p className="text-red-700 font-medium">
+                        <p className="text-error font-medium">
                           Safety analysis: it ended with an error, so this recording can&apos;t be published. Open the{" "}
                           <a href={`/safety/report/${safety.reportId}`} target="_blank" rel="noopener noreferrer" className="underline">
                             safety report
@@ -168,13 +168,13 @@ export default function WingTimeReviewModal({
                         </p>
                       )}
                       {safety.kind === "none" && (
-                        <p className="text-red-700 font-medium">
+                        <p className="text-error font-medium">
                           Safety analysis: this session has no transcript to check (nobody spoke, or it was unavailable), so
                           the recording can&apos;t be published. You can reject it.
                         </p>
                       )}
                       {safety.kind === "done" && (
-                        <p className={safety.flagged ? "text-red-700 font-medium" : ""}>
+                        <p className={safety.flagged ? "text-error font-medium" : ""}>
                           Safety analysis: {safety.severity === "none" || safety.severity === "safe" ? "no concerns" : `${safety.severity} severity`}.{" "}
                           <a href={`/safety/report/${safety.reportId}`} target="_blank" rel="noopener noreferrer" className="underline">
                             Open the safety report

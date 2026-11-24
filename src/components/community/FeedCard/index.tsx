@@ -3,18 +3,15 @@
 import Image from "next/image";
 import DummyProfileImg from "@/assets/images/DummyProfileImg.png";
 import TagComponent from "@/components/common/Tag";
-import CommentIcon from "@/assets/icons/CommentIcon";
+import { Dropdown } from "antd";
+import { FiHeart, FiMessageCircle, FiMoreHorizontal } from "react-icons/fi";
+import EmptyState from "@/components/common/EmptyState";
 import { endpoints } from "@/api/constants";
 import { DELETE_API, GET_API } from "@/api/request";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useRef } from "react";
 import { createInFlightGuard } from "@/utils/inflight";
 import { withQuery } from "@/utils/query";
-import {
-  DeleteCloseIcon,
-  HeartLikeIcon,
-  MenuDot,
-} from "@/assets/icons";
 import { useQueryState } from "nuqs";
 import PostSkeleton from "./skeleton";
 import { timesAgo } from "@/utils/timeFunctions";
@@ -119,7 +116,7 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
       {isFetching ? (
         <PostSkeleton />
       ) : (
-        <div className="flex flex-col gap-3 h-full divide-y divide-gray-200">
+        <div className="flex flex-col gap-3 h-full divide-y divide-line-soft">
           {posts.map((post) => {
             const postImage = post?.images?.[0]?.image_url;
             const validImageUrl =
@@ -165,28 +162,30 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-4">
-                            <button
-                              type="button"
-                              aria-label="Delete post"
-                              onClick={() =>
-                                handleTriggerDeleteEvent(post.post_id)
-                              }
-                              className="cursor-pointer bg-transparent border-0 p-0"
-                            >
-                              <DeleteCloseIcon />
-                            </button>
-                            <button
-                              type="button"
-                              aria-label="Open post"
-                              onClick={() => onClick(post.post_id)}
-                              className="cursor-pointer hidden md:block bg-transparent border-0 p-0"
-                            >
-                              <MenuDot />
-                            </button>
-                          </div>
-                        </div>
+                        {/* One 32px actions button; Delete lives in the menu (it still asks for confirmation). */}
+                        <Dropdown
+                          trigger={["click"]}
+                          placement="bottomRight"
+                          menu={{
+                            items: [
+                              { key: "open", label: "Open post" },
+                              { key: "delete", label: "Delete post", danger: true },
+                            ],
+                            onClick: ({ key }) => {
+                              if (key === "open") onClick(post.post_id);
+                              if (key === "delete") handleTriggerDeleteEvent(post.post_id);
+                            },
+                          }}
+                        >
+                          <button
+                            type="button"
+                            aria-label="Post actions"
+                            aria-haspopup="menu"
+                            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-ink-2 hover:bg-background"
+                          >
+                            <FiMoreHorizontal aria-hidden size={18} />
+                          </button>
+                        </Dropdown>
                       </div>
                     </div>
                   </div>
@@ -194,13 +193,13 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
 
                 <div className="mt-0 md:mt-3 lg:mt-0 lg:!pl-[50px]">
                   <div className="px-3 md:px-0">
-                    <p className="text-xs md:text-sm font-normal">
+                    <p className="text-sm font-normal">
                       {post?.description ?? ""}
                       {(post?.description?.length ?? 0) > 150 && (
                         <button
                           type="button"
                           onClick={() => onClick(post.post_id)}
-                          className="cursor-pointer text-primary font-medium text-[#ffac71] bg-transparent border-0 p-0 inline"
+                          className="cursor-pointer font-medium text-brand-ink underline bg-transparent border-0 p-0 inline"
                         >
                           See more
                         </button>
@@ -224,10 +223,8 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
                     <div className="flex justify-between items-center gap-2">
                       <div className="flex items-center gap-6">
                         {/* Like button section */}
-                        <div className="flex items-center gap-1 cursor-pointer w-10">
-                          <div>
-                            <HeartLikeIcon />
-                          </div>
+                        <div className="flex items-center gap-1.5 text-sm text-ink-2" aria-label={`${post?.total_likes ?? 0} likes`}>
+                          <FiHeart aria-hidden size={16} />
                           {post?.total_likes}
                         </div>
                         {/* Comment button section */}
@@ -235,9 +232,9 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
                           type="button"
                           aria-label="View comments"
                           onClick={() => handleCommentClick(post.post_id)}
-                          className="flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0"
+                          className="flex items-center gap-1.5 text-sm text-ink-2 cursor-pointer bg-transparent border-0 p-0"
                         >
-                          <CommentIcon />
+                          <FiMessageCircle aria-hidden size={16} />
                           {post.total_comments}
                         </button>
                       </div>
@@ -262,9 +259,10 @@ const FeedCard = ({ onClick, isManagePost = false }: FeedCardProps) => {
           )}
 
           {posts.length === 0 && (
-            <div className="flex-center w-full h-full min-h-[50vh]">
-              No Posts Found
-            </div>
+            <EmptyState
+              title={searchQuery?.trim() ? "No posts match your search" : "No posts yet"}
+              description={searchQuery?.trim() ? "Try a different search." : "Community posts will appear here."}
+            />
           )}
 
         </div>

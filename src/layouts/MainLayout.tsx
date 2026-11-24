@@ -48,8 +48,8 @@ const MainLayout: FC<PropsWithChildren> = ({ children }) => {
   // Phones and tablets (< 1024px): the sidebar becomes a slide-out menu opened from the top bar.
   // Wider screens keep the permanent sidebar column exactly as before.
   return (
-    <div className="h-[100dvh] w-screen overflow-hidden lg:grid lg:grid-cols-12 lg:grid-rows-1">
-      <div className="hidden lg:block lg:col-span-2">
+    <div className="h-[100dvh] w-screen overflow-hidden lg:grid lg:grid-cols-[240px_minmax(0,1fr)] lg:grid-rows-1">
+      <div className="hidden lg:block">
         <Sidebar />
       </div>
       <QuickJump />
@@ -66,15 +66,15 @@ const MainLayout: FC<PropsWithChildren> = ({ children }) => {
       >
         <Sidebar variant="drawer" onNavigate={() => setNavOpen(false)} />
       </Drawer>
-      <div className="flex h-full min-w-0 flex-col bg-white lg:col-span-10">
-        <div className="flex shrink-0 items-center gap-1 px-1 lg:h-[10vh] lg:px-0">
+      <div className="flex h-full min-w-0 flex-col bg-white">
+        <div className="flex shrink-0 items-center gap-1 px-1 lg:h-16 lg:px-0">
           <button
             type="button"
             onClick={() => setNavOpen(true)}
             aria-label="Open menu"
             aria-expanded={navOpen}
             aria-controls={NAV_DRAWER_ID}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-dark hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary lg:hidden"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-dark hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-ink lg:hidden"
           >
             <FiMenu size={22} aria-hidden />
           </button>
@@ -82,7 +82,7 @@ const MainLayout: FC<PropsWithChildren> = ({ children }) => {
             <CommonHeader />
           </div>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto rounded-tl-[24px] bg-background lg:rounded-tl-[50px]">
+        <div className="min-h-0 flex-1 overflow-y-auto rounded-tl-[24px] bg-background lg:rounded-tl-[24px]">
           {staffLoading ? (
             <div className="p-4 sm:p-8" aria-busy="true" aria-label="Loading your account">
               <Skeleton active paragraph={{ rows: 6 }} />

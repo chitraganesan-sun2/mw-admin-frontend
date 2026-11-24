@@ -437,7 +437,7 @@ export default function SafetyReportsPage() {
           <Link
             href={`/safety/report/${record.id}`}
             title={filename}
-            className="block max-w-[190px] truncate font-medium text-dark hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary xl:max-w-[260px]"
+            className="block max-w-[190px] truncate font-medium text-dark hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-ink xl:max-w-[260px]"
           >
             {filename || "Untitled"}
           </Link>

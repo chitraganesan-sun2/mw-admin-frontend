@@ -60,7 +60,7 @@ export default function ReportHeader({
       <div>
         <Link
           href="/safety"
-          className="inline-flex min-h-[32px] items-center gap-1.5 text-sm font-medium text-[#046A8A] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="inline-flex min-h-[32px] items-center gap-1.5 text-sm font-medium text-[#046A8A] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-ink"
         >
           <FiArrowLeft aria-hidden="true" />
           Back to reports

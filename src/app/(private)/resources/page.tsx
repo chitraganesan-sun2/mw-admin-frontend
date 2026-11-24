@@ -17,6 +17,8 @@ import { useQueryState } from "nuqs";
 import { useEffect, useMemo, useState } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
+import FilterBar from "@/components/common/Filters/FilterBar";
+import ListSearch from "@/components/common/Filters/ListSearch";
 
 const RESOURCES_PAGE_SIZE = 20;
 
@@ -77,7 +79,7 @@ export default function ResourcesPage() {
         getHeaderIcon(pathname)
       ),
       titleIconClick: () => setCategory(null),
-      showSearch: true,
+      showSearch: false,
     });
   }, [category, pathname, setHeaderOptions, pageTitle]);
 
@@ -94,6 +96,9 @@ export default function ResourcesPage() {
   return (
     <div className="w-full h-full pt-8 flex flex-col gap-2 p-4 animate-fadeIn">
       <DetailModal isOpen={mode === "view"} onClose={handleCloseModal} />
+      <FilterBar className="px-4 !mb-2">
+        <ListSearch placeholder="Search resources" />
+      </FilterBar>
 
       {category && pageTitle !== "Resources" ? (
         <CategorySection

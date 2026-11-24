@@ -252,7 +252,7 @@ export default function Chatbot({ reportId }: { reportId: number }) {
           />
           <Button type="primary" htmlType="submit" disabled={!canSend} aria-label="Send question" icon={<FiSend aria-hidden="true" />} />
         </div>
-        <p id={`${uid}-count`} className={clsx("text-xs text-right", tooLong ? "text-red-600" : "text-gray-400")}>
+        <p id={`${uid}-count`} className={clsx("text-xs text-right", tooLong ? "text-error" : "text-ink-3")}>
           {input.length} / {MAX_QUESTION_LENGTH}
           {tooLong && " - too long, please shorten your question"}
         </p>

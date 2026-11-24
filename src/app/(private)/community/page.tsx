@@ -7,6 +7,8 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useEffect } from "react";
+import FilterBar from "@/components/common/Filters/FilterBar";
+import ListSearch from "@/components/common/Filters/ListSearch";
 
 export default function CommunityPage() {
   const { setHeaderOptions } = useComponentStore();
@@ -18,7 +20,7 @@ export default function CommunityPage() {
     setHeaderOptions({
       title: "Community",
       titleIcon: getHeaderIcon(pathname),
-      showSearch: true,
+      showSearch: false,
     });
   }, [pathname, setHeaderOptions]);
 
@@ -33,9 +35,12 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="p-6 lg:w-[75%] mx-auto h-full overflow-hidden animate-fadeIn">
+    <div className="p-6 w-full max-w-[880px] mx-auto h-full overflow-hidden animate-fadeIn flex flex-col">
       <FeedViewModal isOpen={mode === "view"} onClose={handleCloseModal} />
-      <div className="w-full bg-white rounded-3xl mb-6 h-full overflow-auto no-scrollbar hide-scrollbar p-6 flex flex-col gap-4">
+      <FilterBar className="shrink-0">
+        <ListSearch placeholder="Search posts" />
+      </FilterBar>
+      <div className="w-full bg-white rounded-2xl border border-stroke mb-6 min-h-0 flex-1 overflow-auto no-scrollbar hide-scrollbar p-6 flex flex-col gap-4">
         <div className="flex flex-col min-h-0 flex-grow h-full">
           <FeedCard onClick={handleFeedCardClick} />
         </div>

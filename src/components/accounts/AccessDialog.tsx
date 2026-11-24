@@ -62,7 +62,7 @@ function AccessForm({ account, onClose }: { account: AccessAccount; onClose: () 
         request. {account.role === "admin" ? "Admins always keep account management." : "Account management is only available to admins."}
       </p>
       {isError ? (
-        <p className="text-red-700">Couldn&apos;t load the list of access options. Close this and try again.</p>
+        <p className="text-error">Couldn&apos;t load the list of access options. Close this and try again.</p>
       ) : isLoading ? (
         <p className="text-gray-500">Loading...</p>
       ) : (

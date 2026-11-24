@@ -127,7 +127,7 @@ export default function QuickJump() {
                 i === active ? "bg-learner-background text-dark" : "text-gray-medium"
               }`}
             >
-              <span aria-hidden className="text-[1.1rem] text-primary">
+              <span aria-hidden className="text-[1.1rem] text-brand-ink">
                 {navIcon(item.icon)}
               </span>
               <span className="flex-1 font-medium">{item.text}</span>

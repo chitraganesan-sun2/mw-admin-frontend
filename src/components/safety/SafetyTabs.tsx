@@ -39,7 +39,7 @@ export default function SafetyTabs() {
                 }}
                 className={clsx(
                   "inline-flex min-h-[40px] items-center gap-2 whitespace-nowrap rounded-full px-4 text-sm font-medium transition-colors",
-                  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+                  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-ink",
                   active ? "bg-primary text-dark" : "text-[#4F4F4F] hover:bg-gray-100"
                 )}
               >

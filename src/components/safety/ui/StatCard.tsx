@@ -64,7 +64,7 @@ export const StatCard = ({
   return href ? (
     <Link
       href={href}
-      className={clsx(base, "transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary")}
+      className={clsx(base, "transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-ink")}
     >
       {body}
     </Link>

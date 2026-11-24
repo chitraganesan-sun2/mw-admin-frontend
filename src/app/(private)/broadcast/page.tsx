@@ -346,7 +346,7 @@ const Broadcast = () => {
             onChange={(value) => handleSelectLocation(value as string)}
           />
           {errors.location && (
-            <div className="text-red-500 text-xs mt-1">{errors.location}</div>
+            <div className="text-error text-xs mt-1">{errors.location}</div>
           )}
         </div>
         <div>
@@ -360,7 +360,7 @@ const Broadcast = () => {
             onChange={(value) => handleSelectLanguage(value as string)}
           />
           {errors.language && (
-            <div className="text-red-500 text-xs mt-1">{errors.language}</div>
+            <div className="text-error text-xs mt-1">{errors.language}</div>
           )}
         </div>
         {allVolunteers.length > 0 && (
@@ -385,7 +385,7 @@ const Broadcast = () => {
               </span>
             </div>
             {errors.volunteers && (
-              <div className="text-red-500 text-xs mt-1">
+              <div className="text-error text-xs mt-1">
                 {errors.volunteers}
               </div>
             )}
@@ -413,7 +413,7 @@ const Broadcast = () => {
               </span>
             </div>
             {errors.learners && (
-              <div className="text-red-500 text-xs mt-1">{errors.learners}</div>
+              <div className="text-error text-xs mt-1">{errors.learners}</div>
             )}
           </div>
         )}
@@ -435,7 +435,7 @@ const Broadcast = () => {
             onChange={(e) => handleSelectSubject(e.target.value)}
           />
           {errors.subject && (
-            <div className="text-red-500 text-xs mt-1">{errors.subject}</div>
+            <div className="text-error text-xs mt-1">{errors.subject}</div>
           )}
         </div>
         <div>
@@ -445,7 +445,7 @@ const Broadcast = () => {
             placeholder="Write your message here"
           />
           {errors.message && (
-            <div className="text-red-500 text-xs mt-1">{errors.message}</div>
+            <div className="text-error text-xs mt-1">{errors.message}</div>
           )}
         </div>
         <div className="flex items-center justify-between">

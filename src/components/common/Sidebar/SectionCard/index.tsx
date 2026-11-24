@@ -22,7 +22,7 @@ const SectionCard = ({ href, text, icon, onClick }: SectionCardProps) => {
       href={href}
       onClick={onClick}
       aria-current={isActive ? "page" : undefined}
-      className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary ${
+      className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-ink ${
         isActive
           ? "bg-learner-background font-semibold text-dark"
           : "font-medium text-gray-medium hover:bg-background hover:text-dark"
@@ -30,7 +30,7 @@ const SectionCard = ({ href, text, icon, onClick }: SectionCardProps) => {
     >
       <span
         aria-hidden
-        className={`text-[1.15rem] transition-colors ${isActive ? "text-primary" : "text-gray-light group-hover:text-dark"}`}
+        className={`text-[1.15rem] transition-colors ${isActive ? "text-brand-ink" : "text-ink-3 group-hover:text-dark"}`}
       >
         {icon}
       </span>

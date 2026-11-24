@@ -24,12 +24,12 @@ const ImportedReport = ({ reportId }: { reportId: number }) => {
     <div className="flex flex-col items-end gap-1 text-right">
       <div className="flex flex-wrap items-center justify-end gap-2">
         {status ? <StatusTag status={status.status} /> : null}
-        <Link href={`/safety/report/${reportId}`} className="text-sm font-medium text-blue-600 hover:underline">
+        <Link href={`/safety/report/${reportId}`} className="text-sm font-medium text-brand-ink hover:underline">
           {status && !isInFlight(status.status) ? `Open report #${reportId}` : `View report #${reportId}`}
         </Link>
       </div>
       {status?.status?.toUpperCase() === "FAILED" && status.error_message ? (
-        <span className="text-xs text-red-600 max-w-[260px]">{status.error_message}</span>
+        <span className="text-xs text-error max-w-[260px]">{status.error_message}</span>
       ) : null}
       {statusQuery.isError && !status ? (
         <span className="text-xs text-gray-500">Couldn&apos;t check the analysis status. Open the report to see it.</span>
@@ -65,7 +65,7 @@ export default function DriveFileTable({ files, imports, onImport }: DriveFileTa
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Open ${name} in Google Drive (opens in a new tab)`}
-                  className="shrink-0 text-gray-400 hover:text-blue-600"
+                  className="shrink-0 text-ink-3 hover:text-brand-ink"
                 >
                   <FiExternalLink aria-hidden="true" />
                 </a>
@@ -115,7 +115,7 @@ export default function DriveFileTable({ files, imports, onImport }: DriveFileTa
               {entry?.state === "importing" ? "Importing" : entry?.state === "error" ? "Try again" : "Import for analysis"}
             </Button>
             {entry?.state === "error" ? (
-              <span role="alert" className="flex items-start gap-1 text-xs text-red-600 max-w-[260px] text-right">
+              <span role="alert" className="flex items-start gap-1 text-xs text-error max-w-[260px] text-right">
                 <FiAlertCircle aria-hidden="true" className="mt-0.5 shrink-0" />
                 {entry.message}
               </span>

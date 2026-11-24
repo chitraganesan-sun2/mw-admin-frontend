@@ -37,7 +37,7 @@ const CustomNextArrow = (props: any) => {
       type="button"
       onClick={onClick}
       aria-label="Next image"
-      className="bg-white !z-50 absolute right-3 top-1/2 transform -translate-y-1/2 text-primary border border-primary p-2 rounded-full shadow-md cursor-pointer"
+      className="bg-white !z-50 absolute right-3 top-1/2 transform -translate-y-1/2 text-brand-ink border border-brand-ink p-2 rounded-full shadow-md cursor-pointer"
     >
       <FaChevronRight className="text-xs md:text-lg" />
     </button>
@@ -51,7 +51,7 @@ const CustomPrevArrow = (props: any) => {
       type="button"
       onClick={onClick}
       aria-label="Previous image"
-      className="bg-white !z-50 absolute left-3 top-1/2 transform -translate-y-1/2 text-primary border border-primary p-2 rounded-full shadow-md cursor-pointer"
+      className="bg-white !z-50 absolute left-3 top-1/2 transform -translate-y-1/2 text-brand-ink border border-brand-ink p-2 rounded-full shadow-md cursor-pointer"
     >
       <FaChevronLeft className="text-xs md:text-lg" />
     </button>
@@ -378,7 +378,7 @@ const FeedViewModal = ({ isOpen, onClose, refetch }: FeedViewModalProps) => {
                       </div>
                     ) : commentsError ? (
                       <div role="alert" className="flex-center flex-col gap-2 h-full w-full">
-                        <p className="text-md font-normal text-center text-red-700">
+                        <p className="text-md font-normal text-center text-error">
                           Couldn&apos;t load the comments.
                         </p>
                         <Button onClick={() => refetchComments()}>Try again</Button>

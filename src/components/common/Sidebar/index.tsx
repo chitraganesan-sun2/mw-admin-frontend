@@ -49,11 +49,12 @@ const Sidebar = ({ variant = "rail", onNavigate }: SidebarProps) => {
   return (
     <nav
       aria-label="Main"
-      className={`bg-white w-full flex flex-col justify-between overflow-y-auto ${
-        variant === "drawer" ? "h-full p-4" : "h-screen px-4 py-6"
+      className={`bg-white w-full flex flex-col ${
+        variant === "drawer" ? "h-full p-4" : "h-screen px-4 pt-6 pb-4"
       }`}
     >
-      <div className="w-full">
+      {/* The links scroll; the account block and Log Out stay pinned at the bottom (they used to fall below the fold). */}
+      <div className="w-full min-h-0 flex-1 overflow-y-auto pb-2">
         <Link href="/" className="block px-2">
           <Logo />
         </Link>
@@ -63,20 +64,20 @@ const Sidebar = ({ variant = "rail", onNavigate }: SidebarProps) => {
             onNavigate?.();
             openQuickJump();
           }}
-          className="mt-6 flex w-full items-center gap-2 rounded-lg border border-stroke bg-background px-3 py-2 text-sm text-gray-medium hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          className="mt-6 flex w-full items-center gap-2 rounded-lg border border-stroke bg-background px-3 py-2 text-sm text-gray-medium hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-ink"
         >
           <FiSearch aria-hidden />
           <span className="flex-1 text-left">Jump to…</span>
-          <kbd className="hidden rounded border border-stroke bg-white px-1.5 text-[11px] text-gray-light lg:inline">
+          <kbd className="hidden rounded border border-stroke bg-white px-1.5 text-xs text-ink-2 lg:inline">
             Ctrl K
           </kbd>
         </button>
         <div className="mt-5 flex flex-col gap-4">
-          {staffLoading && <p className="px-3 text-sm text-gray-light">Loading...</p>}
+          {staffLoading && <p className="px-3 text-sm text-ink-2">Loading...</p>}
           {groups.map((group) => (
             <div key={group.label ?? "top"} className="flex flex-col gap-0.5">
               {group.label ? (
-                <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-light">
+                <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wider text-ink-2">
                   {group.label}
                 </p>
               ) : null}
@@ -93,9 +94,9 @@ const Sidebar = ({ variant = "rail", onNavigate }: SidebarProps) => {
           ))}
         </div>
       </div>
-      <div className="mt-6 flex w-full flex-col gap-2 border-t border-stroke pt-4">
+      <div className="mt-2 flex w-full shrink-0 flex-col gap-2 border-t border-stroke pt-4">
         {staff && (
-          <p className="px-3 text-xs text-gray-light" data-testid="staff-role">
+          <p className="px-3 text-xs text-ink-2" data-testid="staff-role">
             {staff.username ? `${staff.username} · ` : ""}
             {staff.role === "support" ? "Support" : "Admin"}
           </p>
@@ -104,7 +105,7 @@ const Sidebar = ({ variant = "rail", onNavigate }: SidebarProps) => {
           <button
             onClick={handleSignOut}
             type="button"
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#B91C1C] hover:bg-error-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+            className="flex min-h-10 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-error hover:bg-error-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-ink"
           >
             <SignOutIcon />
             <span>Log Out</span>

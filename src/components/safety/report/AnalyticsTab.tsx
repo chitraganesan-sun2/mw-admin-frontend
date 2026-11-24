@@ -31,7 +31,7 @@ function StatCard({ label, value, hint }: { label: string; value: string | numbe
     <div className="bg-white rounded-2xl border border-stroke p-4 flex flex-col gap-1">
       <dt className="text-xs text-gray-500">{label}</dt>
       <dd className="text-2xl font-semibold text-gray-800">{value}</dd>
-      {hint && <dd className="text-xs text-gray-400">{hint}</dd>}
+      {hint && <dd className="text-xs text-ink-3">{hint}</dd>}
     </div>
   );
 }

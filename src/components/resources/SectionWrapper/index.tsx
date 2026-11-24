@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/utils/merge-class";
+import EmptyState from "@/components/common/EmptyState";
 
 type SectionWrapperProps = {
   data: any[];
@@ -31,7 +32,7 @@ const SectionWrapper = ({
           title ? "" : "hidden"
         )}
       >
-        <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
+        <h2 className="text-xl font-semibold text-ink">{title}</h2>
         <div className="flex gap-2">
         </div>
       </div>
@@ -52,9 +53,7 @@ const SectionWrapper = ({
         </div>
       </div>
       {title === "Resources" && (data?.length === 0 || !Array.isArray(data)) && (
-        <span className="min-w-[250px] min-h-[275px] h-full w-full flex-center">
-          No Resource Found
-        </span>
+        <EmptyState title="No resources found" description="Resources will appear here once they are published." />
       )}
     </div>
   );

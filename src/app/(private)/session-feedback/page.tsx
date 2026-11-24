@@ -11,6 +11,8 @@ import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { percentOfAnswered, type FeedbackSide } from "@/utils/feedbackSummary";
+import EmptyState from "@/components/common/EmptyState";
+import { FiBarChart2 } from "react-icons/fi";
 
 const RANGES = [
   { label: "30 days", value: "30" },
@@ -33,7 +35,7 @@ const Breakdown = ({
     <div className="mt-5">
       <p className="text-sm font-medium text-dark">{title}</p>
       {answered === 0 ? (
-        <p className="mt-1 text-sm text-gray-medium">No one has answered this yet.</p>
+        <p className="mt-1 text-sm text-ink-2">No answers to this question in this period.</p>
       ) : (
         <>
           <div className="mt-2 flex h-3 w-full overflow-hidden rounded-full bg-background" role="img"
@@ -76,7 +78,7 @@ const SideCard = ({ heading, side }: { heading: string; side: FeedbackSide }) =>
       counts={side.goal_addressed}
       rows={[
         { key: "yes", label: "Yes", color: "#15803D" },
-        { key: "partly", label: "Partly", color: "#A16207" },
+        { key: "partly", label: "Partly", color: "#D97706" },
         { key: "no", label: "No", color: "#DC2626" },
       ]}
     />
@@ -87,7 +89,7 @@ const SideCard = ({ heading, side }: { heading: string; side: FeedbackSide }) =>
 export default function SessionFeedbackPage() {
   const { setHeaderOptions } = useComponentStore();
   const pathname = usePathname();
-  const [days, setDays] = useQueryState("days", { defaultValue: "90" });
+  const [days, setDays] = useQueryState("days", { defaultValue: "30" });
 
   useEffect(() => {
     setHeaderOptions({ title: "Session Feedback", titleIcon: getHeaderIcon(pathname) });
@@ -100,7 +102,7 @@ export default function SessionFeedbackPage() {
   });
 
   return (
-    <div className="p-4 sm:p-8">
+    <div className="p-4 sm:p-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Segmented options={RANGES} value={days} onChange={(v) => setDays(String(v))} aria-label="Time range" />
         <Button icon={<FiRefreshCw aria-hidden />} onClick={() => refetch()} loading={isFetching}>
@@ -118,7 +120,13 @@ export default function SessionFeedbackPage() {
           </Button>
         </div>
       ) : data.learner.responses + data.volunteer.responses === 0 ? (
-        <p className="text-dark">No session feedback in the last {data.days} days.</p>
+        <div className="rounded-2xl border border-stroke bg-white">
+          <EmptyState
+            icon={<FiBarChart2 />}
+            title={`No session feedback in the last ${data.days} days`}
+            description="Try a longer time range."
+          />
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <SideCard heading="Learners" side={data.learner} />
