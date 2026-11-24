@@ -122,7 +122,7 @@ export default function ReportsPage() {
 
   useEffect(() => {
     setHeaderOptions({
-      title: "Reports",
+      title: "Member Reports",
       titleIcon: getHeaderIcon(pathname),
     });
   }, [pathname]);

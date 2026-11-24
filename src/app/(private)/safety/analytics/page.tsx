@@ -179,10 +179,13 @@ export default function SafetyAnalyticsPage() {
   return (
     <SafetyPage
       title="Analytics"
-      description={`Charts and insights across all analyses${
-        analyticsQuery.dataUpdatedAt ? ` · updated ${formatDisplayDateTime(analyticsQuery.dataUpdatedAt)}` : ""
-      }`}
-      status={<LiveStatus analysing={0} />}
+      description="Charts and insights across all analyses."
+      status={
+        <LiveStatus
+          analysing={0}
+          updatedAt={analyticsQuery.dataUpdatedAt ? formatDisplayDateTime(analyticsQuery.dataUpdatedAt) : null}
+        />
+      }
       actions={
         <Button icon={<FiRefreshCw aria-hidden="true" />} loading={isRefreshing} onClick={refreshAll}>
           Refresh
@@ -191,7 +194,7 @@ export default function SafetyAnalyticsPage() {
     >
       {analyticsQuery.isLoading ? (
         <div aria-busy="true" aria-label="Loading analytics" className="flex flex-col gap-4 sm:gap-5">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
             {Array.from({ length: 6 }, (_, i) => (
               <div key={i} className="rounded-2xl border border-stroke bg-white p-4">
                 <Skeleton active title={false} paragraph={{ rows: 2 }} />
@@ -214,7 +217,7 @@ export default function SafetyAnalyticsPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-4 sm:gap-5">
-          <section aria-label="Summary" className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6">
+          <section aria-label="Summary" className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
             {kpis.map((kpi) => (
               <StatCard
                 key={kpi.label}
@@ -261,7 +264,7 @@ export default function SafetyAnalyticsPage() {
                       <div className="flex max-h-[38vh] w-[min(88vw,320px)] flex-col gap-3 overflow-y-auto">
                         {CHART_GROUPS.map((group) => (
                           <fieldset key={group.id} className="m-0 min-w-0 border-0 p-0">
-                            <legend className="mb-1 p-0 text-xs font-semibold uppercase tracking-wide text-[#6B7280]">
+                            <legend className="mb-1 p-0 text-xs font-semibold uppercase tracking-wide text-ink-3">
                               {group.label}
                             </legend>
                             <div className="flex flex-col gap-1">

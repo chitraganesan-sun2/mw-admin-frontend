@@ -8,7 +8,7 @@ import { FiBarChart2, FiFileText, FiGitMerge, FiHardDrive, FiUploadCloud } from 
 // Safety Monitoring is one sidebar entry with several screens; this is the way between them. On a phone the
 // strip scrolls sideways (instead of wrapping onto three rows) and keeps the active tab in view.
 const TABS = [
-  { href: "/safety", label: "Reports", icon: FiFileText },
+  { href: "/safety", label: "Analyses", icon: FiFileText },
   { href: "/safety/upload", label: "New Analysis", icon: FiUploadCloud },
   { href: "/safety/analytics", label: "Analytics", icon: FiBarChart2 },
   { href: "/safety/compare", label: "Compare", icon: FiGitMerge },
@@ -40,7 +40,7 @@ export default function SafetyTabs() {
                 className={clsx(
                   "inline-flex min-h-[40px] items-center gap-2 whitespace-nowrap rounded-full px-4 text-sm font-medium transition-colors",
                   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-ink",
-                  active ? "bg-primary text-dark" : "text-[#4F4F4F] hover:bg-gray-100"
+                  active ? "bg-primary text-ink" : "text-ink-2 hover:bg-gray-100"
                 )}
               >
                 <Icon size={16} aria-hidden />

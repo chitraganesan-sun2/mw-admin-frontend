@@ -67,7 +67,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/safety", text: "Safety Monitoring", icon: "safety", keywords: ["analysis", "chats", "red alert", "transcripts"] },
       { href: "/wingtime", text: "WingTime", icon: "wingtime", flag: "wingtime", keywords: ["recordings", "groups", "publish"] },
-      { href: "/reports", text: "Reports", icon: "reports", keywords: ["flagged", "moderation", "abuse"] },
+      { href: "/reports", text: "Member Reports", icon: "reports", keywords: ["flagged", "moderation", "abuse"] },
       { href: "/session-feedback", text: "Session Feedback", icon: "feedback", keywords: ["helpful", "goal", "ratings"] },
     ],
   },

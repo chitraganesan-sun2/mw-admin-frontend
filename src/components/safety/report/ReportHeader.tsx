@@ -18,13 +18,13 @@ function LinkedRecords({ report }: { report: SafetyReport }) {
     report.learner_id && { label: "Learner", id: report.learner_id, href: learnerHref },
   ].filter(Boolean) as { label: string; id: string; href: string | null }[];
 
-  if (!items.length) return <p className="m-0 text-sm text-[#6B7280]">Not linked to a session, volunteer or learner.</p>;
+  if (!items.length) return <p className="m-0 text-sm text-ink-3">Not linked to a session, volunteer or learner.</p>;
 
   return (
     <dl className="m-0 flex flex-wrap gap-x-5 gap-y-1 text-sm">
       {items.map((item) => (
         <div key={item.label} className="flex min-w-0 gap-1.5">
-          <dt className="text-[#6B7280]">{item.label}</dt>
+          <dt className="text-ink-3">{item.label}</dt>
           <dd className="m-0 break-all font-medium text-dark">
             {item.href ? (
               <Link href={item.href} className="text-[#046A8A] hover:underline">
@@ -73,7 +73,7 @@ export default function ReportHeader({
           <p className="m-0 mt-1 break-all text-sm text-[#4F4F4F]" title={report.filename}>
             {report.filename}
           </p>
-          <p className="m-0 mt-1 text-xs text-[#6B7280]">Analyzed {formatDisplayDateTime(report.created_at)}</p>
+          <p className="m-0 mt-1 text-xs text-ink-3">Analyzed {formatDisplayDateTime(report.created_at)}</p>
         </div>
 
         <div className="flex items-center gap-4 rounded-2xl bg-[#F8FAFC] px-4 py-3">
@@ -81,7 +81,7 @@ export default function ReportHeader({
             <div className="text-3xl font-bold leading-none tabular-nums" style={{ color }} aria-label={`Risk score ${formatRisk(score)}`}>
               {score != null ? score.toFixed(0) : "-"}
             </div>
-            <div className="mt-1 text-xs text-[#6B7280]">Risk score</div>
+            <div className="mt-1 text-xs text-ink-3">Risk score</div>
           </div>
           <div className="flex flex-col items-start gap-1.5">
             <SeverityTag severity={report.severity} />

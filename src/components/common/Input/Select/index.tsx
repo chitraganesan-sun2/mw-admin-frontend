@@ -1,6 +1,5 @@
 import { useId } from "react";
 import { Select as AntSelect, Spin } from "antd";
-import { TiArrowSortedDown } from "react-icons/ti";
 
 const Select = ({
   disabled,
@@ -15,7 +14,7 @@ const Select = ({
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      <label htmlFor={selectId} className="text-base font-normal text-black">{props.label}</label>
+      <label htmlFor={selectId} className="text-xs font-medium text-ink-2">{props.label}</label>
       <AntSelect
         id={selectId}
         placeholder={props.placeholder}
@@ -28,11 +27,10 @@ const Select = ({
             {isLoading ? <Spin size="small" /> : "No options found"}
           </p>
         }
-        className={`w-full text-sm h-fit rounded-xl hover:bg-[#f4f7fb] !bg-[#f4f7fb] !border border-stroke font-poppins ${inputClassName}`}
+        className={`w-full font-poppins ${inputClassName ?? ""}`}
         options={props.options}
         popupClassName="overflow-auto no-scrollbar"
         dropdownStyle={{ maxHeight: "262px", overflowY: "auto" }}
-        suffixIcon={<TiArrowSortedDown className="text-black text-lg" />}
         filterOption={(input, option) =>
           option?.label?.toLowerCase().includes(input.toLowerCase()) ||
           option?.value?.toLowerCase().includes(input.toLowerCase())

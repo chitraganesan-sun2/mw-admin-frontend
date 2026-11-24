@@ -221,7 +221,7 @@ function GoogleDriveContent() {
       <div className={isRefreshingFiles ? "opacity-60 transition-opacity" : "transition-opacity"} aria-busy={isRefreshingFiles}>
         <DriveFileTable files={files} imports={imports} onImport={handleImport} />
         {files.length >= pageSize ? (
-          <p className="m-0 border-t border-stroke px-4 py-3 text-xs text-[#6B7280]">
+          <p className="m-0 border-t border-stroke px-4 py-3 text-xs text-ink-3">
             Showing the {pageSize} most recently modified files. Search to narrow the list, or show more.
           </p>
         ) : null}
@@ -324,7 +324,7 @@ function GoogleDriveContent() {
               <h3 id="drive-files-heading" className="m-0 text-base font-semibold text-dark">
                 Files
                 {filesQuery.data ? (
-                  <span className="ml-2 text-sm font-normal text-[#6B7280]">
+                  <span className="ml-2 text-sm font-normal text-ink-3">
                     {files.length} {files.length === 1 ? "file" : "files"}
                   </span>
                 ) : null}

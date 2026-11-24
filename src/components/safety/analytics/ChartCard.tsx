@@ -63,7 +63,7 @@ export default function ChartCard({
         <h3 id={headingId} className="m-0 text-base font-semibold text-dark">
           {title}
         </h3>
-        {note ? <span className="ml-auto text-xs text-[#6B7280]">{note}</span> : null}
+        {note ? <span className="ml-auto text-xs text-ink-3">{note}</span> : null}
       </div>
 
       {isLoading ? (

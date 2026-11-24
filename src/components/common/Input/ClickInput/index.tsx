@@ -1,5 +1,5 @@
 import React from "react";
-import { TiArrowSortedDown } from "react-icons/ti";
+import { FiChevronDown } from "react-icons/fi";
 
 interface ClickInputProps {
   label: string;
@@ -17,21 +17,19 @@ const ClickInput = ({
   return (
     <div className="flex flex-col gap-1 w-full">
       <div className="flex items-center justify-between">
-        <span className="text-base font-normal text-black">{label}</span>
-        <div className="text-base font-normal text-black">
+        <span className="text-xs font-medium text-ink-2">{label}</span>
+        <div className="text-xs text-ink-2">
           {availableItems} Available
         </div>
       </div>
       <button
         type="button"
         aria-label={`${label}: ${selectedItems} selected of ${availableItems} available`}
-        className="flex items-center text-sm justify-between gap-2 cursor-pointer w-full bg-background border border-stroke rounded-lg p-2 appearance-none text-left"
+        className="flex h-10 items-center text-sm justify-between gap-2 cursor-pointer w-full bg-white border border-stroke rounded-xl px-3 appearance-none text-left hover:border-brand-ink"
         onClick={onClick}
       >
         <div className="font-normal text-black">{selectedItems} Selected</div>
-        <div className="font-normal text-black -rotate-90">
-          <TiArrowSortedDown className="text-black text-lg" />
-        </div>
+        <FiChevronDown aria-hidden className="text-ink-3" />
       </button>
     </div>
   );

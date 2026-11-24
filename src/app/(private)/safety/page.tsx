@@ -10,6 +10,7 @@ import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { Alert, Button, Checkbox, Input, Modal, Pagination, Select, Skeleton, Table, Tooltip } from "antd";
 import type { TableColumnsType } from "antd";
 import dayjs from "dayjs";
+import EmptyState from "@/components/common/EmptyState";
 import {
   FiActivity,
   FiAlertTriangle,
@@ -473,13 +474,13 @@ export default function SafetyReportsPage() {
         responsive: ["xl"],
         render: (_: unknown, record) => {
           const links = linkEntries(record);
-          if (!links.length) return <span className="text-[#6B7280]">–</span>;
+          if (!links.length) return <span className="text-ink-3">–</span>;
           return (
             <div className="flex flex-col gap-0.5 text-xs text-[#4F4F4F]">
               {links.map(([label, value]) => (
                 <Tooltip key={label} title={`${label} ID: ${value}`}>
                   <span className="block max-w-[140px] truncate">
-                    <span className="text-[#6B7280]">{label}:</span> {value}
+                    <span className="text-ink-3">{label}:</span> {value}
                   </span>
                 </Tooltip>
               ))}
@@ -507,41 +508,36 @@ export default function SafetyReportsPage() {
     [downloadingId, handleDownloadPdf]
   );
 
-  const emptyState = (
-    <div className="flex flex-col items-center gap-3 py-10 text-center">
-      <FiShield className="text-3xl text-gray-300" aria-hidden />
-      {anyFilterActive ? (
-        <>
-          <p className="m-0 font-medium text-dark">
-            {rows.length === 0 && debouncedSession ? "No reports found for this session" : "No reports match your filters"}
-          </p>
-          <p className="m-0 max-w-sm text-sm text-[#4F4F4F]">
-            {clientFilterActive && rows.length > 0
-              ? "Search, severity, status and date only look at the reports loaded on this page. Try another page or a larger page size."
-              : "Try a different session ID, or clear the filters."}
-          </p>
-          <Button onClick={clearFilters}>Clear filters</Button>
-        </>
-      ) : (
-        <>
-          <p className="m-0 font-medium text-dark">No reports yet</p>
-          <p className="m-0 max-w-sm text-sm text-[#4F4F4F]">
-            Analyze a call recording, video or transcript to see its safety report here.
-          </p>
-          <Link href="/safety/upload">
-            <Button type="primary" icon={<FiPlus />}>
-              Start a new analysis
-            </Button>
-          </Link>
-        </>
-      )}
-    </div>
+  const emptyState = anyFilterActive ? (
+    <EmptyState
+      icon={<FiShield />}
+      title={rows.length === 0 && debouncedSession ? "No reports found for this session" : "No reports match your filters"}
+      description={
+        clientFilterActive && rows.length > 0
+          ? "Search, severity, status and date only look at the reports loaded on this page. Try another page or a larger page size."
+          : "Try a different session ID, or clear the filters."
+      }
+      action={<Button onClick={clearFilters}>Clear filters</Button>}
+    />
+  ) : (
+    <EmptyState
+      icon={<FiShield />}
+      title="No reports yet"
+      description="Analyze a call recording, video or transcript to see its safety report here."
+      action={
+        <Link href="/safety/upload">
+          <Button type="primary" icon={<FiPlus />}>
+            Start a new analysis
+          </Button>
+        </Link>
+      }
+    />
   );
 
   const controlLabel = "mb-1 block text-xs font-medium text-[#4F4F4F]";
   const selectedCount = selectedKeys.length;
   const analysingCount = rows.filter((r) => isInFlight(r.status)).length;
-  const updatedAt = reportsQuery.dataUpdatedAt ? dayjs(reportsQuery.dataUpdatedAt).format("h:mm:ss A") : null;
+  const updatedAt = reportsQuery.dataUpdatedAt ? formatDisplayDateTime(reportsQuery.dataUpdatedAt) : null;
   const tableLoading = reportsQuery.isLoading || (reportsQuery.isFetching && reportsQuery.isPlaceholderData);
 
   const handlePageChange = (nextPage: number, nextSize?: number) => {
@@ -645,7 +641,7 @@ export default function SafetyReportsPage() {
 
   return (
     <SafetyPage
-      title="Reports"
+      title="Analyses"
       description="Every analysis, newest first. High and Critical reports are marked so they stand out. Open any row for its full report."
       status={<LiveStatus analysing={analysingCount} updatedAt={updatedAt} />}
       actions={
@@ -732,7 +728,7 @@ export default function SafetyReportsPage() {
             )}
           </div>
 
-          <Panel title="Severity Distribution" id="safety-severity-chart">
+          <Panel title="Severity Distribution" id="safety-severity-chart" className={chartSeverities.length === 0 ? "self-start" : undefined}>
             {analyticsQuery.isLoading || !analytics ? (
               <Skeleton active paragraph={{ rows: 4 }} />
             ) : chartSeverities.length === 0 ? (
@@ -762,7 +758,7 @@ export default function SafetyReportsPage() {
                         </span>
                         <span className="tabular-nums font-medium text-dark">
                           {counts[s]}
-                          <span className="ml-1.5 text-xs font-normal text-[#6B7280]">{percent(counts[s], analysed)}</span>
+                          <span className="ml-1.5 text-xs font-normal text-ink-3">{percent(counts[s], analysed)}</span>
                         </span>
                       </li>
                     ))}
@@ -787,9 +783,11 @@ export default function SafetyReportsPage() {
         }
         actions={
           selectedCount === 0 ? (
-            <Button icon={<FiDownload />} onClick={handleExport} disabled={!filteredRows.length}>
-              Export CSV
-            </Button>
+            <Tooltip title={!filteredRows.length ? "No reports to export" : undefined}>
+              <Button icon={<FiDownload />} onClick={handleExport} disabled={!filteredRows.length}>
+                Export CSV
+              </Button>
+            </Tooltip>
           ) : undefined
         }
       >
@@ -818,7 +816,7 @@ export default function SafetyReportsPage() {
             <Input
               id="safety-search"
               allowClear
-              prefix={<FiSearch className="text-gray-400" aria-hidden />}
+              prefix={<FiSearch className="text-ink-3" aria-hidden />}
               placeholder="Search files"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

@@ -53,11 +53,11 @@ export const StatCard = ({
         ) : null}
       </div>
       <div className="mt-1.5 text-2xl font-semibold tabular-nums text-dark sm:text-[1.75rem] sm:leading-9">{value}</div>
-      {hint ? <div className="mt-0.5 text-xs text-[#6B7280]">{hint}</div> : null}
+      {hint ? <div className="mt-0.5 text-xs text-ink-3">{hint}</div> : null}
     </>
   );
   const base = clsx(
-    "block min-w-0 rounded-2xl border bg-white p-3.5 sm:p-4",
+    "block min-h-[7.75rem] min-w-0 rounded-2xl border bg-white p-3.5 sm:p-4",
     emphasis ? "border-[#FED7AA] bg-[#FFFBF7]" : "border-stroke",
     className
   );

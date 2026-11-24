@@ -10,7 +10,7 @@ import ClickInput from "@/components/common/Input/ClickInput";
 import Button from "@/components/common/Button";
 import { RiAttachment2 } from "react-icons/ri";
 import { TiDelete } from "react-icons/ti";
-import { Checkbox } from "antd";
+import { Checkbox, Input } from "antd";
 import SelectionModal from "@/components/LearnerSelectionModal";
 import { useQuery } from "@tanstack/react-query";
 import { endpoints } from "@/api/constants";
@@ -297,7 +297,7 @@ const Broadcast = () => {
   }
 
   return (
-    <div className="p-10 flex flex-col gap-5">
+    <div className="p-6 flex flex-col gap-5">
       <AlertModal
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
@@ -334,7 +334,7 @@ const Broadcast = () => {
         onSave={() => setIsVolunteerSelectionOpen(false)}
         type="volunteer"
       />
-      <div className="bg-white border border-stroke  w-full rounded-2xl p-5 grid grid-cols-2 gap-5">
+      <div className="bg-white border border-stroke  w-full rounded-2xl p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <Select
             label="Location"
@@ -380,7 +380,7 @@ const Broadcast = () => {
                 }
                 onChange={handleSelectAllVolunteers}
               />
-              <span className="text-sm font-normal text-gray-500">
+              <span className="text-sm font-normal text-ink-2">
                 Select all volunteers
               </span>
             </div>
@@ -408,7 +408,7 @@ const Broadcast = () => {
                 }
                 onChange={handleSelectAllLearners}
               />
-              <span className="text-sm font-normal text-gray-500">
+              <span className="text-sm font-normal text-ink-2">
                 Select all learners
               </span>
             </div>
@@ -418,7 +418,7 @@ const Broadcast = () => {
           </div>
         )}
         {isNoData && (
-          <div className="text-sm font-normal text-center text-gray-500 col-span-2">
+          <div className="text-sm font-normal text-center text-ink-2 md:col-span-2">
             No volunteers or learners found
           </div>
         )}
@@ -426,11 +426,9 @@ const Broadcast = () => {
 
       <div className="bg-white border border-stroke  w-full rounded-2xl p-5 flex flex-col gap-5">
         <div>
-          <input
-            type="text"
+          <Input
             placeholder="Subject"
             aria-label="Subject"
-            className="w-full border border-stroke rounded-lg p-2 bg-background outline-none"
             value={subject}
             onChange={(e) => handleSelectSubject(e.target.value)}
           />
@@ -448,20 +446,10 @@ const Broadcast = () => {
             <div className="text-error text-xs mt-1">{errors.message}</div>
           )}
         </div>
-        <div className="flex items-center justify-between">
-          <Button
-            className="bg-black px-12 h-[40px] font-poppins text-white rounded-xl font-normal"
-            onClick={handleSendClick}
-            disabled={isLoading}
-          >
-            {isLoading ? "Sending..." : "Send Email"}
-          </Button>
-          <div className="flex flex-col items-end text-sm gap-2">
+        {attachFiles.length > 0 && (
+          <ul className="m-0 flex list-none flex-col gap-1 p-0 text-sm text-ink-2" aria-label="Attached files">
             {attachFiles.map((file, idx) => (
-              <span
-                key={idx}
-                className="text-sm flex items-center text-gray-500"
-              >
+              <li key={idx} className="flex items-center">
                 {file.name}
                 <button
                   type="button"
@@ -473,30 +461,45 @@ const Broadcast = () => {
                 >
                   <TiDelete className="text-red-500 text-xl" />
                 </button>
-              </span>
+              </li>
             ))}
-            <label className="text-sm font-normal text-black flex items-center border border-stroke rounded-xl p-2 gap-2 cursor-pointer ml-2">
-              <RiAttachment2 className="text-black text-lg" />
-              <span>Attach File</span>
-              <input
-                type="file"
-                className="hidden"
-                multiple
-                onChange={(e) => {
-                  const files = e.target.files;
-                  if (files && files.length > 0) {
-                    setAttachFiles((prev) =>
-                      [...prev, ...Array.from(files)].filter(
-                        (file, idx, arr) =>
-                          arr.findIndex(
-                            (f) => f.name === file.name && f.size === file.size
-                          ) === idx
-                      )
-                    );
-                  }
-                }}
-              />
-            </label>
+          </ul>
+        )}
+        {/* Attach on the left, audience + the one primary action on the right. */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <label className="flex h-10 cursor-pointer items-center gap-2 rounded-xl border border-stroke bg-white px-4 text-sm font-medium text-ink hover:border-brand-ink">
+            <RiAttachment2 className="text-lg" aria-hidden />
+            <span>Attach File</span>
+            <input
+              type="file"
+              className="sr-only"
+              multiple
+              onChange={(e) => {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                  setAttachFiles((prev) =>
+                    [...prev, ...Array.from(files)].filter(
+                      (file, idx, arr) =>
+                        arr.findIndex(
+                          (f) => f.name === file.name && f.size === file.size
+                        ) === idx
+                    )
+                  );
+                }
+              }}
+            />
+          </label>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-ink-2" aria-live="polite">
+              {recipientCount} recipient{recipientCount === 1 ? "" : "s"} selected
+            </span>
+            <Button
+              customClassName="px-8"
+              onClick={handleSendClick}
+              disabled={isLoading}
+            >
+              {isLoading ? "Sending..." : "Send Email"}
+            </Button>
           </div>
         </div>
       </div>

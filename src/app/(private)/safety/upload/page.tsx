@@ -306,7 +306,7 @@ export default function SafetyUploadPage() {
         </div>
 
         {items.length === 0 ? (
-          <p className="my-6 text-center text-sm text-[#6B7280]">
+          <p className="my-6 text-center text-sm text-ink-3">
             Nothing queued yet. Add files or a transcript above, then start the analysis.
           </p>
         ) : (

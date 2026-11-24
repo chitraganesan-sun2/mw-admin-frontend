@@ -23,7 +23,7 @@ export default function Highlights({ items }: { items: Highlight[] }) {
           const Icon = item.direction ? ICON[item.direction] : null;
           return (
             <li key={item.key} className="min-w-0 rounded-xl bg-[#F8FAFC] px-3.5 py-3">
-              <div className="text-xs font-medium text-[#6B7280]">{item.label}</div>
+              <div className="text-xs font-medium text-ink-3">{item.label}</div>
               <div className="mt-1 flex items-center gap-2">
                 <span className="min-w-0 truncate text-xl font-semibold text-dark" title={item.value}>
                   {item.value}
