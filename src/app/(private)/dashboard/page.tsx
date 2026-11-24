@@ -182,7 +182,7 @@ export default function DashboardPage() {
       ) : null}
 
       {canSeeSessions ? (
-        <Section title="Sessions" hint="Every session, with a join link for confirmed ones that are still on">
+        <Section title="Sessions" hint="Every session, with a join link for accepted ones that are still on (kept for 30 minutes after the end)">
           <SessionsTable />
         </Section>
       ) : null}

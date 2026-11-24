@@ -9,6 +9,7 @@ import Table from "@/components/Table";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { formatDisplayDateTime } from "@/utils/displayDateTime";
 import { safeHref } from "@/utils/safeHref";
+import { JOIN_GRACE_MINUTES, sessionStatusDisplay } from "@/utils/sessionStatus";
 
 const PAGE_SIZES = [10, 20, 50];
 const SEARCH_DELAY_MS = 400;
@@ -16,7 +17,7 @@ const DATE_FORMAT = "YYYY-MM-DD";
 
 const STATUS_OPTIONS = [
   { value: "pending", label: "Pending" },
-  { value: "accepted", label: "Confirmed" },
+  { value: "accepted", label: "Accepted" },
   { value: "completed", label: "Completed" },
   { value: "cancelled", label: "Cancelled" },
   { value: "rejected", label: "Declined" },
@@ -29,13 +30,6 @@ const WHEN_OPTIONS = [
   { value: "upcoming", label: "Upcoming" },
   { value: "past", label: "Past" },
 ];
-const STATUS_LABEL: Record<string, { label: string; color: string }> = {
-  pending: { label: "Pending", color: "gold" },
-  accepted: { label: "Confirmed", color: "green" },
-  completed: { label: "Completed", color: "blue" },
-  cancelled: { label: "Cancelled", color: "default" },
-  rejected: { label: "Declined", color: "red" },
-};
 
 const personCell = (name: string | null) => name || <span className="text-[#4F4F4F]">Unknown</span>;
 
@@ -125,9 +119,9 @@ export default function SessionsTable() {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (value: string) => {
-        const known = STATUS_LABEL[value];
-        return <Tag color={known?.color ?? "default"}>{known?.label ?? value}</Tag>;
+      render: (_value: string, row: DashboardSession) => {
+        const shown = sessionStatusDisplay(row);
+        return <Tag color={shown.color}>{shown.label}</Tag>;
       },
     },
     {
@@ -150,7 +144,7 @@ export default function SessionsTable() {
             Join
           </a>
         ) : (
-          <span className="text-[#4F4F4F]" title="Only confirmed sessions that haven't ended have a link">
+          <span className="text-[#4F4F4F]" title={`Only accepted sessions that haven't ended have a link (admins keep it ${JOIN_GRACE_MINUTES} minutes after the end)`}>
             —
           </span>
         );
@@ -240,13 +234,13 @@ export default function SessionsTable() {
             <ul className="space-y-3" aria-label="Sessions">
               {rows.map((row) => {
                 const href = safeHref(row.join_url);
-                const known = STATUS_LABEL[row.status];
+                const shown = sessionStatusDisplay(row);
                 return (
                   <li key={row.session_id} className="rounded-2xl border border-stroke bg-white p-4">
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="min-w-0 break-words font-medium text-dark">{row.title || "Untitled"}</h3>
-                      <Tag color={known?.color ?? "default"} className="shrink-0 !m-0">
-                        {known?.label ?? row.status}
+                      <Tag color={shown.color} className="shrink-0 !m-0">
+                        {shown.label}
                       </Tag>
                     </div>
                     <p className="mt-1 text-sm text-[#4F4F4F]">

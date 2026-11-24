@@ -39,7 +39,7 @@ interface DashboardSession {
   volunteer_name: string | null;
   learner_id: string | null;
   learner_name: string | null;
-  // Only for a confirmed session that hasn't ended, and only an https link.
+  // Only for an accepted session that hasn't ended, and only an https link.
   join_url: string | null;
 }
 
