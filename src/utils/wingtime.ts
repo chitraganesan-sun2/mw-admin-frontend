@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { serverDayjs } from "./displayDateTime";
+import { serverDayjs } from "./displayDateTime.ts";
 
 export type WingTimeStatus = "pending_approval" | "approved" | "rejected" | "cancelled" | "completed";
 
