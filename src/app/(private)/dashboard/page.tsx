@@ -70,13 +70,14 @@ export default function DashboardPage() {
   const { attention, numbers, health, unavailable } = data;
   const { members, donations, hiring } = numbers;
   const email = health.email;
+  const showFeedback = canSeeFeedback && !!feedback.data && feedback.data.learner.responses + feedback.data.volunteer.responses > 0;
   const hasAnything =
     attention.length > 0 || Object.keys(numbers).length > 0 || Object.keys(health).length > 0 || canSeeSessions;
 
   return (
     <div className="p-4 sm:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <p className="text-sm text-[#4F4F4F]">
+        <p className="text-sm text-ink-2">
           Updated {formatDisplayDateTime(data.generated_at)}. Figures refresh every few minutes.
         </p>
         <Button icon={<FiRefreshCw aria-hidden />} onClick={() => refetch()} loading={isFetching}>
@@ -91,15 +92,18 @@ export default function DashboardPage() {
       ) : null}
 
       {!hasAnything ? (
-        <p className="text-dark">There&apos;s nothing to summarize for your account yet. Use the menu to open a section.</p>
+        <p className="text-ink">There&apos;s nothing to summarize for your account yet. Use the menu to open a section.</p>
       ) : null}
 
       {attention.length > 0 ? (
         <Section title="Needs Attention" hint="Work waiting for someone on the team">
           <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-            {attention.map((item) => (
-              <AttentionCard key={item.key} item={item} />
-            ))}
+            {/* Queues with work waiting come first (stable, so the order inside each group is unchanged). */}
+            {[...attention]
+              .sort((a, b) => Number(b.count > 0) - Number(a.count > 0))
+              .map((item) => (
+                <AttentionCard key={item.key} item={item} />
+              ))}
           </div>
         </Section>
       ) : null}
@@ -142,41 +146,52 @@ export default function DashboardPage() {
         </Section>
       ) : null}
 
-      {canSeeFeedback && feedback.data && feedback.data.learner.responses + feedback.data.volunteer.responses > 0 ? (
-        <Section title="Session Feedback" hint="Last 30 days, from the one-tap answers after a session">
+      {showFeedback || email ? (
+        <Section
+          title={showFeedback && email ? "Session Feedback and System Health" : showFeedback ? "Session Feedback" : "System Health"}
+          hint={
+            showFeedback && email
+              ? "Feedback is from the last 30 days; email health is the last 7"
+              : showFeedback
+                ? "Last 30 days, from the one-tap answers after a session"
+                : undefined
+          }
+        >
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-            {(["learner", "volunteer"] as const).map((side) => {
-              const d = feedback.data![side];
-              const pct = percentOfAnswered(d.helpful.yes, d.helpful);
-              return (
-                <StatCard
-                  key={side}
-                  label={`${side === "learner" ? "Learners" : "Volunteers"} found it helpful`}
-                  value={pct === null ? "No answers yet" : `${pct}%`}
-                  detail={plural(d.responses, "review")}
-                  href="/session-feedback"
-                />
-              );
-            })}
-          </div>
-        </Section>
-      ) : null}
-
-      {email ? (
-        <Section title="System Health">
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-            <StatCard
-              label="Notification emails, last 7 days"
-              value={
-                email.total_7d === 0
-                  ? "None sent"
-                  : email.failed_7d === 0
-                    ? "All delivered"
-                    : `${formatNumber(email.failed_7d)} failed`
-              }
-              detail={`${plural(email.total_7d, "email")} attempted`}
-              href="/notifications"
-            />
+            {showFeedback
+              ? (["learner", "volunteer"] as const).map((side) => {
+                  const d = feedback.data![side];
+                  const pct = percentOfAnswered(d.helpful.yes, d.helpful);
+                  return (
+                    <StatCard
+                      key={side}
+                      label={`${side === "learner" ? "Learners" : "Volunteers"} found it helpful`}
+                      value={pct === null ? "-" : `${pct}%`}
+                      detail={
+                        pct === null
+                          ? `${plural(d.responses, "review")}, none answered this question`
+                          : plural(d.responses, "review")
+                      }
+                      href="/session-feedback"
+                    />
+                  );
+                })
+              : null}
+            {email ? (
+              <StatCard
+                compact={email.total_7d === 0 || email.failed_7d === 0}
+                label="Notification emails, last 7 days"
+                value={
+                  email.total_7d === 0
+                    ? "None sent"
+                    : email.failed_7d === 0
+                      ? "All delivered"
+                      : `${formatNumber(email.failed_7d)} failed`
+                }
+                detail={`${plural(email.total_7d, "email")} attempted`}
+                href="/notifications"
+              />
+            ) : null}
           </div>
         </Section>
       ) : null}

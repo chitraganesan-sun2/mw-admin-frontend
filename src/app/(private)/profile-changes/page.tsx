@@ -5,6 +5,10 @@ import { createInFlightGuard } from "@/utils/inflight";
 import { usePathname } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Table from "@/components/Table";
+import { Button } from "antd";
+import FilterChips from "@/components/common/Filters/FilterChips";
+import EmptyState from "@/components/common/EmptyState";
+import { FiCheckCircle } from "react-icons/fi";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { showToast } from "@/components/common/Toast";
 import ProfileChangeDetailsModal, { ProfileChangeDetails } from "@/components/profile-changes/ProfileChangeDetailsModal";
@@ -25,13 +29,13 @@ type Row = {
   created_on?: string;
 };
 
-const TABS = [
+const TABS: { key: string; label: string }[] = [
   { key: "pending", label: "Pending" },
   { key: "approved", label: "Approved" },
   { key: "rejected", label: "Rejected" },
 ];
 
-const cell = "text-base text-[#121212] !font-poppins !font-medium";
+const cell = "text-ink";
 
 export default function ProfileChangesPage() {
   const { setHeaderOptions } = useComponentStore();
@@ -136,28 +140,30 @@ export default function ProfileChangesPage() {
         title: "Name",
         dataIndex: "name",
         key: "name",
-        className: "p-6 w-[220px]",
+        width: 230,
+        ellipsis: true,
         render: (_: unknown, r: Row) => <span className={`${cell} !font-semibold`}>{r.name || "-"}</span>,
       },
       {
         title: "Role",
         dataIndex: "role",
         key: "role",
-        className: "p-6 w-[140px]",
+        width: 130,
         render: (_: unknown, r: Row) => <span className={`${cell} capitalize`}>{r.role}</span>,
       },
       {
         title: "Fields Changed",
         dataIndex: "change_count",
         key: "change_count",
-        className: "p-6 w-[160px]",
+        width: 150,
         render: (_: unknown, r: Row) => <span className={cell}>{r.change_count}</span>,
       },
       {
         title: "Submitted",
         dataIndex: "created_on",
         key: "created_on",
-        className: "p-6 w-[200px] whitespace-nowrap",
+        width: 200,
+        className: "whitespace-nowrap",
         render: (_: unknown, r: Row) => (
           <span className="flex flex-col items-start gap-1">
             <span className={cell}>{formatDisplayDate(r.created_on)}</span>
@@ -166,21 +172,22 @@ export default function ProfileChangesPage() {
         ),
       },
       {
-        title: "",
+        title: "Actions",
         key: "actions",
         width: 160,
-        className: "!p-0 !w-[160px]",
+        fixed: "right" as const,
+        align: "right" as const,
         render: (_: unknown, r: Row) => (
-          <button
-            type="button"
+          <Button
+            size="small"
+            type={status === "pending" ? "primary" : "default"}
             onClick={(e) => {
               e.stopPropagation();
               setSelectedId(r.request_id);
             }}
-            className="bg-transparent border-0 px-6 !py-3 text-[14px] !font-medium text-[#121212] underline !font-poppins cursor-pointer whitespace-nowrap"
           >
             {status === "pending" ? "Review changes" : "View changes"}
-          </button>
+          </Button>
         ),
       },
     ],
@@ -218,32 +225,31 @@ export default function ProfileChangesPage() {
         onReject={handleReject}
         queue={queue}
       />
-      <div className="w-full mb-4 flex items-center justify-end gap-4">
-        <h2 className="sr-only">Profile Changes</h2>
-        <div className="flex gap-2" role="tablist" aria-label="Request Status">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={status === tab.key}
-              onClick={() => {
-                setStatus(tab.key);
-                setPage(1);
-              }}
-              className={`rounded-3xl border px-4 py-2 text-sm !font-poppins cursor-pointer ${
-                status === tab.key ? "bg-black text-white border-black" : "bg-white text-[#121212] border-[#E5E5E5]"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <h2 className="sr-only">Profile Changes</h2>
+      <FilterChips
+        className="mb-4"
+        ariaLabel="Request Status"
+        items={TABS}
+        value={status}
+        onChange={(key) => {
+          setStatus(key);
+          setPage(1);
+        }}
+      />
       {isError ? (
         <ErrorMsg message="Couldn't load the profile change requests." onRetry={() => refetch()} retrying={isFetching} />
       ) : !isLoading && !isFetching && rows.length === 0 ? (
-        <div className="w-full py-10 text-center text-[#6B7280]">No {status} requests</div>
+        <div className="rounded-2xl border border-stroke bg-white">
+          <EmptyState
+            icon={<FiCheckCircle />}
+            title={status === "pending" ? "Nothing is waiting for review" : `No ${status} requests`}
+            description={
+              status === "pending"
+                ? "New profile change requests will show up here. Switch to Approved or Rejected to see past decisions."
+                : "Requests with this decision will show up here."
+            }
+          />
+        </div>
       ) : (
         <Table
           key={`profile-changes-${status}`}

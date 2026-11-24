@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { paginationItemRender } from "@/components/Table/paginationItemRender";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { GET_API, POST_API, PUT_API, DELETE_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
-import { Button, Input, Select, Table, Modal, Form, Popconfirm, Tabs, Tag } from "antd";
-import { DeleteIcon } from "@/assets/icons";
+import { Button, Input, Select, Modal, Form, Popconfirm, Tabs } from "antd";
+import Table from "@/components/Table";
+import StatusTag from "@/components/common/StatusTag";
+import DeleteButton from "@/components/common/DeleteButton";
+import PageHeader from "@/components/common/PageHeader";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
@@ -130,6 +132,8 @@ export default function ListOfValuesPage() {
     {
       title: "Name",
       key: "name",
+      width: 300,
+      ellipsis: true,
       render: (_: any, record: any) => record[NAME_MAP[activeTab]],
       className: "font-medium",
     },
@@ -139,12 +143,9 @@ export default function ListOfValuesPage() {
             title: "Category",
             dataIndex: "category",
             key: "category",
+            width: 180,
             render: (cat: string) =>
-              cat ? (
-                <Tag color={cat === "academic" ? "blue" : "purple"}>{cat}</Tag>
-              ) : (
-                <Tag>Uncategorized</Tag>
-              ),
+              cat ? <StatusTag tone="neutral">{cat}</StatusTag> : <StatusTag tone="neutral">Uncategorized</StatusTag>,
           },
         ]
       : []),
@@ -152,15 +153,18 @@ export default function ListOfValuesPage() {
       title: "Visible",
       dataIndex: "global",
       key: "global",
+      width: 120,
       render: (val: boolean) => (
-        <Tag color={val ? "green" : "red"}>{val ? "Yes" : "Hidden"}</Tag>
+        <StatusTag dot tone={val ? "success" : "neutral"}>{val ? "Yes" : "Hidden"}</StatusTag>
       ),
     },
     {
       title: "Actions",
       key: "actions",
+      width: 140,
+      fixed: "right" as const,
       render: (_: any, record: any) => (
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button size="small" onClick={() => handleEdit(record)}>
             Edit
           </Button>
@@ -168,9 +172,7 @@ export default function ListOfValuesPage() {
             title="Delete this item?"
             onConfirm={() => deleteMutation.mutate(record[ID_MAP[activeTab]])}
           >
-            <Button size="small" danger aria-label="Delete this item">
-              <DeleteIcon />
-            </Button>
+            <DeleteButton label="Delete this item" />
           </Popconfirm>
         </div>
       ),
@@ -179,22 +181,25 @@ export default function ListOfValuesPage() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-end items-center mb-6">
-        {/* The page header already shows this title; keep a heading for screen readers only. */}
-        <h2 className="sr-only">List of Values</h2>
-        {!isSkills && (
-          <Button
-            type="primary"
-            onClick={() => {
-              setEditingItem(null);
-              form.resetFields();
-              setIsModalOpen(true);
-            }}
-          >
-            + Add {COLLECTION_TYPES.find((c) => c.key === activeTab)?.label?.slice(0, -1)}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        className="mb-4"
+        actions={
+          !isSkills ? (
+            <Button
+              type="primary"
+              onClick={() => {
+                setEditingItem(null);
+                form.resetFields();
+                setIsModalOpen(true);
+              }}
+            >
+              + Add {COLLECTION_TYPES.find((c) => c.key === activeTab)?.label?.slice(0, -1)}
+            </Button>
+          ) : null
+        }
+      />
+      {/* The page header already shows this title; keep a heading for screen readers only. */}
+      <h2 className="sr-only">List of Values</h2>
 
       <Tabs
         activeKey={activeTab}
@@ -204,7 +209,7 @@ export default function ListOfValuesPage() {
           label:
             t.key === "skills" && pendingSkills > 0 ? (
               <span>
-                {t.label} <Tag color="gold">{pendingSkills} new</Tag>
+                {t.label} <StatusTag tone="warning">{pendingSkills} new</StatusTag>
               </span>
             ) : (
               t.label
@@ -218,11 +223,12 @@ export default function ListOfValuesPage() {
         <ErrorMsg message="Couldn't load the list of values." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
-          dataSource={items}
+          data={items}
           columns={columns}
           rowKey={(record) => record[ID_MAP[activeTab]]}
           loading={isLoading}
-          pagination={{ itemRender: paginationItemRender, pageSize: 15 }}
+          pagination={{ pageSize: 15, hideOnSinglePage: true }}
+          emptyText="No values yet."
         />
       )}
 

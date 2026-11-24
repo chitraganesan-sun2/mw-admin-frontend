@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { paginationItemRender } from "@/components/Table/paginationItemRender";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
-import { Button, Form, Input, Modal, Popconfirm, Select, Table, Tag } from "antd";
+import { Button, Form, Input, Modal, Popconfirm, Select } from "antd";
+import { FiSearch } from "react-icons/fi";
+import Table from "@/components/Table";
+import StatusTag from "@/components/common/StatusTag";
+import DeleteButton from "@/components/common/DeleteButton";
 import { DELETE_API, GET_API, POST_API, PUT_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
-import { DeleteIcon } from "@/assets/icons";
 import { showToast } from "@/components/common/Toast";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { getApiErrorMessage } from "@/utils/apiError";
@@ -142,32 +144,42 @@ export default function SkillsTab() {
   };
 
   const columns = [
-    { title: "Skill", dataIndex: "skill_name", key: "name", render: (n: string) => <span className="font-medium">{n}</span> },
+    { title: "Skill", dataIndex: "skill_name", key: "name", width: 220, ellipsis: true, render: (n: string) => <span className="font-medium">{n}</span> },
     {
       title: "Category",
       dataIndex: "category",
       key: "category",
+      width: 160,
       render: (c: string | null) =>
-        c ? <Tag color={c === "academic" ? "blue" : "purple"}>{CATEGORY_LABEL[c] || c}</Tag> : <Tag>Uncategorized</Tag>,
+        c ? <StatusTag tone="neutral">{CATEGORY_LABEL[c] || c}</StatusTag> : <StatusTag tone="neutral">Uncategorized</StatusTag>,
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (s: string) => <Tag color={STATUS_META[s]?.color}>{STATUS_META[s]?.label || s}</Tag>,
+      width: 170,
+      render: (s: string) => (
+        <StatusTag dot color={STATUS_META[s]?.color}>
+          {STATUS_META[s]?.label || s}
+        </StatusTag>
+      ),
     },
-    { title: "Added By", dataIndex: "source", key: "source", render: (s: string) => SOURCE_LABEL[s] || s },
+    { title: "Added By", dataIndex: "source", key: "source", width: 130, render: (s: string) => SOURCE_LABEL[s] || s },
     {
       title: "Created",
       dataIndex: "created_at",
       key: "created_at",
+      width: 130,
+      className: "whitespace-nowrap",
       render: (v: string | null) => (v ? formatDisplayDate(v) : "-"),
     },
     {
       title: "Actions",
       key: "actions",
+      width: 260,
+      fixed: "right" as const,
       render: (_: unknown, row: SkillRow) => (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex items-center gap-2">
           <Button size="small" onClick={() => openEdit(row)}>
             Edit
           </Button>
@@ -195,9 +207,7 @@ export default function SkillsTab() {
             okText="Remove"
             onConfirm={() => deleteMutation.mutate(row.skill_id)}
           >
-            <Button size="small" danger aria-label={`Remove ${row.skill_name}`}>
-              <DeleteIcon />
-            </Button>
+            <DeleteButton label={`Remove ${row.skill_name}`} />
           </Popconfirm>
         </div>
       ),
@@ -208,11 +218,12 @@ export default function SkillsTab() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <Input.Search
+      <div className="flex flex-wrap items-end gap-3 mb-4">
+        <Input
           allowClear
           placeholder="Search skills"
           aria-label="Search skills"
+          prefix={<FiSearch className="text-ink-3" aria-hidden />}
           className="max-w-[240px]"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -264,7 +275,7 @@ export default function SkillsTab() {
           </Button>
         </div>
       </div>
-      <p className="text-sm text-gray-600 mb-3">
+      <p className="text-sm text-ink-2 mb-4 max-w-2xl">
         Skills people type into forms are saved here automatically as <strong>Pending review</strong> and stay hidden
         from everyone else until you approve them. This list refreshes by itself.
       </p>
@@ -273,13 +284,12 @@ export default function SkillsTab() {
         <ErrorMsg message="Couldn't load the skills." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
-          dataSource={items}
+          data={items}
           columns={columns}
           rowKey="skill_id"
           loading={isLoading}
-          pagination={{ itemRender: paginationItemRender, pageSize: 15, hideOnSinglePage: true }}
-          locale={{ emptyText: hasFilters ? "No skills match these filters." : "No skills yet." }}
-          scroll={{ x: "max-content" }}
+          pagination={{ pageSize: 15, hideOnSinglePage: true }}
+          emptyText={hasFilters ? "No skills match these filters." : "No skills yet."}
         />
       )}
 

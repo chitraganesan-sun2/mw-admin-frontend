@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Button, DatePicker, Input, Select, Tag } from "antd";
+import { Button, DatePicker, Input, Select } from "antd";
+import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
+import StatusTag from "@/components/common/StatusTag";
+import EmptyState from "@/components/common/EmptyState";
 import { listDashboardSessions } from "@/api/dashboard";
 import Table from "@/components/Table";
 import { getApiErrorMessage } from "@/utils/apiError";
@@ -31,7 +34,14 @@ const WHEN_OPTIONS = [
   { value: "past", label: "Past" },
 ];
 
-const personCell = (name: string | null) => name || <span className="text-[#4F4F4F]">Unknown</span>;
+const personCell = (name: string | null) => name || <span className="text-ink-2">Unknown</span>;
+
+// Built per render so "Today" is still today after the tab has been open overnight.
+const rangePresets = (): { label: string; value: [Dayjs, Dayjs] }[] => [
+  { label: "Today", value: [dayjs().startOf("day"), dayjs().endOf("day")] },
+  { label: "Last 7 days", value: [dayjs().subtract(6, "day").startOf("day"), dayjs().endOf("day")] },
+  { label: "Last 30 days", value: [dayjs().subtract(29, "day").startOf("day"), dayjs().endOf("day")] },
+];
 
 export default function SessionsTable() {
   const [searchText, setSearchText] = useState("");
@@ -84,44 +94,66 @@ export default function SessionsTable() {
     setPage(1);
   };
 
+  // "Type" only earns a column when the rows on screen are not all the same kind.
+  const kindsOnPage = new Set((data?.sessions ?? []).map((r) => r.kind));
+  const showKind = kindsOnPage.size > 1;
+
   const columns = [
     {
       title: "Session",
       dataIndex: "title",
       key: "title",
+      width: 230,
+      ellipsis: true,
       render: (title: string | null) => title || "Untitled",
     },
     {
       title: "Starts",
       dataIndex: "start_utc",
       key: "start_utc",
+      width: 180,
+      className: "whitespace-nowrap",
       render: (start: string | null) => (start ? formatDisplayDateTime(start) : "Unknown"),
     },
     {
       title: "Volunteer",
       dataIndex: "volunteer_name",
       key: "volunteer_name",
+      width: 150,
+      ellipsis: true,
       render: personCell,
     },
     {
       title: "Learner",
       dataIndex: "learner_name",
       key: "learner_name",
+      width: 150,
+      ellipsis: true,
       render: personCell,
     },
-    {
-      title: "Type",
-      dataIndex: "kind",
-      key: "kind",
-      render: (value: string) => (value === "instant" ? "Instant" : "Scheduled"),
-    },
+    ...(showKind
+      ? [
+          {
+            title: "Type",
+            dataIndex: "kind",
+            key: "kind",
+            width: 110,
+            render: (value: string) => (value === "instant" ? "Instant" : "Scheduled"),
+          },
+        ]
+      : []),
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      width: 130,
       render: (_value: string, row: DashboardSession) => {
         const shown = sessionStatusDisplay(row);
-        return <Tag color={shown.color}>{shown.label}</Tag>;
+        return (
+          <StatusTag dot color={shown.color}>
+            {shown.label}
+          </StatusTag>
+        );
       },
     },
     {
@@ -139,12 +171,12 @@ export default function SessionsTable() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Join session ${row.title ?? row.session_id} (opens in a new tab)`}
-            className="inline-block rounded-full bg-primary px-4 py-1 text-sm font-medium text-dark hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-dark"
+            className="inline-flex h-8 items-center rounded-lg bg-primary px-4 text-sm font-medium text-ink hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-dark"
           >
             Join
           </a>
         ) : (
-          <span className="text-[#4F4F4F]" title={`Only accepted sessions that haven't ended have a link (admins keep it ${JOIN_GRACE_MINUTES} minutes after the end)`}>
+          <span className="text-ink-2" title={`Only accepted sessions that haven't ended have a link (admins keep it ${JOIN_GRACE_MINUTES} minutes after the end)`}>
             —
           </span>
         );
@@ -158,7 +190,7 @@ export default function SessionsTable() {
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-3 mb-4 sm:flex sm:flex-wrap sm:items-center">
+      <div className="grid grid-cols-2 gap-3 mb-2 sm:flex sm:flex-wrap sm:items-center">
         <Input
           allowClear
           value={searchText}
@@ -166,7 +198,6 @@ export default function SessionsTable() {
           placeholder="Search name, title or ID"
           aria-label="Search sessions by volunteer or learner name, title or ID"
           className="col-span-2 sm:!w-[260px]"
-          size="large"
         />
         <Select
           allowClear
@@ -176,7 +207,6 @@ export default function SessionsTable() {
           placeholder="Status"
           aria-label="Filter by status"
           className="w-full sm:!w-[140px]"
-          size="large"
         />
         <Select
           allowClear
@@ -186,7 +216,6 @@ export default function SessionsTable() {
           placeholder="Type"
           aria-label="Filter by session type"
           className="w-full sm:!w-[130px]"
-          size="large"
         />
         <Select
           allowClear
@@ -196,7 +225,6 @@ export default function SessionsTable() {
           placeholder="Upcoming / past"
           aria-label="Filter by upcoming or past"
           className="col-span-2 w-full sm:!w-[150px]"
-          size="large"
         />
         <DatePicker.RangePicker
           value={range}
@@ -204,17 +232,17 @@ export default function SessionsTable() {
             setRange(value);
             setPage(1);
           }}
+          presets={rangePresets()}
           aria-label="Filter by session date (UTC)"
           className="col-span-2 w-full sm:!w-auto"
-          size="large"
         />
         {anyFilter ? (
-          <Button onClick={resetFilters} size="large" className="col-span-2 sm:!col-auto">
+          <Button onClick={resetFilters} className="col-span-2 sm:!col-auto">
             Clear filters
           </Button>
         ) : null}
       </div>
-      <p className="mb-3 text-xs text-[#4F4F4F]">Date filter uses UTC dates. Times are shown in your time zone.</p>
+      <p className="mb-4 text-xs text-ink-2">Date filter uses UTC dates. Times are shown in your time zone.</p>
 
       {error ? (
         <div role="alert" className="py-6">
@@ -224,8 +252,12 @@ export default function SessionsTable() {
           </Button>
         </div>
       ) : !isLoading && rows.length === 0 ? (
-        <div className="w-full py-10 text-center text-[#4F4F4F]">
-          {anyFilter ? "No sessions match these filters." : "No sessions yet."}
+        <div className="rounded-2xl border border-stroke bg-white">
+          <EmptyState
+            title={anyFilter ? "No sessions match these filters" : "No sessions yet"}
+            description={anyFilter ? "Try a wider date range or clear a filter." : undefined}
+            action={anyFilter ? <Button onClick={resetFilters}>Clear filters</Button> : undefined}
+          />
         </div>
       ) : (
         <>
@@ -239,18 +271,18 @@ export default function SessionsTable() {
                   <li key={row.session_id} className="rounded-2xl border border-stroke bg-white p-4">
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="min-w-0 break-words font-medium text-dark">{row.title || "Untitled"}</h3>
-                      <Tag color={shown.color} className="shrink-0 !m-0">
+                      <StatusTag dot color={shown.color} className="shrink-0">
                         {shown.label}
-                      </Tag>
+                      </StatusTag>
                     </div>
-                    <p className="mt-1 text-sm text-[#4F4F4F]">
+                    <p className="mt-1 text-sm text-ink-2">
                       {row.start_utc ? formatDisplayDateTime(row.start_utc) : "Unknown time"} ·{" "}
                       {row.kind === "instant" ? "Instant" : "Scheduled"}
                     </p>
                     <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-                      <dt className="text-[#4F4F4F]">Volunteer</dt>
+                      <dt className="text-ink-2">Volunteer</dt>
                       <dd className="min-w-0 break-words text-dark">{row.volunteer_name || "Unknown"}</dd>
-                      <dt className="text-[#4F4F4F]">Learner</dt>
+                      <dt className="text-ink-2">Learner</dt>
                       <dd className="min-w-0 break-words text-dark">{row.learner_name || "Unknown"}</dd>
                     </dl>
                     {href ? (
@@ -272,7 +304,7 @@ export default function SessionsTable() {
               <Button size="large" disabled={page <= 1 || isFetching} onClick={() => setPage((p) => Math.max(1, p - 1))}>
                 Previous
               </Button>
-              <span className="text-center text-sm text-[#4F4F4F]" aria-live="polite">
+              <span className="text-center text-sm text-ink-2" aria-live="polite">
                 Page {page} of {totalPages}
                 <br />
                 {total} sessions
@@ -290,7 +322,7 @@ export default function SessionsTable() {
               columns={columns}
               loading={isLoading || isFetching}
               rowKey="session_id"
-              rootClassName="[&_.ant-table]:!normal-case [&_thead_th]:!bg-[#FAFAFA] [&_thead_th]:font-medium [&_tbody_td]:font-normal"
+              rootClassName="[&_.ant-table]:!normal-case"
               pagination={{
                 current: page,
                 pageSize,

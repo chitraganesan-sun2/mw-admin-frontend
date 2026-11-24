@@ -5,6 +5,10 @@ import { createInFlightGuard } from "@/utils/inflight";
 import { usePathname } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Table from "@/components/Table";
+import { Button } from "antd";
+import FilterChips from "@/components/common/Filters/FilterChips";
+import EmptyState from "@/components/common/EmptyState";
+import { FiVideo } from "react-icons/fi";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { showToast } from "@/components/common/Toast";
 import WingTimeReviewModal from "@/components/wingtime/WingTimeReviewModal";
@@ -27,9 +31,7 @@ import {
   type WingTimeStatus,
 } from "@/utils/wingtime";
 
-const cell = "text-base text-[#121212] !font-poppins !font-medium";
-const linkBtn =
-  "bg-transparent border-0 px-3 !py-3 text-[14px] !font-medium text-[#121212] underline !font-poppins cursor-pointer whitespace-nowrap disabled:opacity-60";
+const cell = "text-ink";
 
 export default function WingTimePage() {
   const { setHeaderOptions } = useComponentStore();
@@ -160,26 +162,28 @@ export default function WingTimePage() {
         title: "Topic",
         dataIndex: "topic",
         key: "topic",
-        className: "p-6 w-[200px]",
+        width: 210,
         render: (_: unknown, r: AdminWingTime) => <span className={`${cell} !font-semibold break-words`}>{r.topic}</span>,
       },
       {
         title: "Volunteer",
         dataIndex: "host_name",
         key: "host_name",
-        className: "p-6 w-[130px]",
+        width: 130,
+        ellipsis: true,
         render: (_: unknown, r: AdminWingTime) => <span className={cell}>{r.host_name || "-"}</span>,
       },
       {
         title: "When (Volunteer's Time Zone)",
         key: "when",
-        className: "p-6 w-[250px]",
+        width: 240,
         render: (_: unknown, r: AdminWingTime) => <span className={cell}>{whenInHostZone(r)}</span>,
       },
       {
         title: "Registered",
         key: "capacity",
-        className: "p-6 w-[100px] whitespace-nowrap",
+        width: 110,
+        className: "whitespace-nowrap",
         render: (_: unknown, r: AdminWingTime) => (
           <span className={cell}>
             {r.registered_count} / {r.capacity}
@@ -189,7 +193,8 @@ export default function WingTimePage() {
       {
         title: "Status",
         key: "status",
-        className: "p-6 w-[150px] whitespace-nowrap",
+        width: 160,
+        className: "whitespace-nowrap",
         render: (_: unknown, r: AdminWingTime) => (
           <span className="flex flex-col items-start gap-1">
             <span className={cell}>{WINGTIME_STATUS_LABEL[r.status]}</span>
@@ -200,7 +205,7 @@ export default function WingTimePage() {
       {
         title: "Recording",
         key: "recording",
-        className: "p-6 w-[160px]",
+        width: 150,
         render: (_: unknown, r: AdminWingTime) => (
           <span className={`${cell} ${r.recording_status === "pending_review" ? "!font-semibold" : ""}`}>
             {r.recording_status ? RECORDING_STATUS_LABEL[r.recording_status] : "-"}
@@ -208,13 +213,15 @@ export default function WingTimePage() {
         ),
       },
       {
-        title: "",
+        title: "Actions",
         key: "actions",
-        className: "!p-0 !w-[170px]",
+        width: 170,
+        fixed: "right" as const,
+        align: "right" as const,
         render: (_: unknown, r: AdminWingTime) => (
-          <button
-            type="button"
-            className={linkBtn}
+          <Button
+            size="small"
+            type={r.status === "pending_approval" ? "primary" : "default"}
             onClick={(e) => {
               e.stopPropagation();
               setReviewing(r);
@@ -222,7 +229,7 @@ export default function WingTimePage() {
             aria-label={`${r.status === "pending_approval" ? "Review" : "View"} ${r.topic}`}
           >
             {r.status === "pending_approval" ? "Review WingTime" : "View WingTime"}
-          </button>
+          </Button>
         ),
       },
     ],
@@ -230,7 +237,17 @@ export default function WingTimePage() {
   );
 
   if (!WINGTIME_ENABLED) {
-    return <p className="p-6 text-sm text-[#6B7280]">WingTime isn&apos;t available yet.</p>;
+    return (
+      <div className="p-6">
+        <div className="rounded-2xl border border-stroke bg-white">
+          <EmptyState
+            icon={<FiVideo />}
+            title="WingTime isn't available yet"
+            description="This feature isn't switched on for the admin portal yet, so there is nothing to review here."
+          />
+        </div>
+      </div>
+    );
   }
 
   const rows = data?.items ?? [];
@@ -269,32 +286,23 @@ export default function WingTimePage() {
         participants={roster.data?.participants ?? []}
         onClose={() => setRosterId(null)}
       />
-      <div className="w-full mb-4 flex flex-wrap items-center justify-end gap-4">
-        <h2 className="sr-only">WingTime</h2>
-        <div className="flex flex-wrap gap-2" role="tablist" aria-label="WingTime status">
-          {WINGTIME_TABS.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={status === tab.key}
-              onClick={() => {
-                setStatus(tab.key);
-                setPage(1);
-              }}
-              className={`rounded-3xl border px-4 py-2 text-sm !font-poppins cursor-pointer ${
-                status === tab.key ? "bg-black text-white border-black" : "bg-white text-[#121212] border-[#E5E5E5]"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <h2 className="sr-only">WingTime</h2>
+      <FilterChips
+        className="mb-4"
+        ariaLabel="WingTime status"
+        items={WINGTIME_TABS}
+        value={status}
+        onChange={(key) => {
+          setStatus(key);
+          setPage(1);
+        }}
+      />
       {isError ? (
         <ErrorMsg message="Couldn't load the WingTime list." onRetry={() => refetch()} retrying={isFetching} />
       ) : !isLoading && !isFetching && rows.length === 0 ? (
-        <div className="w-full py-10 text-center text-[#6B7280]">No {WINGTIME_STATUS_LABEL[status].toLowerCase()} WingTimes</div>
+        <div className="rounded-2xl border border-stroke bg-white">
+          <EmptyState icon={<FiVideo />} title={`No ${WINGTIME_STATUS_LABEL[status].toLowerCase()} WingTimes`} />
+        </div>
       ) : (
         <Table
           key={`wingtime-${status}`}

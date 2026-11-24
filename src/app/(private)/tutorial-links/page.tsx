@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { paginationItemRender } from "@/components/Table/paginationItemRender";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { GET_API, POST_API, PUT_API, DELETE_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
-import { Button, Input, Select, Table, Modal, Form, Popconfirm, Tag } from "antd";
-import { DeleteIcon } from "@/assets/icons";
+import { Button, Input, Select, Modal, Form, Popconfirm } from "antd";
+import { FiExternalLink } from "react-icons/fi";
+import Table from "@/components/Table";
+import StatusTag from "@/components/common/StatusTag";
+import DeleteButton from "@/components/common/DeleteButton";
+import PageHeader from "@/components/common/PageHeader";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
@@ -106,64 +109,79 @@ export default function TutorialLinksPage() {
     setIsModalOpen(true);
   };
 
+  // The description column only earns its width when at least one link has one.
+  const hasDescriptions = links.some((l: TutorialLink) => !!l.description);
+
   const columns = [
     {
       title: "Title",
       dataIndex: "title",
       key: "title",
+      width: 260,
+      ellipsis: true,
       className: "font-medium",
     },
     {
       title: "Category",
       dataIndex: "category",
       key: "category",
-      render: (cat: string) => (
-        <Tag
-          color={
-            cat === "video"
-              ? "blue"
-              : cat === "doc"
-                ? "green"
-                : cat === "learner_demo"
-                  ? "purple"
-                  : cat === "volunteer_demo"
-                    ? "magenta"
-                    : "orange"
-          }
-        >
-          {CATEGORY_LABELS[cat] || cat}
-        </Tag>
-      ),
+      width: 190,
+      render: (cat: string) => <StatusTag tone="neutral">{CATEGORY_LABELS[cat] || cat}</StatusTag>,
     },
     {
-      title: "URL",
+      title: "Link",
       dataIndex: "url",
       key: "url",
+      width: 240,
       render: (url: string) => {
         const href = safeHref(url);
+        // Show where it goes (the domain) rather than a raw underlined URL; the full URL is the tooltip.
+        let host = url;
+        try {
+          host = new URL(url).hostname.replace(/^www\./, "");
+        } catch {
+          /* keep the raw text */
+        }
         return href ? (
-          <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline truncate max-w-[200px] block">
-            {url}
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={url}
+            aria-label={`Open ${host} in a new tab`}
+            className="inline-flex max-w-full items-center gap-1.5 font-medium !normal-case text-brand-ink hover:underline"
+          >
+            <span className="truncate">{host}</span>
+            <FiExternalLink aria-hidden className="shrink-0" />
           </a>
         ) : (
-          <span className="text-gray-500 truncate max-w-[200px] block" title={url}>{url}</span>
+          <span className="block truncate !normal-case text-ink-2" title={url}>
+            {url}
+          </span>
         );
       },
     },
-    {
-      title: "Description",
-      dataIndex: "description",
-      key: "description",
-      render: (desc: string) => desc || "-",
-    },
+    ...(hasDescriptions
+      ? [
+          {
+            title: "Description",
+            dataIndex: "description",
+            key: "description",
+            width: 260,
+            render: (desc: string) => desc || "-",
+          },
+        ]
+      : []),
     {
       title: "Actions",
       key: "actions",
+      width: 140,
+      fixed: "right" as const,
       render: (_: any, record: TutorialLink) => (
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button size="small" onClick={() => handleEdit(record)}>Edit</Button>
           <Popconfirm title="Delete this link?" onConfirm={() => deleteMutation.mutate(record.link_id)}>
-            <Button size="small" danger aria-label={`Delete ${record.title}`}><DeleteIcon /></Button>
+            <DeleteButton label={`Delete ${record.title}`} />
           </Popconfirm>
         </div>
       ),
@@ -172,22 +190,26 @@ export default function TutorialLinksPage() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-end items-center mb-6">
-        <h2 className="sr-only">Tutorial Links</h2>
-        <Button type="primary" onClick={() => { setEditingLink(null); form.resetFields(); setIsModalOpen(true); }}>
-          + Add Link
-        </Button>
-      </div>
+      <PageHeader
+        className="mb-4"
+        actions={
+          <Button type="primary" onClick={() => { setEditingLink(null); form.resetFields(); setIsModalOpen(true); }}>
+            + Add Link
+          </Button>
+        }
+      />
+      <h2 className="sr-only">Tutorial Links</h2>
 
       {isError ? (
         <ErrorMsg message="Couldn't load the tutorial links." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
-          dataSource={links}
+          data={links}
           columns={columns}
           rowKey="link_id"
           loading={isLoading}
-          pagination={{ itemRender: paginationItemRender, pageSize: 10 }}
+          pagination={{ pageSize: 10, hideOnSinglePage: true }}
+          emptyText="No tutorial links yet."
         />
       )}
 

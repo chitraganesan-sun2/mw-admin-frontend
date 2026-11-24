@@ -3,10 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
-import { Button, Checkbox, Form, Input, Modal, Popconfirm, Switch, Table, Tag } from "antd";
+import { Button, Checkbox, Form, Input, Modal, Popconfirm, Popover, Switch } from "antd";
+import Table from "@/components/Table";
+import StatusTag from "@/components/common/StatusTag";
+import DeleteButton from "@/components/common/DeleteButton";
+import PageHeader from "@/components/common/PageHeader";
 import { DELETE_API, GET_API, POST_API, PUT_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
-import { DeleteIcon } from "@/assets/icons";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
@@ -165,41 +168,57 @@ export default function NotificationsPage() {
     else createMutation.mutate(body);
   };
 
+  // Applications + Events + Red alerts used to be three wide tag columns that pushed Edit/Remove off-screen; they are
+  // one "Sends for" column now (tags wrap), so the table fits and the actions stay visible.
   const columns = [
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
+      width: 270,
       render: (email: string, r: Recipient) => (
-        <span className="font-medium !normal-case">
-          {email} {r.is_default && <Tag className="ml-1">Default</Tag>}
+        <span className="flex items-center gap-2 font-medium !normal-case">
+          <span className="truncate" title={email}>
+            {email}
+          </span>
+          {r.is_default && <StatusTag>Default</StatusTag>}
         </span>
       ),
     },
     {
-      title: "Applications",
-      dataIndex: "application_types",
-      key: "types",
-      render: (types: string[]) => types.map((t) => <Tag key={t}>{TYPE_LABEL[t] || t}</Tag>),
-    },
-    {
-      title: "Events",
-      dataIndex: "events",
-      key: "events",
-      render: (events: string[], r: Recipient) =>
-        r.application_types.length ? events.map((e) => <Tag key={e}>{EVENT_LABEL[e] || e}</Tag>) : "-",
-    },
-    {
-      title: "Red alerts",
-      dataIndex: "alert_types",
-      key: "alerts",
-      render: (alerts: string[] = []) =>
-        alerts.length ? alerts.map((a) => <Tag color="red" key={a}>{ALERT_LABEL[a] || a}</Tag>) : "-",
+      title: "Sends for",
+      key: "sends_for",
+      width: 420,
+      render: (_: unknown, r: Recipient) => {
+        const types = r.application_types ?? [];
+        const alerts = r.alert_types ?? [];
+        if (!types.length && !alerts.length) return "-";
+        return (
+          <div className="flex flex-wrap gap-1.5">
+            {types.map((t) => (
+              <StatusTag key={`t-${t}`}>{TYPE_LABEL[t] || t}</StatusTag>
+            ))}
+            {types.length
+              ? (r.events ?? []).map((e) => (
+                  <StatusTag key={`e-${e}`} tone="info">
+                    {EVENT_LABEL[e] || e}
+                  </StatusTag>
+                ))
+              : null}
+            {alerts.map((a) => (
+              <StatusTag key={`a-${a}`} tone="danger">
+                {ALERT_LABEL[a] || a}
+              </StatusTag>
+            ))}
+          </div>
+        );
+      },
     },
     {
       title: "Enabled",
       dataIndex: "enabled",
       key: "enabled",
+      width: 100,
       render: (enabled: boolean, r: Recipient) => (
         <Switch
           checked={enabled}
@@ -212,8 +231,10 @@ export default function NotificationsPage() {
     {
       title: "Actions",
       key: "actions",
+      width: 130,
+      fixed: "right" as const,
       render: (_: unknown, r: Recipient) => (
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Button size="small" onClick={() => openEdit(r)}>
             Edit
           </Button>
@@ -222,9 +243,7 @@ export default function NotificationsPage() {
             description={r.is_default ? "This is the default support address. You can add it back later." : undefined}
             onConfirm={() => deleteMutation.mutate(r.recipient_id)}
           >
-            <Button size="small" danger aria-label={`Remove ${r.email}`}>
-              <DeleteIcon />
-            </Button>
+            <DeleteButton label={`Remove ${r.email}`} />
           </Popconfirm>
         </div>
       ),
@@ -232,18 +251,21 @@ export default function NotificationsPage() {
   ];
 
   const logColumns = [
-    { title: "When", dataIndex: "created_at", key: "when", render: (v: string) => (v ? formatDisplayDate(v) : "-") },
-    { title: "Application", key: "app", render: (_: unknown, r: LogRow) => `${TYPE_LABEL[r.application_type]?.split(" ")[0] ?? r.application_type} · ${r.application_id.slice(0, 8)}` },
-    { title: "Event", dataIndex: "event", key: "event", render: (e: string) => EVENT_LABEL[e] || e },
+    { title: "When", dataIndex: "created_at", key: "when", width: 130, className: "whitespace-nowrap", render: (v: string) => (v ? formatDisplayDate(v) : "-") },
+    { title: "Application", key: "app", width: 180, render: (_: unknown, r: LogRow) => `${TYPE_LABEL[r.application_type]?.split(" ")[0] ?? r.application_type} · ${r.application_id.slice(0, 8)}` },
+    { title: "Event", dataIndex: "event", key: "event", width: 180, render: (e: string) => EVENT_LABEL[e] || e },
     {
       title: "Result",
       dataIndex: "outcome",
       key: "outcome",
+      width: 190,
       render: (o: string, r: LogRow) => (
-        <span>
-          <Tag color={OUTCOME_COLOR[o] || "default"}>{OUTCOME_LABEL[o] || o}</Tag>
+        <span className="flex items-center gap-2">
+          <StatusTag dot color={OUTCOME_COLOR[o]}>
+            {OUTCOME_LABEL[o] || o}
+          </StatusTag>
           {o !== "no_recipients" && r.recipient_count > 0 && (
-            <span className="text-gray-500 text-xs">
+            <span className="text-ink-2 text-xs">
               {r.sent_count}/{r.recipient_count}
             </span>
           )}
@@ -254,52 +276,70 @@ export default function NotificationsPage() {
       title: "Detail",
       dataIndex: "error",
       key: "error",
-      render: (e?: string | null) => (e ? <span className="text-xs text-red-700">{e}</span> : "-"),
+      width: 300,
+      render: (e?: string | null) => (e ? <span className="text-xs text-error">{e}</span> : "-"),
     },
   ];
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-2xl font-semibold">Email Notifications</h2>
-        <Button type="primary" onClick={openAdd}>
-          + Add recipient
-        </Button>
-      </div>
-      <p className="text-gray-600 mb-6 max-w-3xl">
-        These addresses are emailed when a volunteer or learner application is submitted, changes status, or is
-        updated, and for the red alerts they tick: an AI Red alert (a session the safety analysis flags) or an
-        Inappropriate message alert (a chat message that trips the safety rules). Changes apply to the next event -
-        nothing needs to be deployed. The support address is the default recipient until you change it.
-      </p>
+      <PageHeader
+        className="mb-6"
+        description={
+          <>
+            These addresses are emailed about volunteer and learner applications and the red alerts you tick for them.{" "}
+            <Popover
+              trigger="click"
+              placement="bottomLeft"
+              title="How alerts work"
+              content={
+                <p className="m-0 max-w-sm text-sm text-ink-2">
+                  Addresses are emailed when a volunteer or learner application is submitted, changes status, or is
+                  updated, and for the red alerts they tick: an AI Red alert (a session the safety analysis flags) or an
+                  Inappropriate message alert (a chat message that trips the safety rules). Changes apply to the next
+                  event - nothing needs to be deployed. The support address is the default recipient until you change
+                  it.
+                </p>
+              }
+            >
+              <button type="button" className="cursor-pointer border-0 bg-transparent p-0 font-medium text-brand-ink underline">
+                How alerts work
+              </button>
+            </Popover>
+          </>
+        }
+        actions={
+          <Button type="primary" onClick={openAdd}>
+            + Add recipient
+          </Button>
+        }
+      />
+      <h2 className="sr-only">Email Notifications</h2>
 
       {isError ? (
         <ErrorMsg message="Couldn't load the recipients." onRetry={() => refetch()} retrying={isFetching} />
       ) : (
         <Table
-          dataSource={recipients}
+          data={recipients}
           columns={columns}
           rowKey="recipient_id"
           loading={isLoading}
           pagination={false}
-          locale={{ emptyText: "No recipients. Nobody will be emailed about new applications until you add one." }}
-          scroll={{ x: "max-content" }}
+          emptyText="No recipients. Nobody will be emailed about new applications until you add one."
         />
       )}
 
-      <h3 className="text-lg font-medium mt-10 mb-3">Recent Notifications</h3>
+      <h3 className="mt-10 mb-3 text-xl font-semibold text-ink">Recent Notifications</h3>
       {logError ? (
         <ErrorMsg compact message="Couldn't load the recent notifications. This is not the same as nothing having been sent." onRetry={() => refetchLog()} retrying={logFetching} />
       ) : (
         <Table
-          dataSource={log}
+          data={log}
           columns={logColumns}
           rowKey={(r: LogRow) => `${r.created_at}-${r.application_id}-${r.event}`}
           loading={logLoading}
           pagination={false}
-          size="small"
-          locale={{ emptyText: "Nothing has been sent yet." }}
-          scroll={{ x: "max-content" }}
+          emptyText="Nothing has been sent yet."
         />
       )}
 

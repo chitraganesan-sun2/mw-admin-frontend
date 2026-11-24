@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { paginationItemRender } from "@/components/Table/paginationItemRender";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { GET_API, POST_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
-import { Button, Select, Table, Tag } from "antd";
+import { Button, Select } from "antd";
+import Table from "@/components/Table";
+import StatusTag from "@/components/common/StatusTag";
+import { shortId } from "@/utils/auditLog";
 import { useComponentStore } from "@/store/useComponenetStore";
 import { usePathname } from "next/navigation";
 import { getHeaderIcon } from "@/layouts/helper";
@@ -167,56 +169,76 @@ export default function MatchingPage() {
       title: "Learner",
       dataIndex: "learner_id",
       key: "learner_id",
+      width: 180,
       render: (learnerId: string | null, record: any) => {
         if (!learnerId) return "—";
-        // Name comes from the API; the id stays visible (small) so a deleted/unnamed user is still traceable.
-        return record.learner_name || <span className="text-gray-500 text-xs break-all">{learnerId}</span>;
+        // Name comes from the API; when it is missing, say so and keep a short id (full id on hover) so a
+        // deleted/unnamed user is still traceable without a 36-character UUID wrapping over three lines.
+        return (
+          record.learner_name || (
+            <span className="text-ink-3" title={learnerId}>
+              Name unavailable <span className="font-mono text-xs">({shortId(learnerId)})</span>
+            </span>
+          )
+        );
       },
     },
     {
       title: "Volunteer",
       dataIndex: "volunteer_id",
       key: "volunteer_id",
+      width: 180,
       render: (volunteerId: string | null, record: any) => {
         if (!volunteerId) return "—";
-        return record.volunteer_name || <span className="text-gray-500 text-xs break-all">{volunteerId}</span>;
+        return (
+          record.volunteer_name || (
+            <span className="text-ink-3" title={volunteerId}>
+              Name unavailable <span className="font-mono text-xs">({shortId(volunteerId)})</span>
+            </span>
+          )
+        );
       },
     },
     {
       title: "Analytical Score",
       dataIndex: "analytical_score",
       key: "analytical_score",
+      width: 100,
       render: (v: number) => v?.toFixed(1),
     },
     {
       title: "Compatibility Score",
       dataIndex: "compatibility_score",
       key: "compatibility_score",
+      width: 120,
       render: (v: number) => v?.toFixed(2),
     },
     {
       title: "Combined Score",
       dataIndex: "combined_score",
       key: "combined_score",
+      width: 100,
       render: (v: number) => v?.toFixed(1),
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      width: 150,
       render: (status: string) => (
-        <Tag color={status === "notified" ? "green" : "orange"}>
+        <StatusTag dot tone={status === "notified" ? "success" : "warning"}>
           {status === "notified" ? "Matched" : "No Match Found"}
-        </Tag>
+        </StatusTag>
       ),
     },
     {
       title: "Session Status",
       dataIndex: "session_status",
       key: "session_status",
+      width: 150,
       render: (sessionStatus: string | null) => {
         if (!sessionStatus) {
-          return <Tag color="default">No sessions yet.</Tag>;
+          return <StatusTag>No sessions yet</StatusTag>;
         }
         const colorByStatus: Record<string, string> = {
           accepted: "green",
@@ -226,9 +248,9 @@ export default function MatchingPage() {
           cancelled: "red",
         };
         return (
-          <Tag color={colorByStatus[sessionStatus] || "default"}>
+          <StatusTag dot color={colorByStatus[sessionStatus]}>
             {sessionStatus.charAt(0).toUpperCase() + sessionStatus.slice(1)}
-          </Tag>
+          </StatusTag>
         );
       },
     },
@@ -236,20 +258,24 @@ export default function MatchingPage() {
       title: "Triggered By",
       dataIndex: "triggered_by",
       key: "triggered_by",
+      width: 120,
+      ellipsis: true,
     },
     {
       title: "Date",
       dataIndex: "created_at",
       key: "created_at",
+      width: 180,
+      className: "whitespace-nowrap",
       render: (v: string) => formatDisplayDateTime(v),
     },
   ];
 
   return (
     <div className="p-6">
-      <div className="bg-white rounded-xl p-6 mb-6 flex flex-wrap items-end gap-4">
+      <div className="bg-white rounded-2xl border border-stroke p-5 mb-6 flex flex-wrap items-end gap-4">
         <div>
-          <label htmlFor="matching-side" className="block text-sm font-medium mb-1">Match on Behalf Of</label>
+          <label htmlFor="matching-side" className="block text-xs font-medium text-ink-2 mb-1">Match on Behalf Of</label>
           <Select
             id="matching-side"
             value={side}
@@ -265,7 +291,7 @@ export default function MatchingPage() {
           />
         </div>
         <div className="flex-1 min-w-[240px]">
-          <label htmlFor="matching-person" className="block text-sm font-medium mb-1">
+          <label htmlFor="matching-person" className="block text-xs font-medium text-ink-2 mb-1">
             {side === "learner" ? "Select Learner" : "Select Volunteer"}
           </label>
           <Select
@@ -293,7 +319,7 @@ export default function MatchingPage() {
                   Couldn&apos;t load the list.{" "}
                   <button
                     type="button"
-                    className="bg-transparent border-0 p-0 underline cursor-pointer"
+                    className="bg-transparent border-0 p-0 underline cursor-pointer text-brand-ink"
                     onClick={() => picker.refetch()}
                   >
                     Try again
@@ -344,11 +370,12 @@ export default function MatchingPage() {
         <ErrorMsg message="Couldn't load the matches." onRetry={() => refetchMatches()} retrying={isMatchesFetching} />
       ) : (
         <Table
-          dataSource={matches}
+          data={matches}
           columns={columns}
           rowKey="match_id"
           loading={isMatchesLoading}
-          pagination={{ itemRender: paginationItemRender,
+          emptyText="No matches yet."
+          pagination={{
             current: matchesPage,
             pageSize: matchesPageSize,
             total: matchesTotal,
