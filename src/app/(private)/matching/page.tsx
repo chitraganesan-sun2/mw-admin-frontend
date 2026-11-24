@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { paginationItemRender } from "@/components/Table/paginationItemRender";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { GET_API, POST_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
@@ -54,48 +54,66 @@ export default function MatchingPage() {
     });
   }, [setHeaderOptions, pathname]);
 
-  const { data: learnerOptions = [], isFetching: isLearnerOptionsLoading, isError: learnerOptionsError, refetch: refetchLearnerOptions } = useQuery({
+  // Verified members only, 50 per page; further pages load on demand ("Load more" in the list) so
+  // the picker is no longer capped at the first 50. The server search narrows the whole list.
+  const PICKER_PAGE_SIZE = 50;
+  type PickerOption = { value: string; label: string };
+  const fetchPickerPage = async (
+    url: string,
+    page: number,
+    toOption: (item: any) => PickerOption
+  ): Promise<{ options: PickerOption[]; fetched: number; total: number; page: number }> => {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(PICKER_PAGE_SIZE),
+      onboarded_status: "verification_completed",
+    });
+    if (debouncedPickerSearch) params.append("search_query", debouncedPickerSearch);
+    const res: any = await GET_API(`${url}?${params.toString()}`);
+    const items: any[] = res?.data?.items || [];
+    return {
+      options: items.filter((m) => m.onboarded_status === "verification_completed").map(toOption),
+      fetched: items.length,
+      total: Number(res?.data?.total ?? 0),
+      page,
+    };
+  };
+  const nextPickerPage = (last: { fetched: number; total: number; page: number }, all: { fetched: number }[]) =>
+    last.fetched > 0 && all.reduce((n, p) => n + p.fetched, 0) < last.total ? last.page + 1 : undefined;
+  // A member can appear on two pages if the list shifts between requests; keep the first.
+  const mergePickerPages = (pages?: { options: PickerOption[] }[]): PickerOption[] => {
+    const seen = new Set<string>();
+    return (pages ?? []).flatMap((p) => p.options).filter((o) => (seen.has(o.value) ? false : (seen.add(o.value), true)));
+  };
+
+  const learnerPicker = useInfiniteQuery({
     queryKey: ["matching-learners-picker", debouncedPickerSearch],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: "1",
-        size: "50",
-        onboarded_status: "verification_completed",
-      });
-      if (debouncedPickerSearch) params.append("search_query", debouncedPickerSearch);
-      const res: any = await GET_API(`${endpoints.learner.getAllLearners}?${params.toString()}`);
-      return (res?.data?.items || [])
-        .filter((l: any) => l.onboarded_status === "verification_completed")
-        .map((l: any) => ({
-          value: l.learner_id,
-          label: l.learner_full_name || l.learner_id,
-        }));
-    },
+    queryFn: ({ pageParam }) =>
+      fetchPickerPage(endpoints.learner.getAllLearners, pageParam, (l) => ({
+        value: l.learner_id,
+        label: l.learner_full_name || l.learner_id,
+      })),
+    initialPageParam: 1,
+    getNextPageParam: nextPickerPage,
     enabled: side === "learner",
   });
-
-  const { data: volunteerOptions = [], isFetching: isVolunteerOptionsLoading, isError: volunteerOptionsError, refetch: refetchVolunteerOptions } = useQuery({
+  const volunteerPicker = useInfiniteQuery({
     queryKey: ["matching-volunteers-picker", debouncedPickerSearch],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: "1",
-        size: "50",
-        onboarded_status: "verification_completed",
-      });
-      if (debouncedPickerSearch) params.append("search_query", debouncedPickerSearch);
-      const res: any = await GET_API(`${endpoints.volunteer.getAllVolunteers}?${params.toString()}`);
-      return (res?.data?.items || [])
-        .filter((v: any) => v.onboarded_status === "verification_completed")
-        .map((v: any) => ({
-          value: v.volunteer_id,
-          label:
-            v.volunteer_first_name && v.volunteer_last_name
-              ? `${v.volunteer_first_name} ${v.volunteer_last_name}`
-              : v.volunteer_id,
-        }));
-    },
+    queryFn: ({ pageParam }) =>
+      fetchPickerPage(endpoints.volunteer.getAllVolunteers, pageParam, (v) => ({
+        value: v.volunteer_id,
+        label:
+          v.volunteer_first_name && v.volunteer_last_name
+            ? `${v.volunteer_first_name} ${v.volunteer_last_name}`
+            : v.volunteer_id,
+      })),
+    initialPageParam: 1,
+    getNextPageParam: nextPickerPage,
     enabled: side === "volunteer",
   });
+  const picker = side === "learner" ? learnerPicker : volunteerPicker;
+  const pickerOptions = mergePickerPages(picker.data?.pages);
+  const pickerTotal = picker.data?.pages[0]?.total ?? 0;
 
   const [matchesPage, setMatchesPage] = useState(1);
   const [matchesPageSize, setMatchesPageSize] = useState(15);
@@ -265,26 +283,47 @@ export default function MatchingPage() {
             // whose label doesn't literally contain what's typed so far
             // (e.g. searching by email while the label shows a name).
             filterOption={false}
-            loading={side === "learner" ? isLearnerOptionsLoading : isVolunteerOptionsLoading}
+            loading={picker.isFetching}
             style={{ width: "100%" }}
             placeholder={side === "learner" ? "Search learners..." : "Search volunteers..."}
             // A failed lookup must not look like "nobody found".
             notFoundContent={
-              (side === "learner" ? learnerOptionsError : volunteerOptionsError) ? (
+              picker.isError ? (
                 <span role="alert">
                   Couldn&apos;t load the list.{" "}
                   <button
                     type="button"
                     className="bg-transparent border-0 p-0 underline cursor-pointer"
-                    onClick={() => (side === "learner" ? refetchLearnerOptions() : refetchVolunteerOptions())}
+                    onClick={() => picker.refetch()}
                   >
                     Try again
                   </button>
                 </span>
               ) : undefined
             }
+            dropdownRender={(menu) => (
+              <>
+                {menu}
+                {picker.hasNextPage ? (
+                  <div className="border-t border-gray-200 p-2 text-center text-sm">
+                    <button
+                      type="button"
+                      className="bg-transparent border-0 p-0 underline cursor-pointer"
+                      disabled={picker.isFetchingNextPage}
+                      // keep the dropdown open: a blur here would close it before the click lands
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => picker.fetchNextPage()}
+                    >
+                      {picker.isFetchingNextPage
+                        ? "Loading..."
+                        : `Load more (${pickerOptions.length} of ${pickerTotal} shown)`}
+                    </button>
+                  </div>
+                ) : null}
+              </>
+            )}
             options={(() => {
-              const list = side === "learner" ? learnerOptions : volunteerOptions;
+              const list = pickerOptions;
               return selectedOption && selectedId === selectedOption.value && !list.some((o: any) => o.value === selectedId)
                 ? [selectedOption, ...list]
                 : list;
