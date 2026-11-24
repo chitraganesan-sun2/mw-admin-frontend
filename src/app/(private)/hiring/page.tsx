@@ -20,6 +20,7 @@ import { endpoints } from "@/api/constants";
 import Input from "@/components/common/Input";
 import ErrorMsg from "@/components/common/Messages/ErrorMsg";
 import { formatDisplayDate } from "@/utils/moment";
+import { serverTimeMs } from "@/utils/displayDateTime";
 
 const ROLE_MAPPINGS: Record<string, { title: string; description: string; responsibilities: string[] }> = {
   social_media_intern: {
@@ -54,7 +55,7 @@ const mapAppToHiringRow = (app: any): HiringApplicationRow => ({
   applicant_name: app.full_name,
   email: normalizeEmail(app?.email),
   submission_date: formatDisplayDate(app.created_on),
-  submission_timestamp: new Date(app.created_on).getTime(),
+  submission_timestamp: serverTimeMs(app.created_on),
   hours_per_week: app.hours_per_week != null && app.hours_per_week !== "" ? String(app.hours_per_week) : "-",
   has_resume: Boolean(app.has_resume),
 });

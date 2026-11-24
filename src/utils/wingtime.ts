@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { serverDayjs } from "./displayDateTime";
 
 export type WingTimeStatus = "pending_approval" | "approved" | "rejected" | "cancelled" | "completed";
 
@@ -113,5 +114,5 @@ export function whenInHostZone(w: Pick<AdminWingTime, "date" | "start_time" | "e
 
 /** Has the session finished? (Only then can it be marked completed.) */
 export function hasEnded(w: Pick<AdminWingTime, "end_utc">, now = dayjs()): boolean {
-  return dayjs(w.end_utc).isBefore(now);
+  return serverDayjs(w.end_utc).isBefore(now);
 }

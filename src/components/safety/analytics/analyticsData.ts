@@ -1,4 +1,5 @@
 import dayjs, { Dayjs } from "dayjs";
+import { serverDayjs } from "@/utils/displayDateTime";
 import { SEVERITY_COLORS, SEVERITY_ORDER, STATUS_LABELS, categoryLabel, isSafetySeverity, riskHex } from "../severity";
 
 // Pure helpers that turn the analytics summary and the report history into chart-ready data.
@@ -124,7 +125,7 @@ export const toHistoryPoints = (rows: SafetyReportRow[] | undefined): HistoryPoi
   (rows ?? [])
     .flatMap((row) => {
       if (typeof row.risk_score !== "number" || !Number.isFinite(row.risk_score) || !row.created_at) return [];
-      const at = dayjs(row.created_at);
+      const at = serverDayjs(row.created_at);
       if (!at.isValid()) return [];
       return [
         { id: row.id, filename: row.filename, at, score: row.risk_score, severity: normalizeSeverity(row.severity) },

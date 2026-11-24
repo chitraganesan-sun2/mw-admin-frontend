@@ -31,7 +31,7 @@ import { useComponentStore } from "@/store/useComponenetStore";
 import { getHeaderIcon } from "@/layouts/helper";
 import { showToast } from "@/components/common/Toast";
 import { getApiErrorMessage } from "@/utils/apiError";
-import { formatDisplayDateTime } from "@/utils/displayDateTime";
+import { formatDisplayDateTime, serverTimeMs } from "@/utils/displayDateTime";
 import {
   bulkDeleteSafetyReports,
   deleteSafetyReport,
@@ -244,7 +244,7 @@ export default function SafetyReportsPage() {
       if (statusFilter !== "all" && String(r.status ?? "").toUpperCase() !== statusFilter) return false;
       if (from !== null || to !== null) {
         if (!r.created_at) return false;
-        const t = dayjs(r.created_at).valueOf();
+        const t = serverTimeMs(r.created_at);
         if (from !== null && t < from) return false;
         if (to !== null && t > to) return false;
       }
@@ -491,7 +491,7 @@ export default function SafetyReportsPage() {
         dataIndex: "created_at",
         key: "created_at",
         width: 118,
-        sorter: (a, b) => dayjs(a.created_at ?? 0).valueOf() - dayjs(b.created_at ?? 0).valueOf(),
+        sorter: (a, b) => (serverTimeMs(a.created_at) || 0) - (serverTimeMs(b.created_at) || 0),
         render: (value: string | null) => <DateCell value={value} />,
       },
       {
