@@ -1,5 +1,6 @@
 import { request } from "@/api/api-client";
 import { showToast } from "@/components/common/Toast";
+import { skippedRowsFromHeaders, skippedRowsMessage } from "@/utils/exportSkipped";
 
 /**
  * Downloads a CSV from an authenticated admin export endpoint and triggers a
@@ -24,6 +25,10 @@ export async function downloadCsv(endpoint: string, filename: string) {
         link.click();
         link.remove();
         window.URL.revokeObjectURL(objectUrl);
+        // Records the server couldn't decrypt are left out of the file; say so instead of
+        // letting an admin treat a partial export as complete.
+        const skipped = skippedRowsFromHeaders(response?.headers);
+        if (skipped > 0) showToast({ message: skippedRowsMessage(skipped), type: "warning" });
     } catch (error) {
         showToast({ message: "Couldn't download the CSV export. Please try again.", type: "error" });
     }

@@ -2,7 +2,7 @@ import React from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 interface ToastParams {
-    type?: "success" | "error" | "info";
+    type?: "success" | "error" | "info" | "warning";
     position?: "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
     message: string;
     duration?: number;
@@ -27,6 +27,11 @@ export const showToast = ({
 
         case "info":
             toast(message, { duration, position });
+            break;
+
+        case "warning":
+            // Something worked only partly: stays up longer than a plain notice so it is read.
+            toast(message, { duration: Math.max(duration, 8000), position, icon: "⚠️" });
             break;
 
         default:
