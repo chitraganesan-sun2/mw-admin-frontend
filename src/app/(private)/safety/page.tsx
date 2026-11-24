@@ -347,7 +347,8 @@ export default function SafetyReportsPage() {
   // ── KPIs ───────────────────────────────────────────────────────────────────
 
   const counts = severityCounts(analytics?.severity_distribution);
-  const analysed = analytics?.total_reports ?? 0;
+  // total_reports is the count of reports; fall back to the loaded list when an older response has none.
+  const analysed = typeof analytics?.total_reports === "number" ? analytics.total_reports : rows.length;
   const highRisk = counts.High + counts.Critical;
   const safeLow = counts.Safe + counts.Low;
   const chartSeverities = SEVERITY_ORDER.filter((s) => counts[s] > 0);
@@ -718,12 +719,12 @@ export default function SafetyReportsPage() {
                   icon={<FiActivity size={16} />}
                 />
                 <StatCard
-                  label="High-confidence detections"
+                  label="High-confidence reports"
                   value={analytics.high_confidence_count ?? 0}
                   hint={
-                    analytics.total_findings
-                      ? `${percent(analytics.high_confidence_count ?? 0, analytics.total_findings)} of all findings`
-                      : "findings with 75% confidence or more"
+                    analysed
+                      ? `${percent(analytics.high_confidence_count ?? 0, analysed)} of reports`
+                      : "reports with 75% average confidence or more"
                   }
                   icon={<FiCpu size={16} />}
                 />

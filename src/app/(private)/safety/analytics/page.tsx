@@ -168,7 +168,9 @@ export default function SafetyAnalyticsPage() {
       {
         label: "High confidence",
         value: formatNumber(analytics.high_confidence_count),
-        hint: "Reports with detections at 75% confidence or higher",
+        hint: Number(analytics.total_reports) > 0
+          ? `${Math.round((Number(analytics.high_confidence_count) / Number(analytics.total_reports)) * 100)}% of reports (average confidence 75% or higher)`
+          : "Reports with average confidence of 75% or higher",
         icon: <FiShield size={16} />,
       },
     ];
