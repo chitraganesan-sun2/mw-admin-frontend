@@ -264,36 +264,53 @@ const getPersonColumns = (
       width: onRemind ? 210 : 130,
       fixed: "right" as const,
       align: "right" as const,
-      render: (_: unknown, record: any) => (
-        <div className="flex items-center justify-end gap-2">
-          {onRemind && INCOMPLETE_STATUSES.includes(record.onboarded_status) && (
-            <span title={reminderState(record).blockedWhy ?? "Email a reminder to finish the form"}>
-              <Button
-                size="small"
-                disabled={!!reminderState(record).blockedWhy || remindingId === idOf(record)}
-                aria-label={`Send reminder to ${record?.name && record.name !== "-" ? record.name : `this ${kind}`}`}
-                onClick={() => onRemind(idOf(record))}
-              >
-                Remind
-              </Button>
+      // Fixed-width slots (Remind | View | Delete) so every row lines up whatever mix of actions it has: an empty slot
+      // keeps its space instead of shifting the other buttons.
+      render: (_: unknown, record: any) => {
+        const incomplete = INCOMPLETE_STATUSES.includes(record.onboarded_status);
+        const noDetails = record.onboarded_status === "details_pending";
+        const who = record?.name && record.name !== "-" ? record.name : kind;
+        const remind = reminderState(record);
+        return (
+          <div className="flex items-center justify-end gap-2">
+            {onRemind && (
+              <span className="inline-block w-[84px]" title={incomplete ? (remind.blockedWhy ?? "Email a reminder to finish the form") : undefined}>
+                {incomplete && (
+                  <Button
+                    size="small"
+                    className="w-full"
+                    disabled={!!remind.blockedWhy || remindingId === idOf(record)}
+                    aria-label={`Send reminder to ${who === kind ? `this ${kind}` : who}`}
+                    onClick={() => onRemind(idOf(record))}
+                  >
+                    Remind
+                  </Button>
+                )}
+              </span>
+            )}
+            <span className="inline-block w-[64px] text-center">
+              {noDetails ? (
+                // With the Remind button beside it, an empty slot says "nothing to view" cleaner than a dash.
+                !onRemind && (
+                  <span className="text-ink-3" aria-label="No details yet">
+                    -
+                  </span>
+                )
+              ) : (
+                <Button
+                  size="small"
+                  className="w-full"
+                  aria-label={`View details for ${who}`}
+                  onClick={() => handleSeeMoreDetails?.(idOf(record))}
+                >
+                  View
+                </Button>
+              )}
             </span>
-          )}
-          {record.onboarded_status === "details_pending" ? (
-            <span className="text-ink-3" aria-label="No details yet">
-              -
-            </span>
-          ) : (
-            <Button
-              size="small"
-              aria-label={`View details for ${record?.name && record.name !== "-" ? record.name : kind}`}
-              onClick={() => handleSeeMoreDetails?.(idOf(record))}
-            >
-              View
-            </Button>
-          )}
-          {canDelete && <DeleteButton label={`Delete ${kind}`} onClick={() => handleDelete?.(idOf(record))} />}
-        </div>
-      ),
+            {canDelete && <DeleteButton label={`Delete ${kind}`} onClick={() => handleDelete?.(idOf(record))} />}
+          </div>
+        );
+      },
     },
   ];
 };
