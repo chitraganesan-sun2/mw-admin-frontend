@@ -45,7 +45,7 @@ function RiskRing({ report, model }: { report: SafetyReport; model: ReportModel 
             <span className="text-5xl font-bold leading-none" style={{ color }}>
               {score != null ? score.toFixed(0) : "-"}
             </span>
-            <span className="text-xs text-gray-500">out of 100</span>
+            <span className="text-xs text-ink-3">out of 100</span>
             <SeverityTag severity={report.severity} />
           </div>
         </div>

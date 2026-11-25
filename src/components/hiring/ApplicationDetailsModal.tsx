@@ -120,11 +120,11 @@ export default function ApplicationDetailsModal({
           <div className="flex-1 flex items-center justify-center p-10">
             <div className="flex flex-col items-center gap-3">
               <div className="w-8 h-8 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
-              <p className="text-sm text-gray-500 font-medium">Loading details...</p>
+              <p className="text-sm text-ink-3 font-medium">Loading details...</p>
             </div>
           </div>
         ) : !data ? (
-          <div className="flex-1 flex items-center justify-center p-10 text-gray-500">
+          <div className="flex-1 flex items-center justify-center p-10 text-ink-3">
             Couldn&apos;t load this application. Close and try again.
           </div>
         ) : (

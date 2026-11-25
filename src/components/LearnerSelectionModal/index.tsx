@@ -118,7 +118,7 @@ const SelectionModal = ({
               checked={selectedItems.length === items.length}
               onChange={(e) => handleCheck(e.target.checked)}
             />
-            <span className="text-sm font-normal text-gray-500">
+            <span className="text-sm font-normal text-ink-3">
               Select all items
             </span>
           </div>

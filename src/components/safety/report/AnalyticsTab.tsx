@@ -29,7 +29,7 @@ const describe = (labels: string[], values: number[]) => labels.map((l, i) => `$
 function StatCard({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
   return (
     <div className="bg-white rounded-2xl border border-stroke p-4 flex flex-col gap-1">
-      <dt className="text-xs text-gray-500">{label}</dt>
+      <dt className="text-xs text-ink-3">{label}</dt>
       <dd className="text-2xl font-semibold text-gray-800">{value}</dd>
       {hint && <dd className="text-xs text-ink-3">{hint}</dd>}
     </div>
@@ -103,7 +103,7 @@ export default function AnalyticsTab({ report, model }: { report: SafetyReport; 
   const hasAnything = findings.length > 0 || categoryCounts.length > 0 || otherStats.length > 0;
 
   if (!hasAnything) {
-    return <div className="bg-white rounded-2xl border border-stroke p-8 text-center text-gray-500">No statistics were produced for this report.</div>;
+    return <div className="bg-white rounded-2xl border border-stroke p-8 text-center text-ink-3">No statistics were produced for this report.</div>;
   }
 
   return (
@@ -246,7 +246,7 @@ export default function AnalyticsTab({ report, model }: { report: SafetyReport; 
                   }}
                 />
               ) : (
-                <p className="text-sm text-gray-500 text-center py-8">The ML check ran but compared nothing.</p>
+                <p className="text-sm text-ink-3 text-center py-8">The ML check ran but compared nothing.</p>
               );
             })()}
           </ChartCard>
@@ -277,7 +277,7 @@ export default function AnalyticsTab({ report, model }: { report: SafetyReport; 
       )}
 
       {otherStats.length > 0 && (
-        <Panel title="All statistics" icon={<FiDatabase className="text-gray-500" aria-hidden="true" />}>
+        <Panel title="All statistics" icon={<FiDatabase className="text-ink-3" aria-hidden="true" />}>
           <div className="grid sm:grid-cols-2 gap-x-8">
             {otherStats.map(([key, value]) => (
               <DetailRow key={key} label={categoryLabel(key)}>

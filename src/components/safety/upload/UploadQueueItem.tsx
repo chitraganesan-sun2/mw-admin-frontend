@@ -45,7 +45,7 @@ function AcceptedStatus({ reportId }: { reportId: number }) {
           {finished && report.data && (
             <>
               <SeverityTag severity={report.data.severity} />
-              <span className="text-sm text-gray-600">Risk score {formatRisk(report.data.risk_score)}</span>
+              <span className="text-sm text-ink-2">Risk score {formatRisk(report.data.risk_score)}</span>
             </>
           )}
           {finished && report.isError && (
@@ -83,23 +83,23 @@ export default function UploadQueueItem({ item, onRemove, onRetry }: UploadQueue
 
   return (
     <li className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-b-0">
-      <span className="text-gray-500 mt-1">{KIND_ICONS[item.kind]}</span>
+      <span className="text-ink-3 mt-1">{KIND_ICONS[item.kind]}</span>
 
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="font-medium text-gray-900 break-all">{item.name}</span>
           <Tag className="m-0">{KIND_LABELS[item.kind]}</Tag>
-          <span className="text-sm text-gray-500">{formatBytes(item.size)}</span>
+          <span className="text-sm text-ink-3">{formatBytes(item.size)}</span>
         </div>
 
         <div className="mt-1">
           {item.status === "waiting" && (
-            <span className="text-sm text-gray-600">{item.started ? "Waiting for a free upload slot" : "Ready to start"}</span>
+            <span className="text-sm text-ink-2">{item.started ? "Waiting for a free upload slot" : "Ready to start"}</span>
           )}
 
           {isUploading &&
             (isTextOnly ? (
-              <span className="inline-flex items-center gap-2 text-sm text-gray-600">
+              <span className="inline-flex items-center gap-2 text-sm text-ink-2">
                 <Spin size="small" /> Submitting
               </span>
             ) : (

@@ -27,7 +27,7 @@ export default function LinkFields({ value, onChange }: LinkFieldsProps) {
           label: <span className="font-medium">Link to a MelodyWings session (optional)</span>,
           children: (
             <div>
-              <p className="text-sm text-gray-500 mt-0 mb-3">
+              <p className="text-sm text-ink-3 mt-0 mb-3">
                 Fill in any of these to tie the analysis to a session. It applies to the files you start next, and the
                 IDs show up on the report.
               </p>

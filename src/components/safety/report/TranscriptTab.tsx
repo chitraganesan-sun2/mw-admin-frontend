@@ -99,7 +99,7 @@ export default function TranscriptTab({
   return (
     <div className="flex flex-col gap-4">
       <Panel>
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-600">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-2">
           <span>
             {flaggedPassages > 0
               ? `${flaggedPassages} flagged ${flaggedPassages === 1 ? "passage" : "passages"} highlighted. Underlined words are the matched pattern.`
@@ -115,7 +115,7 @@ export default function TranscriptTab({
           </ul>
         </div>
         {!offsetsUsable && (
-          <p className="text-xs text-gray-500 mt-2">Highlighting is unavailable for this transcript; showing it unmarked.</p>
+          <p className="text-xs text-ink-3 mt-2">Highlighting is unavailable for this transcript; showing it unmarked.</p>
         )}
       </Panel>
 

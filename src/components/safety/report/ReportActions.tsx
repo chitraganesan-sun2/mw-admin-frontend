@@ -131,7 +131,7 @@ function EmailDialog({ report, open, onClose }: { report: SafetyReport; open: bo
               {EMAIL_KINDS.map((k) => (
                 <Radio key={k.value} value={k.value} className="!items-start">
                   <span className="font-medium">{k.label}</span>
-                  <span className="block text-xs text-gray-500">{k.description}</span>
+                  <span className="block text-xs text-ink-3">{k.description}</span>
                 </Radio>
               ))}
             </Radio.Group>
@@ -153,7 +153,7 @@ function EmailDialog({ report, open, onClose }: { report: SafetyReport; open: bo
                 setFieldError(null);
               }}
             />
-            <p id={`${uid}-to-help`} className={`text-xs mt-1 ${fieldError ? "text-error" : "text-gray-500"}`} role={fieldError ? "alert" : undefined}>
+            <p id={`${uid}-to-help`} className={`text-xs mt-1 ${fieldError ? "text-error" : "text-ink-3"}`} role={fieldError ? "alert" : undefined}>
               {fieldError ?? `Separate addresses with commas. Up to ${MAX_RECIPIENTS}. Leave blank to use the recipients set up on the server.`}
             </p>
           </div>
@@ -167,15 +167,15 @@ function EmailDialog({ report, open, onClose }: { report: SafetyReport; open: bo
             description="Check the recipients before sending. Emails can't be recalled."
           />
           <dl className="grid grid-cols-[7rem_1fr] gap-y-1.5">
-            <dt className="text-gray-500">Report</dt>
+            <dt className="text-ink-3">Report</dt>
             <dd className="break-all">
               #{report.id} - {report.filename}
             </dd>
-            <dt className="text-gray-500">Email</dt>
+            <dt className="text-ink-3">Email</dt>
             <dd>
               {kindInfo.label}: {kindInfo.description}
             </dd>
-            <dt className="text-gray-500">To</dt>
+            <dt className="text-ink-3">To</dt>
             <dd className="break-all">{emails.length ? emails.join(", ") : "The recipients set up on the server"}</dd>
           </dl>
         </div>
@@ -220,11 +220,11 @@ function DeleteDialog({ report, open, onClose }: { report: SafetyReport; open: b
         This permanently deletes the report with its findings and transcript. It can&apos;t be undone.
       </p>
       <div className="bg-gray-50 border border-gray-100 rounded-md p-3 text-sm flex flex-col gap-1.5">
-        <span className="text-gray-500">Report #{report.id}</span>
+        <span className="text-ink-3">Report #{report.id}</span>
         <span className="font-medium break-all">{report.filename}</span>
         <span className="flex items-center gap-2">
           <SeverityTag severity={report.severity} />
-          <span className="text-gray-600">Risk score {formatRisk(report.risk_score)}</span>
+          <span className="text-ink-2">Risk score {formatRisk(report.risk_score)}</span>
         </span>
       </div>
     </Modal>

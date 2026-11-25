@@ -53,7 +53,7 @@ export default function TimelineTab({ timeline, transcript, flagged }: Props) {
   if (!timeline.length) {
     return (
       <Panel title="Timeline">
-        <p className="text-sm text-gray-600 mb-3">No timeline segments are available for this report. The full transcript is shown instead.</p>
+        <p className="text-sm text-ink-2 mb-3">No timeline segments are available for this report. The full transcript is shown instead.</p>
         <div className="text-sm whitespace-pre-wrap break-words bg-gray-50 rounded-md p-3 text-gray-800">
           {transcript || "No transcript available."}
         </div>
@@ -64,7 +64,7 @@ export default function TimelineTab({ timeline, transcript, flagged }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <Panel>
-        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-ink-2">
           <p className="flex-1 min-w-[240px]">
             Segments that contain flagged text are marked.{" "}
             {hasTiming ? "Times follow the transcription timing." : "This analysis has no timing information, so segments are not timed."}
@@ -89,7 +89,7 @@ export default function TimelineTab({ timeline, transcript, flagged }: Props) {
                   isFlagged ? "border-red-200 border-l-red-500 bg-red-50/40" : "border-gray-100 border-l-gray-200"
                 )}
               >
-                <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 mb-1.5">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-ink-3 mb-1.5">
                   <FiClock aria-hidden="true" />
                   {hasTiming ? (
                     <span>

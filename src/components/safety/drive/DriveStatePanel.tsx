@@ -18,14 +18,14 @@ export default function DriveStatePanel({ icon, title, description, tone = "neut
     >
       <div
         className={`flex items-center justify-center w-14 h-14 rounded-full text-2xl ${
-          tone === "error" ? "bg-red-50 text-red-500" : "bg-gray-100 text-gray-500"
+          tone === "error" ? "bg-red-50 text-red-500" : "bg-gray-100 text-ink-3"
         }`}
         aria-hidden="true"
       >
         {icon}
       </div>
       <h2 className="text-base font-semibold text-gray-900 m-0">{title}</h2>
-      <p className="text-sm text-gray-500 max-w-xl m-0">{description}</p>
+      <p className="text-sm text-ink-3 max-w-xl m-0">{description}</p>
       {actions ? <div className="flex flex-wrap justify-center gap-2 mt-1">{actions}</div> : null}
     </div>
   );

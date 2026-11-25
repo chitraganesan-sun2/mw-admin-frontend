@@ -342,7 +342,7 @@ const LearnerProfileDetails = () => {
         onCancel={() => setDecision(null)}
       />
       {isError ? (
-        <div className="h-[65vh] w-full flex items-center justify-center text-gray-500">
+        <div className="h-[65vh] w-full flex items-center justify-center text-ink-3">
           Couldn&apos;t load this learner&apos;s profile. Close and try again.
         </div>
       ) : isLoading || !learnerDetails ? (

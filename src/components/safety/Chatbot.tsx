@@ -122,7 +122,7 @@ export default function Chatbot({ reportId }: { reportId: number }) {
         </span>
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold text-gray-800">Aura, safety assistant</h3>
-          <p className="text-xs text-gray-500">Answers from this report&apos;s transcript and findings</p>
+          <p className="text-xs text-ink-3">Answers from this report&apos;s transcript and findings</p>
         </div>
         <Button
           type="text"
@@ -166,7 +166,7 @@ export default function Chatbot({ reportId }: { reportId: number }) {
                 <span className="sr-only">{mine ? "You: " : m.isError ? "Error: " : "Aura: "}</span>
                 {mine || m.isError ? m.content : <RichText text={m.content} />}
                 {!mine && !m.isError && (conf || (m.sources && m.sources.length > 0)) && (
-                  <div className="mt-2 pt-2 border-t border-gray-200 text-xs text-gray-600 whitespace-normal">
+                  <div className="mt-2 pt-2 border-t border-gray-200 text-xs text-ink-2 whitespace-normal">
                     {conf && <p>Confidence: {conf}</p>}
                     {m.sources && m.sources.length > 0 && (
                       <details className="mt-1">
@@ -194,7 +194,7 @@ export default function Chatbot({ reportId }: { reportId: number }) {
             <span className="w-6 h-6 rounded-full bg-gray-100 text-indigo-500 flex items-center justify-center shrink-0" aria-hidden="true">
               <FiCpu size={13} />
             </span>
-            <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-3 py-2.5 text-sm text-gray-500 flex items-center gap-1.5">
+            <div className="bg-gray-100 rounded-2xl rounded-bl-sm px-3 py-2.5 text-sm text-ink-3 flex items-center gap-1.5">
               <span className="sr-only">Aura is working on an answer</span>
               {[0, 150, 300].map((delay) => (
                 <span key={delay} aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: `${delay}ms` }} />
@@ -206,7 +206,7 @@ export default function Chatbot({ reportId }: { reportId: number }) {
 
       {messages.length === 0 && !isLoading && (
         <div className="px-4 py-2 border-t border-gray-100">
-          <p className="text-xs uppercase tracking-wide text-gray-500 mb-1.5">Suggested questions</p>
+          <p className="text-xs uppercase tracking-wide text-ink-3 mb-1.5">Suggested questions</p>
           <div className="flex flex-wrap gap-1.5">
             {SUGGESTED.map((q) => (
               <button
@@ -229,7 +229,7 @@ export default function Chatbot({ reportId }: { reportId: number }) {
           send();
         }}
       >
-        <label htmlFor={`${uid}-q`} className="text-xs font-medium text-gray-600">
+        <label htmlFor={`${uid}-q`} className="text-xs font-medium text-ink-2">
           Your question
         </label>
         <div className="flex gap-2 items-end">

@@ -64,7 +64,7 @@ function Quote({ children, color }: { children: string; color?: string }) {
 }
 
 function SectionTitle({ children }: { children: string }) {
-  return <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">{children}</h4>;
+  return <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-3 mb-1.5">{children}</h4>;
 }
 
 function FindingCard({ finding, index }: { finding: ReportFinding; index: number }) {
@@ -93,7 +93,7 @@ function FindingCard({ finding, index }: { finding: ReportFinding; index: number
             <FlagPills finding={finding} />
           </span>
         </span>
-        <span className="pt-1 text-gray-500 shrink-0" aria-hidden="true">
+        <span className="pt-1 text-ink-3 shrink-0" aria-hidden="true">
           {open ? <FiChevronUp size={18} /> : <FiChevronDown size={18} />}
         </span>
         <span className="sr-only">{open ? "Collapse details" : "Expand details"}</span>
@@ -178,7 +178,7 @@ function FindingCard({ finding, index }: { finding: ReportFinding; index: number
                     .sort(([, a], [, b]) => b - a)
                     .map(([label, score]) => (
                       <li key={label} className="grid grid-cols-[minmax(0,9rem)_1fr_3.5rem] items-center gap-2 text-xs">
-                        <span className="text-gray-600 truncate" title={categoryLabel(label)}>
+                        <span className="text-ink-2 truncate" title={categoryLabel(label)}>
                           {categoryLabel(label)}
                         </span>
                         <span className="h-2 rounded-full bg-gray-100 overflow-hidden">
@@ -224,7 +224,7 @@ export default function FindingsTab({ findings }: { findings: ReportFinding[] })
         shown={filtered.length}
         noun="findings"
       />
-      <p className="text-sm text-gray-500 mb-3">Select a finding to see its full confidence and ML breakdown.</p>
+      <p className="text-sm text-ink-3 mb-3">Select a finding to see its full confidence and ML breakdown.</p>
       {filtered.length === 0 ? (
         <EmptyNote>No findings match these filters.</EmptyNote>
       ) : (

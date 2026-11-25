@@ -22,7 +22,7 @@ export default function ScoreBreakdown({
 
   return (
     <Panel title="How the score was calculated" icon={<FiZap className="text-indigo-500" aria-hidden="true" />}>
-      <p className="text-sm text-gray-600 bg-gray-50 border border-gray-100 rounded-md px-3 py-2.5 mb-4 leading-relaxed">
+      <p className="text-sm text-ink-2 bg-gray-50 border border-gray-100 rounded-md px-3 py-2.5 mb-4 leading-relaxed">
         Each finding adds <strong className="text-gray-800">category weight x confidence x diminishing factor</strong> to the total.
         Repeated findings in the same category count for less each time (x0.5, x0.25, x0.125 and so on), and the total is capped at 100.
       </p>
@@ -31,7 +31,7 @@ export default function ScoreBreakdown({
         <table className="w-full text-sm min-w-[520px]">
           <caption className="sr-only">Score contribution by category</caption>
           <thead>
-            <tr className="text-left text-xs uppercase tracking-wide text-gray-500 border-b border-gray-200">
+            <tr className="text-left text-xs uppercase tracking-wide text-ink-3 border-b border-gray-200">
               <th scope="col" className="py-2 pr-3 font-semibold">Category</th>
               <th scope="col" className="py-2 px-3 font-semibold text-center">Weight</th>
               <th scope="col" className="py-2 px-3 font-semibold text-center">Findings</th>
@@ -43,9 +43,9 @@ export default function ScoreBreakdown({
             {rows.map((row) => (
               <tr key={row.category} className="border-b border-gray-50">
                 <th scope="row" className="py-2 pr-3 text-left font-medium text-gray-800">{categoryLabel(row.category)}</th>
-                <td className="py-2 px-3 text-center text-gray-600">{row.weight}</td>
-                <td className="py-2 px-3 text-center text-gray-600">{row.count}</td>
-                <td className="py-2 px-3 text-center text-gray-600">{(row.avgConfidence * 100).toFixed(0)}%</td>
+                <td className="py-2 px-3 text-center text-ink-2">{row.weight}</td>
+                <td className="py-2 px-3 text-center text-ink-2">{row.count}</td>
+                <td className="py-2 px-3 text-center text-ink-2">{(row.avgConfidence * 100).toFixed(0)}%</td>
                 <td className="py-2 pl-3">
                   <div className="flex items-center justify-end gap-2">
                     <span className="hidden sm:block h-1.5 w-20 rounded-full bg-gray-100 overflow-hidden" aria-hidden="true">
@@ -65,14 +65,14 @@ export default function ScoreBreakdown({
               <td />
               <td className="pt-3 pl-3 text-right">
                 <span className="text-lg font-bold" style={{ color: totalColor }}>{capped.toFixed(1)}</span>
-                {rawTotal > 100 && <span className="text-xs text-gray-500 ml-2">(uncapped {rawTotal.toFixed(1)})</span>}
+                {rawTotal > 100 && <span className="text-xs text-ink-3 ml-2">(uncapped {rawTotal.toFixed(1)})</span>}
               </td>
             </tr>
           </tfoot>
         </table>
       </div>
 
-      <p className="text-xs text-gray-500 mt-3">
+      <p className="text-xs text-ink-3 mt-3">
         Rebuilt from the findings listed in this report to explain the score.{" "}
         {differs && riskScore != null
           ? `The pipeline recorded ${riskScore.toFixed(1)}, which is the score of record.`

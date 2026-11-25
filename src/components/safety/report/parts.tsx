@@ -38,7 +38,7 @@ export function Panel({
 export function DetailRow({ label, children, strong = true }: { label: string; children: ReactNode; strong?: boolean }) {
   return (
     <div className="flex items-baseline justify-between gap-3 text-sm py-1 border-b border-gray-50 last:border-0">
-      <span className="text-gray-500">{label}</span>
+      <span className="text-ink-3">{label}</span>
       <span className={clsx("text-right text-gray-800 break-words min-w-0", strong && "font-semibold")}>{children}</span>
     </div>
   );

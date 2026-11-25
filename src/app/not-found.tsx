@@ -17,7 +17,7 @@ export default function NotFound() {
             </Link>
             <div className="flex flex-col gap-2">
                 <h1 className="text-3xl md:text-5xl font-medium">Page Not Found</h1>
-                <p className="text-base md:text-lg text-gray-600">
+                <p className="text-base md:text-lg text-ink-2">
                     We couldn&apos;t find the page you&apos;re looking for.
                 </p>
             </div>

@@ -19,7 +19,7 @@ export default function AccessDenied() {
       </Link>
       <div className="flex flex-col gap-2 max-w-md">
         <h1 className="text-3xl md:text-4xl font-medium">Access denied</h1>
-        <p className="text-base md:text-lg text-gray-600">
+        <p className="text-base md:text-lg text-ink-2">
           Your account doesn&apos;t have permission to open this page. If you think you should have access, please
           ask an admin.
         </p>

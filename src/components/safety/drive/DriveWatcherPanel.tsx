@@ -16,7 +16,7 @@ const WATCHER_POLL_MS = 15_000;
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
 
 const Stat = ({ icon, children, tone }: { icon: React.ReactNode; children: React.ReactNode; tone?: "bad" }) => (
-  <span className={`inline-flex items-center gap-1.5 text-sm ${tone === "bad" ? "text-error" : "text-gray-600"}`}>
+  <span className={`inline-flex items-center gap-1.5 text-sm ${tone === "bad" ? "text-error" : "text-ink-2"}`}>
     <span aria-hidden="true">{icon}</span>
     {children}
   </span>
@@ -62,12 +62,12 @@ export default function DriveWatcherPanel() {
           <h2 id="drive-watcher-heading" className="text-base font-semibold text-gray-900 m-0">
             Auto-import watcher
             {watcher ? (
-              <span className={`ml-2 text-sm font-medium ${watcher.running ? "text-emerald-600" : "text-gray-500"}`}>
+              <span className={`ml-2 text-sm font-medium ${watcher.running ? "text-emerald-600" : "text-ink-3"}`}>
                 {watcher.running ? "Running" : "Stopped"}
               </span>
             ) : null}
           </h2>
-          <p className="text-sm text-gray-500 mt-1 mb-0">
+          <p className="text-sm text-ink-3 mt-1 mb-0">
             When running, new files in the connected Drive are imported and analyzed automatically. This is shared by
             everyone who uses Safety Monitoring.
           </p>

@@ -33,7 +33,7 @@ function EvidenceCard({ item }: { item: ReportFinding }) {
 
       {item.matchedSentences.length > 0 && (
         <div className="bg-gray-50 border border-gray-100 rounded-md p-3">
-          <h4 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5">Matched lines</h4>
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-3 mb-1.5">Matched lines</h4>
           <ul className="flex flex-col gap-1.5">
             {item.matchedSentences.map((line, i) => (
               <li key={i} className="text-sm text-gray-700 bg-white rounded px-2.5 py-1.5 break-words" style={{ borderLeft: `2px solid ${color}` }}>
@@ -46,7 +46,7 @@ function EvidenceCard({ item }: { item: ReportFinding }) {
 
       {item.matchedText && (
         <p className="text-sm">
-          <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 mr-1.5">Pattern</span>
+          <span className="text-xs font-semibold uppercase tracking-wide text-ink-3 mr-1.5">Pattern</span>
           <code className="bg-gray-100 px-2 py-0.5 rounded break-all">{item.matchedText}</code>
         </p>
       )}

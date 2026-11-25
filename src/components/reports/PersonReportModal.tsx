@@ -20,7 +20,7 @@ const TYPE_LABELS: Record<string, string> = {
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="flex flex-col gap-1">
-    <p className="text-sm font-medium text-gray-600">{label}</p>
+    <p className="text-sm font-medium text-ink-2">{label}</p>
     <div className="text-base text-gray-900 break-words whitespace-pre-wrap">{children}</div>
   </div>
 );
@@ -77,7 +77,7 @@ const PersonReportModal = ({
               Open the reported {report.reportedUserRole}&apos;s record
             </Link>
           )}
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-ink-2">
             The reporter&apos;s identity is visible to moderators only. The reported person is not notified.
           </p>
           <div className="flex items-center justify-end gap-2 pt-2">

@@ -52,7 +52,7 @@ export function ChartCard({ title, icon, note, children }: ChartCardProps) {
         {title}
       </h3>
       {children}
-      {note && <p className="text-xs text-gray-500 text-center mt-2">{note}</p>}
+      {note && <p className="text-xs text-ink-3 text-center mt-2">{note}</p>}
     </section>
   );
 }

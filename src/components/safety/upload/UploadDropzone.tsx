@@ -66,7 +66,7 @@ export default function UploadDropzone({ extensions, hint, prompt, onFiles }: Up
       />
       <MdCloudUpload size={40} className="text-gray-400" aria-hidden="true" />
       <p className="font-medium text-gray-800 m-0">{prompt}</p>
-      <p className="text-sm text-gray-500 m-0">{hint}</p>
+      <p className="text-sm text-ink-3 m-0">{hint}</p>
     </div>
   );
 }

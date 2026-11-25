@@ -33,7 +33,7 @@ export default function FindingFilters({ value, onChange, categories, total, sho
   const set = (patch: Partial<Filters>) => onChange({ ...value, ...patch });
   const isDefault = JSON.stringify(value) === JSON.stringify(DEFAULT_FILTERS);
   const field = "flex flex-col gap-1 min-w-[160px] flex-1";
-  const label = "text-xs font-medium text-gray-600";
+  const label = "text-xs font-medium text-ink-2";
 
   return (
     <div className="bg-white rounded-2xl border border-stroke p-4 mb-4">
@@ -91,7 +91,7 @@ export default function FindingFilters({ value, onChange, categories, total, sho
           <Select id={`${uid}-sort`} value={value.sort} onChange={(sort) => set({ sort })} options={SORT_OPTIONS} />
         </div>
       </div>
-      <div className="flex items-center gap-3 mt-3 text-sm text-gray-600" aria-live="polite">
+      <div className="flex items-center gap-3 mt-3 text-sm text-ink-2" aria-live="polite">
         <span>
           Showing {shown} of {total} {noun}
         </span>

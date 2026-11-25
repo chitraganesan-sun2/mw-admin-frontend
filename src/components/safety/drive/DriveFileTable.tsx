@@ -32,7 +32,7 @@ const ImportedReport = ({ reportId }: { reportId: number }) => {
         <span className="text-xs text-error max-w-[260px]">{status.error_message}</span>
       ) : null}
       {statusQuery.isError && !status ? (
-        <span className="text-xs text-gray-500">Couldn&apos;t check the analysis status. Open the report to see it.</span>
+        <span className="text-xs text-ink-3">Couldn&apos;t check the analysis status. Open the report to see it.</span>
       ) : null}
     </div>
   );
@@ -54,7 +54,7 @@ export default function DriveFileTable({ files, imports, onImport }: DriveFileTa
         const Icon = file.mimeType === GOOGLE_DOC_MIME ? FiFileText : FiFile;
         return (
           <div className="flex items-center gap-2 min-w-0">
-            <Icon aria-hidden="true" className="shrink-0 text-gray-500" />
+            <Icon aria-hidden="true" className="shrink-0 text-ink-3" />
             <span className="truncate max-w-[280px] font-medium text-gray-900" title={name}>
               {name}
             </span>
@@ -79,13 +79,13 @@ export default function DriveFileTable({ files, imports, onImport }: DriveFileTa
       title: "Type",
       dataIndex: "mimeType",
       key: "mimeType",
-      render: (mime: string) => <span className="text-gray-600 whitespace-nowrap">{mimeLabel(mime)}</span>,
+      render: (mime: string) => <span className="text-ink-2 whitespace-nowrap">{mimeLabel(mime)}</span>,
     },
     {
       title: "Last modified",
       dataIndex: "modifiedTime",
       key: "modifiedTime",
-      render: (value: string | null) => <span className="text-gray-600 whitespace-nowrap">{formatDisplayDateTime(value)}</span>,
+      render: (value: string | null) => <span className="text-ink-2 whitespace-nowrap">{formatDisplayDateTime(value)}</span>,
     },
     {
       title: "Analysis",

@@ -52,7 +52,7 @@ export default function TranscriptInput({ onAdd }: TranscriptInputProps) {
     <div>
       <div className="mb-4">
         <label htmlFor="safety-transcript-name" className="block text-sm font-medium mb-1">
-          Display name <span className="font-normal text-gray-500">(optional)</span>
+          Display name <span className="font-normal text-ink-3">(optional)</span>
         </label>
         <Input
           id="safety-transcript-name"
@@ -98,7 +98,7 @@ export default function TranscriptInput({ onAdd }: TranscriptInputProps) {
 
       <p
         id="safety-transcript-count"
-        className={validationMessage ? "text-sm text-error mt-1 mb-3" : "text-sm text-gray-500 mt-1 mb-3"}
+        className={validationMessage ? "text-sm text-error mt-1 mb-3" : "text-sm text-ink-3 mt-1 mb-3"}
       >
         {validationMessage ??
           `${trimmedLength.toLocaleString()} / ${TRANSCRIPT_MAX_CHARS.toLocaleString()} characters (at least ${TRANSCRIPT_MIN_CHARS}).`}

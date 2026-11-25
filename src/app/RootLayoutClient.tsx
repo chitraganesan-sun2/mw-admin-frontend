@@ -24,7 +24,7 @@ export default function RootLayoutClient({ children }: { children: React.ReactNo
             fallback={
                 <div className="h-screen w-screen flex flex-col items-center justify-center gap-2 text-center px-4">
                     <p className="text-lg font-medium">Something went wrong</p>
-                    <p className="text-sm text-gray-500">We hit an unexpected error. Please try again.</p>
+                    <p className="text-sm text-ink-3">We hit an unexpected error. Please try again.</p>
                 </div>
             }
         >
