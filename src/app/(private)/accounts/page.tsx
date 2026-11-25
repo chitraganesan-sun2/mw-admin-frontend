@@ -190,7 +190,7 @@ export default function AccountsPage() {
             disabled={isMe}
             onConfirm={() => disableMutation.mutate({ id: a.user_id, disabled: true })}
           >
-            <Button size="small" danger disabled={isMe} loading={busy} title={isMe ? "You can't disable your own account" : undefined}>
+            <Button size="small" disabled={isMe} loading={busy} title={isMe ? "You can't disable your own account" : undefined}>
               Disable
             </Button>
           </Popconfirm>

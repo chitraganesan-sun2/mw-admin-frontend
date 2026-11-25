@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useGuardedMutation } from "@/hooks/useGuardedMutation";
-import { Button, Modal, Switch, Tag } from "antd";
+import { Button, Modal, Switch } from "antd";
+import StatusTag from "@/components/common/StatusTag";
 import { GET_API, PUT_API } from "@/api/request";
 import { endpoints } from "@/api/constants";
 import { showToast } from "@/components/common/Toast";
@@ -57,14 +58,14 @@ function AccessForm({ account, onClose }: { account: AccessAccount; onClose: () 
 
   return (
     <>
-      <p className="text-sm text-gray-600 mb-3">
+      <p className="text-sm text-ink-2 mb-3">
         Choose which parts of the portal <strong>{account.username}</strong> can open and use. Changes apply on their next
         request. {account.role === "admin" ? "Admins always keep account management." : "Account management is only available to admins."}
       </p>
       {isError ? (
         <p className="text-error">Couldn&apos;t load the list of access options. Close this and try again.</p>
       ) : isLoading ? (
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-ink-2">Loading...</p>
       ) : (
         <ul className="max-h-[50vh] overflow-y-auto divide-y divide-gray-100 border border-gray-100 rounded-lg" aria-label="Access">
           {catalog?.permissions.map((p) => (
@@ -73,12 +74,10 @@ function AccessForm({ account, onClose }: { account: AccessAccount; onClose: () 
                 <p className="font-medium text-[#121212]">
                   {p.label}
                   {defaults.has(p.key) && (
-                    <Tag className="ml-2" bordered={false}>
-                      {account.role} default
-                    </Tag>
+                    <StatusTag className="ml-2">{account.role} default</StatusTag>
                   )}
                 </p>
-                <p className="text-xs text-gray-600">{p.description}</p>
+                <p className="text-xs text-ink-2">{p.description}</p>
               </div>
               <Switch
                 checked={selected.has(p.key)}
