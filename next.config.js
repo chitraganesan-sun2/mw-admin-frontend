@@ -55,6 +55,10 @@ const securityHeaders = [
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "Referrer-Policy", value: "no-referrer" },
     { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+    // UAT build (NEXT_PUBLIC_APP_ENV=uat on Vercel's Preview scope): never let a search engine index it.
+    ...(process.env.NEXT_PUBLIC_APP_ENV === "uat"
+        ? [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }]
+        : []),
 ];
 
 const nextConfig = {
