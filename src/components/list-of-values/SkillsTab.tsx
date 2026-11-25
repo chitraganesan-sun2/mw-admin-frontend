@@ -6,6 +6,7 @@ import { useGuardedMutation } from "@/hooks/useGuardedMutation";
 import { Button, Form, Input, Modal, Popconfirm, Select } from "antd";
 import { FiSearch } from "react-icons/fi";
 import Table from "@/components/Table";
+import RefreshButton from "@/components/common/Filters/RefreshButton";
 import StatusTag from "@/components/common/StatusTag";
 import DeleteButton from "@/components/common/DeleteButton";
 import { DELETE_API, GET_API, POST_API, PUT_API } from "@/api/request";
@@ -266,9 +267,7 @@ export default function SkillsTab() {
             { label: "Admin", value: "admin" },
           ]}
         />
-        <Button onClick={() => refetch()} loading={isFetching && !isLoading}>
-          Refresh
-        </Button>
+        <RefreshButton onClick={() => refetch()} loading={isFetching && !isLoading} />
         <div className="ml-auto">
           <Button type="primary" onClick={openAdd}>
             + Add Skill

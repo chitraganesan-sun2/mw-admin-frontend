@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Segmented, Skeleton } from "antd";
-import { FiRefreshCw } from "react-icons/fi";
+import RefreshButton from "@/components/common/Filters/RefreshButton";
 import { useQueryState } from "nuqs";
 import { getFeedbackSummary } from "@/api/feedback";
 import { getHeaderIcon } from "@/layouts/helper";
@@ -105,9 +105,7 @@ export default function SessionFeedbackPage() {
     <div className="p-4 sm:p-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Segmented options={RANGES} value={days} onChange={(v) => setDays(String(v))} aria-label="Time range" />
-        <Button icon={<FiRefreshCw aria-hidden />} onClick={() => refetch()} loading={isFetching}>
-          Refresh
-        </Button>
+        <RefreshButton onClick={() => refetch()} loading={isFetching} />
       </div>
 
       {isLoading ? (

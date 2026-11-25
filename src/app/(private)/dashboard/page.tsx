@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Skeleton } from "antd";
-import { FiRefreshCw } from "react-icons/fi";
+import RefreshButton from "@/components/common/Filters/RefreshButton";
 import { getDashboardSummary } from "@/api/dashboard";
 import { getHeaderIcon } from "@/layouts/helper";
 import { useComponentStore } from "@/store/useComponenetStore";
@@ -80,9 +80,7 @@ export default function DashboardPage() {
         <p className="text-sm text-ink-2">
           Updated {formatDisplayDateTime(data.generated_at)}. Figures refresh every few minutes.
         </p>
-        <Button icon={<FiRefreshCw aria-hidden />} onClick={() => refetch()} loading={isFetching}>
-          Refresh
-        </Button>
+        <RefreshButton onClick={() => refetch()} loading={isFetching} />
       </div>
 
       {unavailable.length > 0 ? (
