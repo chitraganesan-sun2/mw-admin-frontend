@@ -10,6 +10,7 @@ type EndpointProps = {
       status: string,
       reason?: string
     ) => string;
+    reminders: string;
   };
   common: (path: CommonPath) => string;
   broadcast: {

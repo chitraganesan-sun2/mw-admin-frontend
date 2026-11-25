@@ -15,6 +15,7 @@ import { useQueryState } from "nuqs";
 import { useEffect, useRef, useState } from "react";
 import ProfileDetailsModal from "@/components/volunteer/ProfileDetails";
 import { calculateAge } from "@/utils/moment";
+import { useOnboardingReminders } from "@/components/common/OnboardingReminders";
 import { formatString } from "@/utils/stringFunctions";
 import AlertModal from "@/components/common/Modals/AlertModal";
 import { downloadCsv } from "@/utils/downloadCsv";
@@ -153,6 +154,9 @@ export default function LearnersPage() {
         onboarded_status: volunteer.onboarded_status,
         email: volunteer?.email?.toLowerCase() || "-",
         created_on: volunteer?.created_on,
+        onboarding_step: volunteer?.onboarding_step,
+        onboarding_reminder_count: volunteer?.onboarding_reminder_count,
+        onboarding_last_reminded_at: volunteer?.onboarding_last_reminded_at,
       }));
       setVolunteerData(transformedData);
       setTotal(volunteers.total);
@@ -207,13 +211,18 @@ export default function LearnersPage() {
     }
   };
 
+  const reminders = useOnboardingReminders("volunteer", () => refetch());
+
   // Deleting a member needs `members.manage`; accounts without it still get View but no trash icon.
+  // Reminding a member who never finished the form needs `broadcast.send`.
   const columns = getVolunteerColumns(
     handleSeeMoreDetails,
     handleDeleteVolunteer,
     handleOnboardedStatusFilter,
     onboardedStatusFilter,
-    canManage
+    canManage,
+    reminders.canRemind ? reminders.remindOne : undefined,
+    reminders.sendingId
   );
 
   useEffect(() => {
@@ -245,18 +254,22 @@ export default function LearnersPage() {
         isLoading={remover.pending}
       />
       <ProfileDetailsModal />
+      {reminders.modal}
       <FilterBar
         actions={
-          /* Exporting every member's details needs `members.manage`. */
-          canManage ? (
-            <Button
-              disabled={exporter.pending}
-              aria-busy={exporter.pending}
-              onClick={() => exporter.run(() => downloadCsv("admin/export/volunteers/csv", "volunteers_export.csv"))}
-            >
-              {exporter.pending ? "Preparing the file..." : "Download All Data (CSV)"}
-            </Button>
-          ) : null
+          <>
+            {reminders.bulkButton}
+            {/* Exporting every member's details needs `members.manage`. */}
+            {canManage ? (
+              <Button
+                disabled={exporter.pending}
+                aria-busy={exporter.pending}
+                onClick={() => exporter.run(() => downloadCsv("admin/export/volunteers/csv", "volunteers_export.csv"))}
+              >
+                {exporter.pending ? "Preparing the file..." : "Download All Data (CSV)"}
+              </Button>
+            ) : null}
+          </>
         }
       >
         <ListSearch placeholder="Search by name or email" />

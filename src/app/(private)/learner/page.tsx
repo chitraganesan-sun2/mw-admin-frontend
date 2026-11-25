@@ -24,6 +24,7 @@ import { useCan } from "@/hooks/useStaff";
 import { useInFlight } from "@/hooks/useInFlight";
 import { withQuery } from "@/utils/query";
 import { getApiErrorMessage } from "@/utils/apiError";
+import { useOnboardingReminders } from "@/components/common/OnboardingReminders";
 
 interface PaginationParams {
   page: number | string;
@@ -79,15 +80,6 @@ export default function LearnersPage() {
     // One delete request even if the button is clicked twice.
     remover.run(handleDeleteEvent);
   };
-
-  // Deleting a member needs `members.manage`; accounts without it still get View but no trash icon.
-  const columns = getLearnerColumns(
-    handleSeeMoreDetails,
-    handleDeleteLearner,
-    handleOnboardedStatusFilter,
-    onboardedStatusFilter,
-    canManage
-  );
 
   const getAlllearners = async ({
     page,
@@ -145,6 +137,20 @@ export default function LearnersPage() {
       }),
   });
 
+  const reminders = useOnboardingReminders("learner", () => refetch());
+
+  // Deleting a member needs `members.manage`; accounts without it still get View but no trash icon.
+  // Reminding a member who never finished the form needs `broadcast.send`.
+  const columns = getLearnerColumns(
+    handleSeeMoreDetails,
+    handleDeleteLearner,
+    handleOnboardedStatusFilter,
+    onboardedStatusFilter,
+    canManage,
+    reminders.canRemind ? reminders.remindOne : undefined,
+    reminders.sendingId
+  );
+
   // Deleting the last row on a page above 1 leaves that page out of range - step back one page.
   const loadedRowCount = learners?.items?.length;
   useEffect(() => {
@@ -164,6 +170,9 @@ export default function LearnersPage() {
         email: learner?.email?.toLowerCase() || "-",
         onboarded_status: learner?.onboarded_status,
         created_on: learner?.created_on,
+        onboarding_step: learner?.onboarding_step,
+        onboarding_reminder_count: learner?.onboarding_reminder_count,
+        onboarding_last_reminded_at: learner?.onboarding_last_reminded_at,
       }));
       setLearnerData(transformedData);
       setTotal(learners?.total);
@@ -250,18 +259,22 @@ export default function LearnersPage() {
         isLoading={remover.pending}
       />
       <LearnerProfileDetails />
+      {reminders.modal}
       <FilterBar
         actions={
-          /* Exporting every member's details needs `members.manage`. */
-          canManage ? (
-            <Button
-              disabled={exporter.pending}
-              aria-busy={exporter.pending}
-              onClick={() => exporter.run(() => downloadCsv("admin/export/learners/csv", "learners_export.csv"))}
-            >
-              {exporter.pending ? "Preparing the file..." : "Download All Data (CSV)"}
-            </Button>
-          ) : null
+          <>
+            {reminders.bulkButton}
+            {/* Exporting every member's details needs `members.manage`. */}
+            {canManage ? (
+              <Button
+                disabled={exporter.pending}
+                aria-busy={exporter.pending}
+                onClick={() => exporter.run(() => downloadCsv("admin/export/learners/csv", "learners_export.csv"))}
+              >
+                {exporter.pending ? "Preparing the file..." : "Download All Data (CSV)"}
+              </Button>
+            ) : null}
+          </>
         }
       >
         <ListSearch placeholder="Search by name or email" />

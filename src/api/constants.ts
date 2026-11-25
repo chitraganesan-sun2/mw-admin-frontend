@@ -9,6 +9,8 @@ export const endpoints: EndpointProps = {
     // The rejection reason goes in the PUT body, not the URL (URLs end up in access logs/Sentry).
     updateOnboardingStatus: (id: string, type: UserType, status: string) =>
       `admin/onboarding/update_verification_status/${type}/${id}/${status}`,
+    // "Finish your profile" reminder email to members who never submitted the form.
+    reminders: "admin/onboarding/reminders",
   },
   common: (path: CommonPath) => `common/${path}/`,
   volunteer: {

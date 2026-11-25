@@ -136,13 +136,50 @@ const statusSortTitle = (handler?: () => void, active?: string | null) => {
 
 // One status cell for Volunteers and Learners: the shared StatusTag with a dot (AA colours); the label is the same
 // one the sort control uses.
-const OnboardedStatusCell = ({ status }: { status?: string }) => (
-  <StatusTag dot tone={toneFromStatus(status)}>
-    {STATUS_LABEL[status ?? ""] ?? "Form Incomplete"}
-  </StatusTag>
-);
-
 type PersonKind = "volunteer" | "learner";
+
+// Onboarding tabs per role (the form's last tab index is total - 1). Keep in step with the user app's form.
+const ONBOARDING_STEPS: Record<PersonKind, number> = { learner: 7, volunteer: 6 };
+const REMINDER_MAX = 2;
+const REMINDER_COOLDOWN_DAYS = 7;
+const INCOMPLETE_STATUSES = ["details_pending", "partially_filled"];
+
+// Where someone who hasn't submitted the form stopped. `onboarding_step` is the 0-based tab they last moved to, so
+// the step they are on is that + 1; none saved yet means they never started.
+const progressLabel = (record: any, kind: PersonKind): string | null => {
+  if (!INCOMPLETE_STATUSES.includes(record?.onboarded_status)) return null;
+  const step = record?.onboarding_step;
+  if (record.onboarded_status === "details_pending" || typeof step !== "number") {
+    return record.onboarded_status === "details_pending" ? "Not started" : "Started, no step saved";
+  }
+  return `Stopped at step ${step + 1} of ${ONBOARDING_STEPS[kind]}`;
+};
+
+// Whether the "Remind" button is live for a row, mirroring the server's rule (2 reminders, 7 days apart).
+const reminderState = (record: any): { text: string | null; blockedWhy: string | null } => {
+  const count = record?.onboarding_reminder_count ?? 0;
+  const last = record?.onboarding_last_reminded_at ? new Date(record.onboarding_last_reminded_at) : null;
+  const text = count > 0 ? `Reminded ${count}x${last ? `, last ${formatDisplayDate(record.onboarding_last_reminded_at)}` : ""}` : null;
+  if (count >= REMINDER_MAX) return { text, blockedWhy: "Both reminders have already been sent" };
+  if (last && Date.now() - last.getTime() < REMINDER_COOLDOWN_DAYS * 24 * 3600 * 1000) {
+    return { text, blockedWhy: `Reminded in the last ${REMINDER_COOLDOWN_DAYS} days` };
+  }
+  return { text, blockedWhy: null };
+};
+
+const OnboardedStatusCell = ({ record, kind }: { record: any; kind: PersonKind }) => {
+  const progress = progressLabel(record, kind);
+  const { text: reminded } = progress ? reminderState(record) : { text: null };
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <StatusTag dot tone={toneFromStatus(record?.onboarded_status)}>
+        {STATUS_LABEL[record?.onboarded_status ?? ""] ?? "Form Incomplete"}
+      </StatusTag>
+      {progress && <span className="text-xs text-ink-2">{progress}</span>}
+      {reminded && <span className="text-xs text-ink-3">{reminded}</span>}
+    </div>
+  );
+};
 
 // Name | Age | Location | Email | Registered | Approval Status | Actions (pinned right). View + delete share the
 // pinned column so they never sit off-screen (ADM-UI-2); delete is an icon-only 32x32 danger button and the
@@ -153,7 +190,9 @@ const getPersonColumns = (
   handleDelete?: (id: string) => void,
   handleOnboardedStatusFilter?: () => void,
   activeStatusSort?: string | null,
-  canDelete = true
+  canDelete = true,
+  onRemind?: (id: string) => void,
+  remindingId?: string | null
 ) => {
   const idOf = (record: any): string => (kind === "volunteer" ? record?.volunteer_id : record?.learner_id);
   return [
@@ -215,18 +254,30 @@ const getPersonColumns = (
       key: "onboarded_status",
       onFilter: (value: string, record: Volunteer | Learner) => record.onboarded_status === value,
       sorter: false,
-      width: 180,
+      width: 200,
       render: (_: unknown, record: Volunteer | Learner) =>
-        "onboarded_status" in record ? <OnboardedStatusCell status={record.onboarded_status} /> : null,
+        "onboarded_status" in record ? <OnboardedStatusCell record={record} kind={kind} /> : null,
     },
     {
       title: "Actions",
       key: "actions",
-      width: 130,
+      width: onRemind ? 210 : 130,
       fixed: "right" as const,
       align: "right" as const,
       render: (_: unknown, record: any) => (
         <div className="flex items-center justify-end gap-2">
+          {onRemind && INCOMPLETE_STATUSES.includes(record.onboarded_status) && (
+            <span title={reminderState(record).blockedWhy ?? "Email a reminder to finish the form"}>
+              <Button
+                size="small"
+                disabled={!!reminderState(record).blockedWhy || remindingId === idOf(record)}
+                aria-label={`Send reminder to ${record?.name && record.name !== "-" ? record.name : `this ${kind}`}`}
+                onClick={() => onRemind(idOf(record))}
+              >
+                Remind
+              </Button>
+            </span>
+          )}
           {record.onboarded_status === "details_pending" ? (
             <span className="text-ink-3" aria-label="No details yet">
               -
@@ -252,18 +303,28 @@ export const getVolunteerColumns = (
   handleDeleteVolunteer?: (id: string) => void,
   handleOnboardedStatusFilter?: () => void,
   activeStatusSort?: string | null,
-  canDelete = true
+  canDelete = true,
+  onRemind?: (id: string) => void,
+  remindingId?: string | null
 ) =>
-  getPersonColumns("volunteer", handleSeeMoreDetails, handleDeleteVolunteer, handleOnboardedStatusFilter, activeStatusSort, canDelete);
+  getPersonColumns(
+    "volunteer", handleSeeMoreDetails, handleDeleteVolunteer, handleOnboardedStatusFilter, activeStatusSort, canDelete,
+    onRemind, remindingId
+  );
 
 export const getLearnerColumns = (
   handleSeeMoreDetails?: (id: string) => void,
   handleDeleteLearner?: (id: string) => void,
   handleOnboardedStatusFilter?: () => void,
   activeStatusSort?: string | null,
-  canDelete = true
+  canDelete = true,
+  onRemind?: (id: string) => void,
+  remindingId?: string | null
 ) =>
-  getPersonColumns("learner", handleSeeMoreDetails, handleDeleteLearner, handleOnboardedStatusFilter, activeStatusSort, canDelete);
+  getPersonColumns(
+    "learner", handleSeeMoreDetails, handleDeleteLearner, handleOnboardedStatusFilter, activeStatusSort, canDelete,
+    onRemind, remindingId
+  );
 
 export const getReportColumns = (
   handleSeePost?: (id: string, reportId?: string) => void,
