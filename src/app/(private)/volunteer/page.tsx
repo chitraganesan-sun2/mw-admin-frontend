@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import ProfileDetailsModal from "@/components/volunteer/ProfileDetails";
 import { calculateAge } from "@/utils/moment";
 import { useOnboardingReminders } from "@/components/common/OnboardingReminders";
+import OnboardingFunnel from "@/components/common/OnboardingFunnel";
 import { formatString } from "@/utils/stringFunctions";
 import AlertModal from "@/components/common/Modals/AlertModal";
 import { downloadCsv } from "@/utils/downloadCsv";
@@ -255,6 +256,7 @@ export default function LearnersPage() {
       />
       <ProfileDetailsModal />
       {reminders.modal}
+      <OnboardingFunnel role="volunteer" />
       <FilterBar
         actions={
           <>

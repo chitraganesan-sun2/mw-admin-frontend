@@ -200,6 +200,52 @@ export default function MatchingPage() {
       },
     },
     {
+      // What the matcher actually found in common. Skills are matched by id, languages by the learner's
+      // primary language; nothing else (interests/hobbies) can create a match - they only influence the
+      // compatibility score of candidates who already overlap on a skill or language.
+      title: "What Matched",
+      key: "what_matched",
+      width: 240,
+      render: (_: unknown, record: any) => {
+        const skills: string[] = record.matched_skills || [];
+        const academic: string[] = record.matched_academic_skills || [];
+        const nonAcademic: string[] = record.matched_non_academic_skills || [];
+        const languages: string[] = record.matched_languages || [];
+        // Skills with no known category (and every match made before the split was stored) are listed as "Other skills".
+        const categorised = new Set([...academic, ...nonAcademic].map((s) => s.toLowerCase()));
+        const other = skills.filter((s) => !categorised.has(s.toLowerCase()));
+        if (record.status === "no_match_found") return "—";
+        if (!skills.length && !languages.length) {
+          return <span className="text-ink-3">No skill or language overlap recorded</span>;
+        }
+        return (
+          <div className="flex flex-col gap-0.5 text-sm">
+            {academic.length > 0 && (
+              <span>
+                <span className="text-ink-3">Academic:</span> {academic.join(", ")}
+              </span>
+            )}
+            {nonAcademic.length > 0 && (
+              <span>
+                <span className="text-ink-3">Arts &amp; Life:</span> {nonAcademic.join(", ")}
+              </span>
+            )}
+            {other.length > 0 && (
+              <span>
+                <span className="text-ink-3">{academic.length || nonAcademic.length ? "Other skills:" : "Skills:"}</span>{" "}
+                {other.join(", ")}
+              </span>
+            )}
+            {languages.length > 0 && (
+              <span>
+                <span className="text-ink-3">Languages:</span> {languages.join(", ")}
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
       title: "Analytical Score",
       dataIndex: "analytical_score",
       key: "analytical_score",
@@ -262,7 +308,9 @@ export default function MatchingPage() {
       ellipsis: true,
     },
     {
-      title: "Date",
+      // When the match was created (not a session date). Re-triggering within 6 hours returns the
+      // existing match, so this date does not move on a repeat.
+      title: "Matched On",
       dataIndex: "created_at",
       key: "created_at",
       width: 180,

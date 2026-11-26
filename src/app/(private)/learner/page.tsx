@@ -25,6 +25,7 @@ import { useInFlight } from "@/hooks/useInFlight";
 import { withQuery } from "@/utils/query";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { useOnboardingReminders } from "@/components/common/OnboardingReminders";
+import OnboardingFunnel from "@/components/common/OnboardingFunnel";
 
 interface PaginationParams {
   page: number | string;
@@ -260,6 +261,7 @@ export default function LearnersPage() {
       />
       <LearnerProfileDetails />
       {reminders.modal}
+      <OnboardingFunnel role="learner" />
       <FilterBar
         actions={
           <>

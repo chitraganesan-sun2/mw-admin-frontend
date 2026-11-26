@@ -11,6 +11,8 @@ export const endpoints: EndpointProps = {
       `admin/onboarding/update_verification_status/${type}/${id}/${status}`,
     // "Finish your profile" reminder email to members who never submitted the form.
     reminders: "admin/onboarding/reminders",
+    // Aggregate counts of where sign-ups stall (no names or contact details).
+    funnel: "admin/onboarding/funnel",
   },
   common: (path: CommonPath) => `common/${path}/`,
   volunteer: {

@@ -49,6 +49,7 @@ const EVENT_LABEL: Record<string, string> = {
 const ALERT_LABEL: Record<string, string> = {
   ai_red_alert: "AI Red alert",
   message_red_alert: "Inappropriate message alert",
+  wingtime_proposal: "WingTime proposal to review",
 };
 const OUTCOME_COLOR: Record<string, string> = {
   sent: "green",
@@ -96,7 +97,7 @@ export default function NotificationsPage() {
   const recipients = data?.recipients ?? [];
   const allTypes = data?.application_types ?? ["volunteer", "learner"];
   const allEvents = data?.events ?? ["submitted", "status_changed", "updated"];
-  const allAlerts = data?.alert_types ?? ["ai_red_alert", "message_red_alert"];
+  const allAlerts = data?.alert_types ?? ["ai_red_alert", "message_red_alert", "wingtime_proposal"];
 
   const { data: log = [], isLoading: logLoading, isError: logError, refetch: refetchLog, isFetching: logFetching } = useQuery({
     queryKey: ["notification-log"],

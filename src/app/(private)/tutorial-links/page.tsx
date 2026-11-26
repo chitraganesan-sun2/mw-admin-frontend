@@ -95,7 +95,8 @@ export default function TutorialLinksPage() {
   });
 
   const handleSubmit = (rawValues: any) => {
-    const values = { ...rawValues, url: typeof rawValues.url === "string" ? rawValues.url.trim() : rawValues.url };
+    const trimmed = (v: unknown) => (typeof v === "string" ? v.trim() : v);
+    const values = { ...rawValues, url: trimmed(rawValues.url), title: trimmed(rawValues.title) };
     if (editingLink) {
       updateMutation.mutate({ id: editingLink.link_id, data: values });
     } else {

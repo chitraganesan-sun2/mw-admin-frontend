@@ -99,8 +99,7 @@ export const STATUS_SORT_CYCLE: (string | null)[] = [
   null,
   "verification_completed",
   "verification_pending",
-  "partially_filled",
-  "details_pending",
+  "partially_filled", // "Form Incomplete first" - the server brings details_pending forward with it
   "verification_rejected",
 ];
 // One label per status, used by the Status cell AND the sort control (they used to disagree:
@@ -108,7 +107,9 @@ export const STATUS_SORT_CYCLE: (string | null)[] = [
 export const STATUS_LABEL: Record<string, string> = {
   verification_completed: "Completed",
   verification_pending: "Approval Pending",
-  partially_filled: "Form In Progress",
+  // One label for "has not submitted the form". Whether they never started or stopped part-way is shown
+  // under the tag ("Not started" / "Stopped at step N of M"), so there is no separate "In Progress" status.
+  partially_filled: "Form Incomplete",
   details_pending: "Form Incomplete",
   verification_rejected: "Rejected",
 };

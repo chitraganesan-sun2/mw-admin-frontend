@@ -11,6 +11,7 @@ type EndpointProps = {
       reason?: string
     ) => string;
     reminders: string;
+    funnel: string;
   };
   common: (path: CommonPath) => string;
   broadcast: {
