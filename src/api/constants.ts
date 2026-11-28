@@ -65,6 +65,7 @@ export const endpoints: EndpointProps = {
     approve: (id: string) => `admin/wingtime/${id}/approve`,
     reject: (id: string) => `admin/wingtime/${id}/reject`,
     complete: (id: string) => `admin/wingtime/${id}/complete`,
+    cancel: (id: string) => `admin/wingtime/${id}/cancel`,
     roster: (id: string) => `admin/wingtime/${id}/roster`,
     recording: (id: string, action: "publish" | "reject" | "unpublish") => `admin/wingtime/${id}/recording/${action}`,
   },
