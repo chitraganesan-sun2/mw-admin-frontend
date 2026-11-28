@@ -46,6 +46,7 @@ export default function WingTimePage() {
   const [approving, setApproving] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [recordingBusy, setRecordingBusy] = useState(false);
 
   useEffect(() => {
@@ -110,6 +111,21 @@ export default function WingTimePage() {
     }
   };
 
+  const cancelNow = async (reason: string) => {
+    if (!reviewing) return;
+    setCancelling(true);
+    try {
+      await POST_API(endpoints.wingtime.cancel(reviewing.wingtime_id), reason ? { reason } : {});
+      showToast({ message: "WingTime cancelled. The host and everyone who signed up have been told." });
+      setReviewing(null);
+    } catch (error) {
+      showToast({ message: getApiErrorMessage(error, "Couldn't cancel the WingTime. Please try again."), type: "error" });
+    } finally {
+      setCancelling(false);
+      refresh();
+    }
+  };
+
   const completeNow = async () => {
     if (!reviewing) return;
     setCompleting(true);
@@ -153,6 +169,7 @@ export default function WingTimePage() {
   const flight = useRef(createInFlightGuard());
   const decide = (kind: "approve" | "reject", reason?: string) => flight.current.run(() => decideNow(kind, reason));
   const complete = () => flight.current.run(completeNow);
+  const cancelWingTime = (reason: string) => flight.current.run(() => cancelNow(reason));
   const decideRecording = (action: "publish" | "reject" | "unpublish", acknowledgeFlags = false) =>
     flight.current.run(() => decideRecordingNow(action, acknowledgeFlags));
 
@@ -269,6 +286,7 @@ export default function WingTimePage() {
         approving={approving}
         rejecting={rejecting}
         completing={completing}
+        cancelling={cancelling}
         recordingBusy={recordingBusy}
         onRecording={decideRecording}
         onClose={() => setReviewing(null)}
@@ -276,6 +294,7 @@ export default function WingTimePage() {
         onReject={(reason) => decide("reject", reason)}
         onShowParticipants={() => reviewing && setRosterId(reviewing.wingtime_id)}
         onComplete={complete}
+        onCancelWingTime={cancelWingTime}
         queue={queue}
       />
       <WingTimeRosterModal

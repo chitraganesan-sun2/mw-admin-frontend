@@ -18,6 +18,7 @@ type Props = {
   approving: boolean;
   rejecting: boolean;
   completing: boolean;
+  cancelling: boolean;
   recordingBusy: boolean;
   onRecording: (action: "publish" | "reject" | "unpublish", acknowledgeFlags?: boolean) => void;
   onClose: () => void;
@@ -25,6 +26,8 @@ type Props = {
   onReject: (reason: string) => void;
   onShowParticipants: () => void;
   onComplete: () => void;
+  /** Staff pull an approved WingTime that has not ended (registrants and the host are told). */
+  onCancelWingTime: (reason: string) => void;
   queue?: CenterModalProps["queue"];
 };
 
@@ -55,11 +58,15 @@ export default function WingTimeReviewModal({
   onReject,
   onShowParticipants,
   onComplete,
+  onCancelWingTime,
+  cancelling,
   queue,
 }: Props) {
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
   const [reviewedFlags, setReviewedFlags] = useState(false);
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   // A reason typed for one WingTime must never carry over to the next one opened.
   const id = item?.wingtime_id;
@@ -67,10 +74,12 @@ export default function WingTimeReviewModal({
     setReason("");
     setError("");
     setReviewedFlags(false);
+    setConfirmingCancel(false);
+    setCancelReason("");
   }, [id]);
 
   const pending = item?.status === "pending_approval";
-  const busy = approving || rejecting || completing || recordingBusy;
+  const busy = approving || rejecting || completing || cancelling || recordingBusy;
   const recording = item?.recording_status ?? null;
   const safety = item ? safetyState(item) : null;
   // Publishing needs a completed safety analysis, and a flagged session needs the admin's explicit OK.
@@ -255,7 +264,50 @@ export default function WingTimeReviewModal({
                     {completing ? "Saving..." : "Mark Completed"}
                   </button>
                 )}
+                {item.status === "approved" && !hasEnded(item) && !confirmingCancel && (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmingCancel(true)}
+                    disabled={busy}
+                    className={`${actionBtn} border border-[#FECACA] bg-white text-error`}
+                  >
+                    Cancel WingTime
+                  </button>
+                )}
               </div>
+              {item.status === "approved" && !hasEnded(item) && confirmingCancel && (
+                <div className="rounded-xl border border-[#FECACA] bg-[#FEF2F2] p-4">
+                  <p className="text-sm font-medium text-gray-dark mb-2">
+                    Cancel this WingTime? Everyone who signed up and the host will be told. This can&apos;t be undone.
+                  </p>
+                  <textarea
+                    aria-label="Reason for cancelling (optional)"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    maxLength={500}
+                    placeholder="Optional: a short reason, shown to the host."
+                    className="w-full min-h-[64px] rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-dark focus:outline-none focus:ring-1 focus:ring-gray-400"
+                  />
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => onCancelWingTime(cancelReason.trim())}
+                      disabled={busy}
+                      className={`${actionBtn} bg-error text-white`}
+                    >
+                      {cancelling ? "Cancelling..." : "Yes, cancel it"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmingCancel(false)}
+                      disabled={busy}
+                      className={`${actionBtn} border border-[#E5E5E5] bg-white text-[#121212]`}
+                    >
+                      Keep it
+                    </button>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
