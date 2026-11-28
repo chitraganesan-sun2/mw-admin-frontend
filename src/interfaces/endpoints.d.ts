@@ -59,6 +59,7 @@ type EndpointProps = {
     approve: (id: string) => string;
     reject: (id: string) => string;
     complete: (id: string) => string;
+    cancel: (id: string) => string;
     roster: (id: string) => string;
     recording: (id: string, action: "publish" | "reject" | "unpublish") => string;
   };
